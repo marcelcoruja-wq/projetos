@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pomodoro com Barra de Progresso</title>
+    <title>Pomodoro com Barra de Progresso e Persistência</title>
     <style>
         :root {
             --azul: #2F5FD0;
@@ -43,6 +43,35 @@
             width: min(980px, 92%);
             margin: auto;
             padding: 20px 0 60px 0;
+        }
+
+        /* Botão para voltar ao Índice */
+        .top-bar {
+            display: flex;
+            justify-content: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .btn-back-index {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background-color: var(--card);
+            color: var(--texto);
+            border: 2px solid var(--border-color);
+            padding: 8px 18px;
+            font-size: 14px;
+            font-weight: 700;
+            border-radius: 10px;
+            text-decoration: none;
+            transition: all 0.25s ease;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+        }
+
+        .btn-back-index:hover {
+            border-color: var(--azul);
+            color: var(--azul);
+            transform: translateX(-3px);
         }
 
         /* Cabeçalho Principal */
@@ -410,7 +439,6 @@
         .btn-submit:hover { background-color: #236d43; }
 
         .time-badge { background: #e2e8f0; color: var(--texto); font-weight: 700; padding: 2px 8px; border-radius: 6px; font-size: 13px; }
-        .check-container input { width: 18px; height: 18px; accent-color: var(--azul); cursor: pointer; }
         .completed-text { text-decoration: line-through; color: #94a3b8; }
         .cat-tag { font-size: 0.8rem; text-transform: uppercase; font-weight: 700; padding: 3px 10px; border-radius: 6px; }
 
@@ -520,6 +548,11 @@
 <body>
 
 <div class="container">
+
+    <!-- Topo com Botão para voltar ao Índice -->
+    <div class="top-bar">
+        <a href="index.html" class="btn-back-index">&larr; Voltar ao Painel</a>
+    </div>
 
     <!-- Cabeçalho Principal -->
     <header class="main-header">
@@ -721,26 +754,7 @@
                         </tr>
                     </thead>
                     <tbody id="blocksTableBody">
-                        <tr class="row-explorar">
-                            <td style="text-align: center;"><input type="checkbox" onchange="toggleComplete(this)"></td>
-                            <td><span class="time-badge">09:00</span></td>
-                            <td><strong>Leitura e Análise do Manual</strong></td>
-                            <td><span class="cat-tag" style="background: #f3e8ff; color: #6b21a8;">🔍 Explorar</span></td>
-                            <td>"Já compreendi o suficiente."</td>
-                            <td style="text-align: center;">
-                                <button type="button" onclick="deleteSingleBlock(this)" title="Excluir tarefa" style="background: transparent; border: none; cursor: pointer; font-size: 15px;">🗑️</button>
-                            </td>
-                        </tr>
-                        <tr class="row-executar">
-                            <td style="text-align: center;"><input type="checkbox" onchange="toggleComplete(this)"></td>
-                            <td><span class="time-badge">10:00</span></td>
-                            <td><strong>Rascunhar Estrutura do Código</strong></td>
-                            <td><span class="cat-tag" style="background: #e0e7ff; color: #3730a3;">⚙️ Executar</span></td>
-                            <td>"O resultado foi entregue."</td>
-                            <td style="text-align: center;">
-                                <button type="button" onclick="deleteSingleBlock(this)" title="Excluir tarefa" style="background: transparent; border: none; cursor: pointer; font-size: 15px;">🗑️</button>
-                            </td>
-                        </tr>
+                        <!-- Blocos carregados dinamicamente do localStorage -->
                     </tbody>
                 </table>
             </div>
@@ -759,28 +773,48 @@
     <button onclick="closeToast()" class="toast-close">&times;</button>
 </div>
 
-<!-- Scripts de Funcionamento -->
+<!-- Scripts de Funcionamento com PERSISTÊNCIA (localStorage) -->
 <script>
-    // Modo atual selecionado
+    // Estado inicial e carregamento do LocalStorage
     let currentMode = 'explorar';
+    let pomodoroCount = parseInt(localStorage.getItem('pomodoroCount') || '0', 10);
+    let blocksData = JSON.parse(localStorage.getItem('pomodoroBlocks') || '[]');
+
+    // Blocos de exemplo padrões caso esteja completamente vazio pela 1ª vez
+    if (blocksData.length === 0 && !localStorage.getItem('hasVisitedPomodoro')) {
+        blocksData = [
+            { id: 1, name: 'Leitura e Análise do Manual', mode: 'explorar', time: '09:00', goal: '"Já compreendi o suficiente."', completed: false },
+            { id: 2, name: 'Rascunhar Estrutura do Código', mode: 'executar', time: '10:00', goal: '"O resultado foi entregue."', completed: false }
+        ];
+        localStorage.setItem('hasVisitedPomodoro', 'true');
+        saveBlocks();
+    }
+
+    // Inicialização da Página
+    document.addEventListener('DOMContentLoaded', () => {
+        updatePomodoroCounterDisplay();
+        renderBlocks();
+        selectMode(currentMode);
+    });
 
     // Contador de Pomodoros
-    let pomodoroCount = 0;
-
-    function incrementPomodoroCounter() {
-        pomodoroCount++;
+    function updatePomodoroCounterDisplay() {
         const counterEl = document.getElementById('pomodoroCounter');
         if (counterEl) {
             counterEl.textContent = pomodoroCount;
         }
     }
 
+    function incrementPomodoroCounter() {
+        pomodoroCount++;
+        localStorage.setItem('pomodoroCount', pomodoroCount.toString());
+        updatePomodoroCounterDisplay();
+    }
+
     function resetPomodoroCounter() {
         pomodoroCount = 0;
-        const counterEl = document.getElementById('pomodoroCounter');
-        if (counterEl) {
-            counterEl.textContent = pomodoroCount;
-        }
+        localStorage.setItem('pomodoroCount', '0');
+        updatePomodoroCounterDisplay();
     }
 
     // Dados dos Modos
@@ -818,7 +852,8 @@
     function selectMode(modeKey) {
         currentMode = modeKey;
         document.querySelectorAll('.mode-card').forEach(card => card.classList.remove('active'));
-        document.getElementById(`mode-${modeKey}`).classList.add('active');
+        const activeCard = document.getElementById(`mode-${modeKey}`);
+        if (activeCard) activeCard.classList.add('active');
 
         const data = modesData[modeKey];
         const guideline = document.getElementById('modeGuideline');
@@ -826,24 +861,21 @@
         const modeSelectionCard = document.getElementById('modeSelectionCard');
         const progressBar = document.getElementById('progressBar');
         
-        // Atualiza cores dinamicamente
-        timerCard.style.borderLeftColor = data.color;
-        if (modeSelectionCard) {
-            modeSelectionCard.style.borderLeftColor = data.color;
-        }
-        if (progressBar) {
-            progressBar.style.backgroundColor = data.color;
-        }
+        if (timerCard) timerCard.style.borderLeftColor = data.color;
+        if (modeSelectionCard) modeSelectionCard.style.borderLeftColor = data.color;
+        if (progressBar) progressBar.style.backgroundColor = data.color;
 
-        guideline.style.borderLeftColor = data.color;
-        guideline.style.background = data.bg;
-        guideline.innerHTML = `
-            <h4 style="color: ${data.color};">${data.title}</h4>
-            <p><strong>Objetivo:</strong> ${data.objetivo}</p>
-            <p><strong>Evite:</strong> ${data.evitar}</p>
-            <p><strong>Procurar:</strong> ${data.procurar}</p>
-            <p><strong>Critério de saída:</strong> <em>${data.criterio}</em></p>
-        `;
+        if (guideline) {
+            guideline.style.borderLeftColor = data.color;
+            guideline.style.background = data.bg;
+            guideline.innerHTML = `
+                <h4 style="color: ${data.color};">${data.title}</h4>
+                <p><strong>Objetivo:</strong> ${data.objetivo}</p>
+                <p><strong>Evite:</strong> ${data.evitar}</p>
+                <p><strong>Procurar:</strong> ${data.procurar}</p>
+                <p><strong>Critério de saída:</strong> <em>${data.criterio}</em></p>
+            `;
+        }
     }
 
     // Alternância de Abas
@@ -947,29 +979,15 @@
         if (toast) toast.style.display = 'none';
     }
 
-    // Riscar tarefa concluída
-    function toggleComplete(checkbox) {
-        const row = checkbox.closest('tr');
-        if (checkbox.checked) {
-            row.style.opacity = '0.55';
-            row.querySelector('td:nth-child(3)').classList.add('completed-text');
-        } else {
-            row.style.opacity = '1';
-            row.querySelector('td:nth-child(3)').classList.remove('completed-text');
-        }
+    // --- GERENCIAMENTO DE TAREFAS/BLOCOS E PERSISTÊNCIA ---
+    function saveBlocks() {
+        localStorage.setItem('pomodoroBlocks', JSON.stringify(blocksData));
     }
 
-    // Adicionar Bloco na Tabela
-    function addBlock(e) {
-        e.preventDefault();
-        const name = document.getElementById('blockName').value;
-        const mode = document.getElementById('blockMode').value;
-        const time = document.getElementById('blockTime').value || '09:00';
-        const goal = document.getElementById('blockGoal').value || modesData[mode].criterio;
-
+    function renderBlocks() {
         const tbody = document.getElementById('blocksTableBody');
-        const newRow = document.createElement('tr');
-        newRow.className = `row-${mode}`;
+        if (!tbody) return;
+        tbody.innerHTML = '';
 
         const modeBadgeStyle = {
             explorar: 'background: #f3e8ff; color: #6b21a8;',
@@ -983,35 +1001,68 @@
             revisar: '✅ Revisar'
         };
 
-        newRow.innerHTML = `
-            <td style="text-align: center;"><input type="checkbox" onchange="toggleComplete(this)"></td>
-            <td><span class="time-badge">${time}</span></td>
-            <td><strong>${name}</strong></td>
-            <td><span class="cat-tag" style="${modeBadgeStyle[mode]}">${modeName[mode]}</span></td>
-            <td>${goal}</td>
-            <td style="text-align: center;">
-                <button type="button" onclick="deleteSingleBlock(this)" title="Excluir tarefa" style="background: transparent; border: none; cursor: pointer; font-size: 15px;">🗑️</button>
-            </td>
-        `;
+        blocksData.forEach(block => {
+            const tr = document.createElement('tr');
+            tr.className = `row-${block.mode}`;
+            if (block.completed) tr.style.opacity = '0.55';
 
-        tbody.appendChild(newRow);
+            tr.innerHTML = `
+                <td style="text-align: center;">
+                    <input type="checkbox" ${block.completed ? 'checked' : ''} onchange="toggleBlockComplete(${block.id})">
+                </td>
+                <td><span class="time-badge">${block.time}</span></td>
+                <td class="${block.completed ? 'completed-text' : ''}"><strong>${block.name}</strong></td>
+                <td><span class="cat-tag" style="${modeBadgeStyle[block.mode]}">${modeName[block.mode]}</span></td>
+                <td>${block.goal}</td>
+                <td style="text-align: center;">
+                    <button type="button" onclick="deleteBlock(${block.id})" title="Excluir tarefa" style="background: transparent; border: none; cursor: pointer; font-size: 15px;">🗑️</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function toggleBlockComplete(id) {
+        const block = blocksData.find(b => b.id === id);
+        if (block) {
+            block.completed = !block.completed;
+            saveBlocks();
+            renderBlocks();
+        }
+    }
+
+    function addBlock(e) {
+        e.preventDefault();
+        const name = document.getElementById('blockName').value;
+        const mode = document.getElementById('blockMode').value;
+        const time = document.getElementById('blockTime').value || '09:00';
+        const goal = document.getElementById('blockGoal').value || modesData[mode].criterio;
+
+        const newBlock = {
+            id: Date.now(),
+            name,
+            mode,
+            time,
+            goal,
+            completed: false
+        };
+
+        blocksData.push(newBlock);
+        saveBlocks();
+        renderBlocks();
         e.target.reset();
     }
 
-    // Excluir uma única tarefa da tabela de blocos
-    function deleteSingleBlock(button) {
-        const row = button.closest('tr');
-        if (row) {
-            row.remove();
-        }
+    function deleteBlock(id) {
+        blocksData = blocksData.filter(b => b.id !== id);
+        saveBlocks();
+        renderBlocks();
     }
 
-    // Limpar todas as tarefas da tabela de blocos
     function clearBlocks() {
-        const tbody = document.getElementById('blocksTableBody');
-        if (tbody) {
-            tbody.innerHTML = '';
-        }
+        blocksData = [];
+        saveBlocks();
+        renderBlocks();
     }
 </script>
 
