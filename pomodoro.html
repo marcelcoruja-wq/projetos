@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pomodoro com Barra de Progresso</title>
+    <style>
+        :root {
+            --azul: #2F5FD0;
+            --azul-claro: #EEF4FF;
+            --verde: #2E8B57;
+            --verde-claro: #EEF9F2;
+            --laranja: #C97A00;
+            --laranja-claro: #FFF7E7;
+            --cinza: #64748B;
+            --texto: #243041;
+            --fundo: #F5F7FB;
+            --card: #FFFFFF;
+            
+            /* Cores dos Modos */
+            --explorar: #8b5cf6;     /* Roxo */
+            --executar: #2F5FD0;     /* Azul */
+            --revisar: #10b981;      /* Verde */
+            --autorregular: #f59e0b; /* Laranja/Âmbar */
+            --border-color: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--fundo);
+            font-family: Inter, "Segoe UI", Arial, sans-serif;
+            color: var(--texto);
+            line-height: 1.8;
+            padding: 20px 0;
+        }
+
+        .container {
+            width: min(980px, 92%);
+            margin: auto;
+            padding: 20px 0 60px 0;
+        }
+
+        /* Cabeçalho Principal */
+        header.main-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        header.main-header h1 {
+            font-size: 48px;
+            color: var(--azul);
+            margin-bottom: 15px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        /* Botões de Navegação */
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 35px;
+        }
+
+        .nav-btn {
+            background-color: var(--card);
+            color: var(--texto);
+            border: 2px solid var(--border-color);
+            padding: 12px 28px;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        }
+
+        .nav-btn:hover {
+            border-color: var(--azul);
+            color: var(--azul);
+            transform: translateY(-2px);
+        }
+
+        .nav-btn.active {
+            background-color: var(--azul);
+            color: #ffffff;
+            border-color: var(--azul);
+            box-shadow: 0 6px 16px rgba(47, 95, 208, 0.25);
+            transform: translateY(-2px);
+        }
+
+        .view-section {
+            display: none;
+        }
+
+        .view-section.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Card Geral */
+        .card {
+            background: var(--card);
+            padding: 35px;
+            margin: 25px 0;
+            border-radius: 18px;
+            box-shadow: 0 12px 35px rgba(0,0,0,.05);
+        }
+
+        .card h3 {
+            font-size: 26px;
+            margin-bottom: 20px;
+            color: var(--azul);
+        }
+
+        /* Card de Seleção de Modo com Faixa Colorida Lateral */
+        .mode-selection-card {
+            border-left: 6px solid var(--explorar);
+            transition: border-color 0.3s ease;
+        }
+
+        /* Card do Cronômetro com Faixa Colorida Lateral */
+        .timer-card {
+            background: var(--card);
+            padding: 35px;
+            margin: 25px 0;
+            border-radius: 18px;
+            box-shadow: 0 12px 35px rgba(0,0,0,.05);
+            border-left: 6px solid var(--explorar);
+            transition: border-color 0.3s ease;
+        }
+
+        .timer-display {
+            text-align: center;
+            padding: 10px 0;
+        }
+
+        /* Contador de Pomodoros Concluídos */
+        .pomodoro-counter-container {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 12px 0 20px 0;
+            background: #f8fafc;
+            padding: 8px 18px;
+            border-radius: 30px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        }
+
+        .counter-badge {
+            background: var(--azul);
+            color: white;
+            font-weight: 800;
+            font-size: 15px;
+            padding: 2px 10px;
+            border-radius: 12px;
+            min-width: 28px;
+            text-align: center;
+        }
+
+        .btn-reset-counter {
+            background: transparent;
+            border: none;
+            color: var(--cinza);
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 6px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-reset-counter:hover {
+            color: #ef4444;
+            background: #fee2e2;
+        }
+
+        .btn-clear-blocks {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-clear-blocks:hover {
+            background: #fca5a5;
+            color: #7f1d1d;
+        }
+
+        .tomato-icon {
+            font-size: 48px;
+            display: block;
+            margin-bottom: -5px;
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+
+        /* Container da Barra de Progresso */
+        .progress-bar-container {
+            width: 100%;
+            max-width: 450px;
+            height: 14px;
+            background-color: #e2e8f0;
+            border-radius: 10px;
+            margin: 20px auto 10px auto;
+            overflow: hidden;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        /* Preenchimento Dinâmico da Barra */
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background-color: var(--explorar);
+            border-radius: 10px;
+            transition: width 0.4s ease, background-color 0.3s ease;
+        }
+
+        .progress-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--cinza);
+            margin-bottom: 5px;
+        }
+
+        .time {
+            font-size: 82px;
+            font-weight: 800;
+            color: var(--texto);
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -2px;
+            margin: 5px 0 15px 0;
+        }
+
+        .timer-controls {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .btn-timer {
+            padding: 12px 28px;
+            font-size: 16px;
+            font-weight: 700;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-start { background: var(--azul); color: white; }
+        .btn-start:hover { background: #234ab8; }
+
+        .btn-pause { background: var(--laranja); color: white; }
+        .btn-pause:hover { background: #a66400; }
+
+        .btn-reset { background: #e2e8f0; color: var(--texto); }
+        .btn-reset:hover { background: #cbd5e1; }
+
+        /* Seletor de Modos */
+        .mode-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .mode-card {
+            background: #f8fafc;
+            border: 2px solid var(--border-color);
+            border-radius: 14px;
+            padding: 18px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            text-align: center;
+        }
+
+        .mode-card.explorar { border-left: 5px solid var(--explorar); }
+        .mode-card.executar { border-left: 5px solid var(--executar); }
+        .mode-card.revisar { border-left: 5px solid var(--revisar); }
+
+        .mode-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--azul);
+        }
+
+        .mode-card.active {
+            background: #ffffff;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        }
+
+        .mode-card.active.explorar { border-color: var(--explorar); }
+        .mode-card.active.executar { border-color: var(--executar); }
+        .mode-card.active.revisar { border-color: var(--revisar); }
+
+        .mode-icon { font-size: 26px; margin-bottom: 6px; }
+        .mode-title { font-size: 18px; font-weight: 700; color: var(--texto); }
+        .mode-subtitle { font-size: 13px; color: var(--cinza); margin-top: 4px; }
+
+        /* Diretriz do Modo Ativo */
+        .active-mode-guideline {
+            margin-top: 30px;
+            padding: 22px;
+            border-radius: 12px;
+            border-left: 6px solid var(--azul);
+            background: var(--azul-claro);
+            transition: all 0.3s;
+        }
+
+        .active-mode-guideline h4 {
+            font-size: 18px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .active-mode-guideline p {
+            font-size: 15px;
+            margin: 4px 0;
+            line-height: 1.6;
+        }
+
+        /* Tabela Adaptativa de Referência de Autorregulagem */
+        .adaptive-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 10px;
+            margin: 20px 0 0 0;
+            font-size: 15px;
+        }
+
+        .adaptive-table th {
+            background: var(--azul);
+            color: white;
+            padding: 14px 16px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .adaptive-table th:first-child {
+            border-top-left-radius: 8px;
+            border-bottom-left-radius: 8px;
+        }
+
+        .adaptive-table th:last-child {
+            border-top-right-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
+
+        .adaptive-table td {
+            background: #f8fafc;
+            padding: 16px;
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: top;
+        }
+
+        .adaptive-table td:first-child {
+            border-left: 6px solid var(--azul);
+            border-top-left-radius: 8px;
+            border-bottom-left-radius: 8px;
+        }
+
+        .adaptive-table td:last-child {
+            border-top-right-radius: 8px;
+            border-bottom-right-radius: 8px;
+            border-right: 1px solid var(--border-color);
+        }
+
+        /* Linhas específicas da tabela de referência */
+        .row-explorar td:first-child { border-left-color: var(--explorar); }
+        .row-executar td:first-child { border-left-color: var(--executar); }
+        .row-revisar td:first-child { border-left-color: var(--revisar); }
+        .row-autorregular td:first-child { border-left-color: var(--autorregular); }
+
+        /* Formulários */
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 6px; color: var(--texto); font-size: 15px; }
+        .form-control { width: 100%; padding: 12px 16px; border: 1px solid var(--border-color); border-radius: 10px; font-size: 15px; font-family: inherit; background: #f8fafc; color: var(--texto); }
+        .form-control:focus { outline: none; border-color: var(--azul); background: #ffffff; }
+        .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .btn-submit { background-color: var(--verde); color: white; border: none; padding: 14px 28px; font-size: 16px; font-weight: bold; border-radius: 10px; cursor: pointer; transition: background 0.2s; width: 100%; margin-top: 10px; }
+        .btn-submit:hover { background-color: #236d43; }
+
+        .time-badge { background: #e2e8f0; color: var(--texto); font-weight: 700; padding: 2px 8px; border-radius: 6px; font-size: 13px; }
+        .check-container input { width: 18px; height: 18px; accent-color: var(--azul); cursor: pointer; }
+        .completed-text { text-decoration: line-through; color: #94a3b8; }
+        .cat-tag { font-size: 0.8rem; text-transform: uppercase; font-weight: 700; padding: 3px 10px; border-radius: 6px; }
+
+        .timer-duration-selector {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .btn-duration {
+            background: #f1f5f9;
+            color: var(--texto);
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-duration:hover {
+            border-color: var(--azul);
+            color: var(--azul);
+            background: #eef4ff;
+        }
+
+        .btn-duration.active {
+            background: var(--azul);
+            border-color: var(--azul);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(47, 95, 208, 0.2);
+        }
+
+        .custom-duration-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #f1f5f9;
+            padding: 4px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            transition: border-color 0.2s;
+        }
+
+        .custom-duration-wrapper:focus-within {
+            border-color: var(--azul);
+            background: #ffffff;
+        }
+
+        .custom-min-input {
+            width: 50px;
+            padding: 4px 2px;
+            border: none;
+            background: transparent;
+            font-weight: 700;
+            font-size: 14px;
+            text-align: center;
+            color: var(--texto);
+        }
+
+        .custom-min-input:focus {
+            outline: none;
+        }
+
+        /* Notificação Flutuante / Toast */
+        .toast-notification {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #1e293b;
+            color: #ffffff;
+            padding: 16px 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 1000;
+            animation: slideUp 0.3s ease-out;
+            max-width: 380px;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .toast-close {
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            font-size: 20px;
+            cursor: pointer;
+            margin-left: auto;
+            line-height: 1;
+        }
+
+        .toast-close:hover {
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- Cabeçalho Principal -->
+    <header class="main-header">
+        <h1>Pomodoro</h1>
+        
+        <!-- Navegação por Abas -->
+        <div class="nav-buttons">
+            <button class="nav-btn active" onclick="switchView(1, this)">Foco</button>
+            <button class="nav-btn" onclick="switchView(2, this)">Matriz</button>
+            <button class="nav-btn" onclick="switchView(3, this)">Planejar Blocos</button>
+        </div>
+    </header>
+
+    <!-- VISÃO 1: Cronômetro & Seletor de Modo -->
+    <div id="view-1" class="view-section active">
+        
+        <div class="card mode-selection-card" id="modeSelectionCard">
+            <h3>⚙️ Selecione seu Modo</h3>
+            <p style="color: var(--cinza); margin-bottom: 15px;">Escolha conscientemente o modo para este bloco Pomodoro:</p>
+            
+            <div class="mode-selector">
+                <div class="mode-card explorar active" id="mode-explorar" onclick="selectMode('explorar')">
+                    <div class="mode-icon">🔍</div>
+                    <div class="mode-title">Explorar</div>
+                    <div class="mode-subtitle">Descobrir e compreender</div>
+                </div>
+
+                <div class="mode-card executar" id="mode-executar" onclick="selectMode('executar')">
+                    <div class="mode-icon">⚙️</div>
+                    <div class="mode-title">Executar</div>
+                    <div class="mode-subtitle">Gerar resultado concreto</div>
+                </div>
+
+                <div class="mode-card revisar" id="mode-revisar" onclick="selectMode('revisar')">
+                    <div class="mode-icon">✅</div>
+                    <div class="mode-title">Revisar</div>
+                    <div class="mode-subtitle">Lapidar e aperfeiçoar</div>
+                </div>
+            </div>
+
+            <!-- Diretriz Dinâmica baseada no Modo Selecionado -->
+            <div class="active-mode-guideline" id="modeGuideline">
+                <h4 style="color: var(--explorar);">🔍 Modo Ativo: Explorar</h4>
+                <p><strong>Objetivo:</strong> Descobrir, compreender e construir relações.</p>
+                <p><strong>Evite:</strong> Concluir cedo demais ou explorar indefinidamente.</p>
+                <p><strong>Procurar:</strong> Curiosidade, comparação, relações e compreensão da essência.</p>
+                <p><strong>Critério de saída:</strong> <em>"Já compreendi o suficiente."</em></p>
+            </div>
+        </div>
+
+        <!-- Bloco do Cronômetro com Tomatinho e Faixa Lateral -->
+        <div class="timer-card" id="timerCard">
+            <div class="timer-display">
+                <span class="tomato-icon">🍅</span>
+
+                <!-- Contador de Pomodoros -->
+                <div class="pomodoro-counter-container">
+                    <span style="font-size: 14px; font-weight: 600;">Pomodoros concluídos:</span>
+                    <span class="counter-badge" id="pomodoroCounter">0</span>
+                    <button class="btn-reset-counter" onclick="resetPomodoroCounter()" title="Zerar contador de pomodoros">
+                        🔄 Zerar
+                    </button>
+                </div>
+                
+                <div class="timer-duration-selector">
+                    <button class="btn-duration" onclick="setTimerMinutes(15, this)">15 min</button>
+                    <button class="btn-duration active" onclick="setTimerMinutes(25, this)">25 min</button>
+                    <button class="btn-duration" onclick="setTimerMinutes(45, this)">45 min</button>
+                    <button class="btn-duration" onclick="setTimerMinutes(60, this)">60 min</button>
+                    <div class="custom-duration-wrapper" title="Definir tempo personalizado">
+                        <input type="number" id="customMinutesInput" min="1" max="180" placeholder="Outro" class="custom-min-input" oninput="setCustomMinutes(this.value)">
+                        <span style="font-size: 13px; font-weight: 600; color: var(--cinza);">min</span>
+                    </div>
+                </div>
+
+                <!-- Barra de Progresso do Tempo -->
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" id="progressBar"></div>
+                </div>
+                <div class="progress-label" id="progressText">0% concluído</div>
+
+                <div class="time" id="timer">25:00</div>
+                <div class="timer-controls">
+                    <button class="btn-timer btn-start" onclick="startTimer()">Iniciar</button>
+                    <button class="btn-timer btn-pause" onclick="pauseTimer()">Pausar</button>
+                    <button class="btn-timer btn-reset" onclick="resetTimer()">Reiniciar</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- VISÃO 2: Quadro de Referência de Autorregulagem -->
+    <div id="view-2" class="view-section">
+        
+        <div class="card">
+            <h3>🎯 Matriz de Autorregulagem</h3>
+            <p>Consulte este quadro para identificar o modo necessário para cada atividade e evitar permanecer no modo errado por hábito.</p>
+            <div style="overflow-x: auto;">
+                <table class="adaptive-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 18%;">Modo mental (Autorregulagem)</th>
+                            <th style="width: 22%;">Objetivo</th>
+                            <th style="width: 20%;">Evitar</th>
+                            <th style="width: 22%;">Procurar</th>
+                            <th style="width: 18%;">Critério de saída</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="row-explorar">
+                            <td><strong>🔍 Explorar</strong></td>
+                            <td>Descobrir, compreender e construir relações.</td>
+                            <td>Concluir cedo demais ou explorar indefinidamente.</td>
+                            <td>Curiosidade, comparação, relações e compreensão da essência.</td>
+                            <td><em>"Já compreendi o suficiente."</em></td>
+                        </tr>
+                        <tr class="row-executar">
+                            <td><strong>⚙️ Executar</strong></td>
+                            <td>Transformar compreensão em resultado.</td>
+                            <td>Voltar a pesquisar, aperfeiçoar antes de terminar.</td>
+                            <td>Próxima ação concreta, ritmo e conclusão.</td>
+                            <td><em>"O resultado foi entregue."</em></td>
+                        </tr>
+                        <tr class="row-revisar">
+                            <td><strong>✅ Revisar</strong></td>
+                            <td>Melhorar a qualidade do resultado.</td>
+                            <td>Reescrever infinitamente ou procurar perfeição.</td>
+                            <td>Clareza, simplicidade, consistência e correções relevantes.</td>
+                            <td><em>"Está suficientemente bom."</em></td>
+                        </tr>
+                        <tr class="row-autorregular">
+                            <td><strong>🎯 Autorregular</strong></td>
+                            <td>Escolher conscientemente o modo de funcionamento.</td>
+                            <td>Permanecer no modo errado por hábito.</td>
+                            <td>Observar atenção, energia, objetivo e contexto.</td>
+                            <td><em>"Estou no modo que esta situação exige?"</em></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- VISÃO 3: Planejamento dos Blocos do Dia -->
+    <div id="view-3" class="view-section">
+        
+        <div class="card">
+            <h3>📋 Cadastrar Bloco de Foco</h3>
+            <form onsubmit="addBlock(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="blockName">Descrição da Tarefa *</label>
+                        <input type="text" id="blockName" class="form-control" placeholder="Ex: Mapear fontes da pesquisa" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="blockMode">Modo (Autorregulagem) *</label>
+                        <select id="blockMode" class="form-control" required>
+                            <option value="explorar">🔍 Explorar</option>
+                            <option value="executar">⚙️ Executar</option>
+                            <option value="revisar">✅ Revisar</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="blockTime">Horário Pretendido</label>
+                        <input type="time" id="blockTime" class="form-control" value="09:00">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="blockGoal">Critério de Saída Esperado</label>
+                        <input type="text" id="blockGoal" class="form-control" placeholder="Ex: 'Já compreendi o suficiente'">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit">✨ Adicionar à Lista de Blocos</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+                <h3 style="margin-bottom: 0;">🗓️ Blocos do Dia</h3>
+                <button type="button" class="btn-clear-blocks" onclick="clearBlocks()">🗑️ Limpar Todas</button>
+            </div>
+            <div style="overflow-x: auto;">
+                <table class="adaptive-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 5%;">Status</th>
+                            <th style="width: 15%;">Horário</th>
+                            <th style="width: 30%;">Tarefa</th>
+                            <th style="width: 20%;">Modo</th>
+                            <th style="width: 22%;">Critério de Saída</th>
+                            <th style="width: 8%; text-align: center;">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="blocksTableBody">
+                        <tr class="row-explorar">
+                            <td style="text-align: center;"><input type="checkbox" onchange="toggleComplete(this)"></td>
+                            <td><span class="time-badge">09:00</span></td>
+                            <td><strong>Leitura e Análise do Manual</strong></td>
+                            <td><span class="cat-tag" style="background: #f3e8ff; color: #6b21a8;">🔍 Explorar</span></td>
+                            <td>"Já compreendi o suficiente."</td>
+                            <td style="text-align: center;">
+                                <button type="button" onclick="deleteSingleBlock(this)" title="Excluir tarefa" style="background: transparent; border: none; cursor: pointer; font-size: 15px;">🗑️</button>
+                            </td>
+                        </tr>
+                        <tr class="row-executar">
+                            <td style="text-align: center;"><input type="checkbox" onchange="toggleComplete(this)"></td>
+                            <td><span class="time-badge">10:00</span></td>
+                            <td><strong>Rascunhar Estrutura do Código</strong></td>
+                            <td><span class="cat-tag" style="background: #e0e7ff; color: #3730a3;">⚙️ Executar</span></td>
+                            <td>"O resultado foi entregue."</td>
+                            <td style="text-align: center;">
+                                <button type="button" onclick="deleteSingleBlock(this)" title="Excluir tarefa" style="background: transparent; border: none; cursor: pointer; font-size: 15px;">🗑️</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<div id="notificationToast" class="toast-notification" style="display: none;">
+    <span style="font-size: 22px;">🔔</span>
+    <div>
+        <strong style="display: block; font-size: 14px;">Tempo Finalizado!</strong>
+        <span id="toastMessage" style="font-size: 13px; opacity: 0.9;">Bloco de Foco concluído. Lembre-se de checar seu critério de saída.</span>
+    </div>
+    <button onclick="closeToast()" class="toast-close">&times;</button>
+</div>
+
+<!-- Scripts de Funcionamento -->
+<script>
+    // Modo atual selecionado
+    let currentMode = 'explorar';
+
+    // Contador de Pomodoros
+    let pomodoroCount = 0;
+
+    function incrementPomodoroCounter() {
+        pomodoroCount++;
+        const counterEl = document.getElementById('pomodoroCounter');
+        if (counterEl) {
+            counterEl.textContent = pomodoroCount;
+        }
+    }
+
+    function resetPomodoroCounter() {
+        pomodoroCount = 0;
+        const counterEl = document.getElementById('pomodoroCounter');
+        if (counterEl) {
+            counterEl.textContent = pomodoroCount;
+        }
+    }
+
+    // Dados dos Modos
+    const modesData = {
+        explorar: {
+            title: '🔍 Modo Ativo: Explorar',
+            color: 'var(--explorar)',
+            bg: 'var(--azul-claro)',
+            objetivo: 'Descobrir, compreender e construir relações.',
+            evitar: 'Concluir cedo demais ou explorar indefinidamente.',
+            procurar: 'Curiosidade, comparação, relações e compreensão da essência.',
+            criterio: '"Já compreendi o suficiente."'
+        },
+        executar: {
+            title: '⚙️ Modo Ativo: Executar',
+            color: 'var(--executar)',
+            bg: '#EEF4FF',
+            objetivo: 'Transformar compreensão em resultado.',
+            evitar: 'Voltar a pesquisar, aperfeiçoar antes de terminar.',
+            procurar: 'Próxima ação concreta, ritmo e conclusão.',
+            criterio: '"O resultado foi entregue."'
+        },
+        revisar: {
+            title: '✅ Modo Ativo: Revisar',
+            color: 'var(--revisar)',
+            bg: 'var(--verde-claro)',
+            objetivo: 'Melhorar a qualidade do resultado.',
+            evitar: 'Reescrever infinitamente ou procurar perfeição.',
+            procurar: 'Clareza, simplicidade, consistência e correções relevantes.',
+            criterio: '"Está suficientemente bom."'
+        }
+    };
+
+    // Alternância entre Modos
+    function selectMode(modeKey) {
+        currentMode = modeKey;
+        document.querySelectorAll('.mode-card').forEach(card => card.classList.remove('active'));
+        document.getElementById(`mode-${modeKey}`).classList.add('active');
+
+        const data = modesData[modeKey];
+        const guideline = document.getElementById('modeGuideline');
+        const timerCard = document.getElementById('timerCard');
+        const modeSelectionCard = document.getElementById('modeSelectionCard');
+        const progressBar = document.getElementById('progressBar');
+        
+        // Atualiza cores dinamicamente
+        timerCard.style.borderLeftColor = data.color;
+        if (modeSelectionCard) {
+            modeSelectionCard.style.borderLeftColor = data.color;
+        }
+        if (progressBar) {
+            progressBar.style.backgroundColor = data.color;
+        }
+
+        guideline.style.borderLeftColor = data.color;
+        guideline.style.background = data.bg;
+        guideline.innerHTML = `
+            <h4 style="color: ${data.color};">${data.title}</h4>
+            <p><strong>Objetivo:</strong> ${data.objetivo}</p>
+            <p><strong>Evite:</strong> ${data.evitar}</p>
+            <p><strong>Procurar:</strong> ${data.procurar}</p>
+            <p><strong>Critério de saída:</strong> <em>${data.criterio}</em></p>
+        `;
+    }
+
+    // Alternância de Abas
+    function switchView(viewNumber, buttonElement) {
+        document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+
+        document.getElementById('view-' + viewNumber).classList.add('active');
+        buttonElement.classList.add('active');
+    }
+
+    // Cronômetro Pomodoro
+    let timerInterval = null;
+    let initialMinutes = 25;
+    let timeLeft = initialMinutes * 60;
+
+    function setTimerMinutes(mins, btnElement) {
+        pauseTimer();
+        initialMinutes = parseInt(mins, 10) || 25;
+        timeLeft = initialMinutes * 60;
+        
+        document.querySelectorAll('.btn-duration').forEach(btn => btn.classList.remove('active'));
+        if (btnElement) {
+            btnElement.classList.add('active');
+            const customInput = document.getElementById('customMinutesInput');
+            if (customInput) customInput.value = '';
+        }
+        updateTimerDisplay();
+    }
+
+    function setCustomMinutes(val) {
+        const mins = parseInt(val, 10);
+        if (!isNaN(mins) && mins > 0) {
+            pauseTimer();
+            initialMinutes = mins;
+            timeLeft = initialMinutes * 60;
+            document.querySelectorAll('.btn-duration').forEach(btn => btn.classList.remove('active'));
+            updateTimerDisplay();
+        }
+    }
+
+    function updateTimerDisplay() {
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        document.getElementById('timer').textContent = 
+            `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        
+        // Atualiza a Barra de Progresso
+        const totalSeconds = initialMinutes * 60;
+        const elapsedSeconds = totalSeconds - timeLeft;
+        const progressPercent = Math.min(100, Math.max(0, (elapsedSeconds / totalSeconds) * 100));
+        
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+        
+        if (progressBar) {
+            progressBar.style.width = `${progressPercent}%`;
+        }
+        if (progressText) {
+            progressText.textContent = `${Math.round(progressPercent)}% concluído`;
+        }
+    }
+
+    function startTimer() {
+        if (timerInterval) return;
+        timerInterval = setInterval(() => {
+            if (timeLeft > 0) {
+                timeLeft--;
+                updateTimerDisplay();
+            } else {
+                clearInterval(timerInterval);
+                timerInterval = null;
+                incrementPomodoroCounter();
+                showNotification('Bloco de Foco concluído. Lembre-se de checar seu critério de saída.');
+            }
+        }, 1000);
+    }
+
+    function pauseTimer() {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+
+    function resetTimer() {
+        pauseTimer();
+        timeLeft = initialMinutes * 60;
+        updateTimerDisplay();
+    }
+
+    function showNotification(msg) {
+        const toast = document.getElementById('notificationToast');
+        const toastMsg = document.getElementById('toastMessage');
+        if (toast && toastMsg) {
+            toastMsg.textContent = msg;
+            toast.style.display = 'flex';
+        }
+    }
+
+    function closeToast() {
+        const toast = document.getElementById('notificationToast');
+        if (toast) toast.style.display = 'none';
+    }
+
+    // Riscar tarefa concluída
+    function toggleComplete(checkbox) {
+        const row = checkbox.closest('tr');
+        if (checkbox.checked) {
+            row.style.opacity = '0.55';
+            row.querySelector('td:nth-child(3)').classList.add('completed-text');
+        } else {
+            row.style.opacity = '1';
+            row.querySelector('td:nth-child(3)').classList.remove('completed-text');
+        }
+    }
+
+    // Adicionar Bloco na Tabela
+    function addBlock(e) {
+        e.preventDefault();
+        const name = document.getElementById('blockName').value;
+        const mode = document.getElementById('blockMode').value;
+        const time = document.getElementById('blockTime').value || '09:00';
+        const goal = document.getElementById('blockGoal').value || modesData[mode].criterio;
+
+        const tbody = document.getElementById('blocksTableBody');
+        const newRow = document.createElement('tr');
+        newRow.className = `row-${mode}`;
+
+        const modeBadgeStyle = {
+            explorar: 'background: #f3e8ff; color: #6b21a8;',
+            executar: 'background: #e0e7ff; color: #3730a3;',
+            revisar: 'background: #dcfce7; color: #166534;'
+        };
+
+        const modeName = {
+            explorar: '🔍 Explorar',
+            executar: '⚙️ Executar',
+            revisar: '✅ Revisar'
+        };
+
+        newRow.innerHTML = `
+            <td style="text-align: center;"><input type="checkbox" onchange="toggleComplete(this)"></td>
+            <td><span class="time-badge">${time}</span></td>
+            <td><strong>${name}</strong></td>
+            <td><span class="cat-tag" style="${modeBadgeStyle[mode]}">${modeName[mode]}</span></td>
+            <td>${goal}</td>
+            <td style="text-align: center;">
+                <button type="button" onclick="deleteSingleBlock(this)" title="Excluir tarefa" style="background: transparent; border: none; cursor: pointer; font-size: 15px;">🗑️</button>
+            </td>
+        `;
+
+        tbody.appendChild(newRow);
+        e.target.reset();
+    }
+
+    // Excluir uma única tarefa da tabela de blocos
+    function deleteSingleBlock(button) {
+        const row = button.closest('tr');
+        if (row) {
+            row.remove();
+        }
+    }
+
+    // Limpar todas as tarefas da tabela de blocos
+    function clearBlocks() {
+        const tbody = document.getElementById('blocksTableBody');
+        if (tbody) {
+            tbody.innerHTML = '';
+        }
+    }
+</script>
+
+</body>
+</html>
