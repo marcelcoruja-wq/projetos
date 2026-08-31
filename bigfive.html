@@ -46,6 +46,35 @@
             padding: 20px 0 60px 0;
         }
 
+        /* Botão para voltar ao Índice */
+        .top-bar {
+            display: flex;
+            justify-content: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .btn-back-index {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background-color: var(--card);
+            color: var(--texto);
+            border: 2px solid var(--border-color);
+            padding: 8px 18px;
+            font-size: 14px;
+            font-weight: 700;
+            border-radius: 10px;
+            text-decoration: none;
+            transition: all 0.25s ease;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+        }
+
+        .btn-back-index:hover {
+            border-color: var(--azul);
+            color: var(--azul);
+            transform: translateX(-3px);
+        }
+
         /* Botões de Navegação */
         .nav-buttons {
             display: flex;
@@ -395,6 +424,11 @@
 
 <div class="container">
 
+    <!-- Topo com Botão para voltar ao Índice -->
+    <div class="top-bar">
+        <a href="index.html" class="btn-back-index">&larr; Voltar ao Painel</a>
+    </div>
+
     <!-- Cabeçalho Principal -->
     <header class="main-header">
         <h1>Big Five</h1>
@@ -498,7 +532,7 @@
             <div class="example">
                 <h4>🧠 Exemplo</h4>
                 <p>
-                    Uma pessoa naturalmente desorganizada pode utilizar agenda,
+                    Uma pessoa naturally desorganizada pode utilizar agenda,
                     checklists,
                     calendários
                     e lembretes.
