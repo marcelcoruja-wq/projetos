@@ -191,26 +191,43 @@
             margin-bottom: 8px;
         }
 
-        /* Estrutura para os tópicos práticos */
+        /* Estrutura para os tópicos práticos com CORES DIFERENTES */
         .practical-strategy-item {
-            background: #f8fafc;
-            border: 1px solid var(--border-color);
-            border-left: 5px solid var(--azul);
             border-radius: 12px;
-            padding: 20px;
-            margin: 18px 0;
+            padding: 22px;
+            margin: 20px 0;
         }
+
+        /* Card 1: Verde (Pontos Fortes) */
+        .strategy-green {
+            background: var(--verde-claro);
+            border-left: 6px solid var(--verde);
+        }
+        .strategy-green h4 { color: var(--verde); }
+
+        /* Card 2: Laranja/Amarelo (Compensação) */
+        .strategy-orange {
+            background: var(--laranja-claro);
+            border-left: 6px solid var(--laranja);
+        }
+        .strategy-orange h4 { color: var(--laranja); }
+
+        /* Card 3: Azul (Ambientes) */
+        .strategy-blue {
+            background: var(--azul-claro);
+            border-left: 6px solid var(--azul);
+        }
+        .strategy-blue h4 { color: var(--azul); }
 
         .practical-strategy-item h4 {
             font-size: 20px;
-            color: var(--texto);
             margin-bottom: 8px;
         }
 
         .practical-strategy-item p {
             font-size: 17px;
             margin: 0;
-            color: var(--cinza);
+            color: var(--texto);
         }
 
         table {
@@ -588,28 +605,31 @@
             </table>
         </div>
 
-        <!-- NOVO CARD: Como Usar o Big Five na Prática -->
+        <!-- CARD: Como Usar o Big Five na Prática (CORES CUSTOMIZADAS) -->
         <div class="card">
             <h3>Como Usar o Big Five na Prática para Elaborar Estratégias</h3>
             <p>
                 Para transformar o Big Five em uma ferramenta de ação e inspiração, os resultados devem ser lidos como uma bússola de engenharia pessoal[cite: 1]. Em vez de aceitar limitações, utilize o mapa de traços para desenhar estratégias em três frentes[cite: 1]:
             </p>
 
-            <div class="practical-strategy-item">
+            <!-- Card Verde -->
+            <div class="practical-strategy-item strategy-green">
                 <h4>🎯 1. Alavancagem de Pontos Fortes</h4>
                 <p>
                     Identifique onde você possui pontuações altas (ex.: alta Abertura à Experiência ou alta Simpatia) e crie rotinas ou projetos que exijam exatamente essas qualidades[cite: 1]. Onde houver inclinação natural, haverá menor esforço para alcançar alta performance[cite: 1].
                 </p>
             </div>
 
-            <div class="practical-strategy-item">
+            <!-- Card Laranja/Amarelo -->
+            <div class="practical-strategy-item strategy-orange">
                 <h4>⚙️ 2. Compensação por Arquitetura de Sistema</h4>
                 <p>
                     Onde a pontuação for baixa (ex.: baixa Autodisciplina ou Cautela), evite contar apenas com a "força de vontade"[cite: 1]. Crie hábitos, sistemas externos, automações, rotinas estruturadas ou prazos curtos que compensem a tendência espontânea[cite: 1].
                 </p>
             </div>
 
-            <div class="practical-strategy-item">
+            <!-- Card Azul -->
+            <div class="practical-strategy-item strategy-blue">
                 <h4>🔄 3. Design de Ambientes Favoráveis</h4>
                 <p>
                     Ajuste o contexto de trabalho e decisão ao seu perfil de reatividade emocional[cite: 1]. Se o Neuroticismo for elevado, construa ambientes previsíveis e divida grandes metas em micropassos para evitar sobrecarga antes que ela ocorra[cite: 1].
