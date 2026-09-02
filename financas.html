@@ -111,7 +111,7 @@
     .progress-bar-track { background-color: #E2E8F0; height: 12px; border-radius: 20px; overflow: hidden; margin-top: 8px; }
     .progress-bar-fill { height: 100%; background-color: var(--success); width: 0%; transition: width 0.3s; }
 
-    /* REGRAS MOBILE (REDMI 9C E DISPOSITIVOS ESTREITOS) */
+    /* REGRAS MOBILE */
     @media (max-width: 600px) {
       body { padding: 10px; }
       .kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
@@ -1964,12 +1964,32 @@
     openModal('modalDivida');
   }
 
+  // AMORTIZAÇÃO DE EMPRÉSTIMO COM CRIAÇÃO AUTOMÁTICA DE EXPENSE
   function settleDividaDirect(id) {
     const debt = (financeData.debts || []).find(d => d.id === id);
     if (debt) {
-      if (confirm(`Confirmar a quitação total do empréstimo "${debt.name}" (${formatCurr(debt.totalAmount)})?`)) {
+      const rem = Math.max(0, parseFloat(debt.totalAmount || 0) - parseFloat(debt.paidAmount || 0));
+      if (rem <= 0) {
+        alert("Este empréstimo já está quitado!");
+        return;
+      }
+      if (confirm(`Confirmar a quitação total do empréstimo "${debt.name}" no valor de ${formatCurr(rem)}?`)) {
+        const today = new Date().toISOString().split('T')[0];
+
         debt.paidAmount = debt.totalAmount;
-        debt.settledDate = new Date().toISOString().split('T')[0];
+        debt.settledDate = today;
+
+        if (!financeData.transactions) financeData.transactions = [];
+        financeData.transactions.push({
+          id: 'trans_' + new Date().getTime(),
+          desc: `Quitação de Empréstimo: ${debt.name}`,
+          amount: rem,
+          type: 'EXPENSE',
+          category: 'Empréstimos',
+          subcategory: 'Quitação Total',
+          date: today
+        });
+
         saveData();
       }
     }
@@ -1978,12 +1998,28 @@
   function addPaymentToDivida(id) {
     const debt = (financeData.debts || []).find(d => d.id === id);
     if (!debt) return;
-    const val = prompt(`Digite o valor pago/amortizado: (${financeData.currency || '€'})`);
-    if (val && !isNaN(parseFloat(val))) {
-      debt.paidAmount = parseFloat(debt.paidAmount || 0) + parseFloat(val);
+    const valStr = prompt(`Digite o valor pago/amortizado: (${financeData.currency || '€'})`);
+    if (valStr && !isNaN(parseFloat(valStr))) {
+      const val = parseFloat(valStr);
+      if (val <= 0) return;
+      const today = new Date().toISOString().split('T')[0];
+
+      debt.paidAmount = parseFloat(debt.paidAmount || 0) + val;
       if (parseFloat(debt.paidAmount) >= parseFloat(debt.totalAmount || 0)) {
-        debt.settledDate = new Date().toISOString().split('T')[0];
+        debt.settledDate = today;
       }
+
+      if (!financeData.transactions) financeData.transactions = [];
+      financeData.transactions.push({
+        id: 'trans_' + new Date().getTime(),
+        desc: `Amortização: ${debt.name}`,
+        amount: val,
+        type: 'EXPENSE',
+        category: 'Empréstimos',
+        subcategory: 'Amortização',
+        date: today
+      });
+
       saveData();
     }
   }
