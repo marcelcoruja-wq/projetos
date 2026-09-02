@@ -49,10 +49,10 @@
     .tab-content.active { display: block !important; }
 
     /* CARDS KPIS */
-    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
     .kpi-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
     .kpi-card .label { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
-    .kpi-card .num { font-size: 28px; font-weight: 800; line-height: 1.2; }
+    .kpi-card .num { font-size: 26px; font-weight: 800; line-height: 1.2; }
     .kpi-card .sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
 
     /* CONTAINER BRANCO */
@@ -82,7 +82,7 @@
     .form-input { width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; outline: none; background: #FFFFFF; }
     .form-input:focus { border-color: var(--focus-blue); }
 
-    .progress-bar-track { background-color: #E2E8F0; height: 10px; border-radius: 20px; overflow: hidden; margin-top: 6px; }
+    .progress-bar-track { background-color: #E2E8F0; height: 12px; border-radius: 20px; overflow: hidden; margin-top: 8px; }
     .progress-bar-fill { height: 100%; background-color: var(--success); width: 0%; transition: width 0.3s; }
   </style>
 </head>
@@ -95,6 +95,7 @@
       <a href="index.html" class="tab-btn btn-home">🏠 Voltar ao Index</a>
       <button class="tab-btn active" id="btnTabDash" onclick="switchTab('dash')">📊 Dashboard</button>
       <button class="tab-btn" id="btnTabLancamentos" onclick="switchTab('lancamentos')">💸 Lançamentos</button>
+      <button class="tab-btn" id="btnTabPoupanca" onclick="switchTab('poupanca')">🐷 Poupança & Metas</button>
       <button class="tab-btn" id="btnTabDividas" onclick="switchTab('dividas')">🎯 Dívidas</button>
       <button class="tab-btn" id="btnTabApe" onclick="switchTab('ape')">🏠 Contas Compartilhadas</button>
     </div>
@@ -127,6 +128,12 @@
         <div class="sub" id="kpiDiasRestantes">Calculado para 0 dias restantes</div>
       </div>
 
+      <div class="kpi-card" style="border-top: 4px solid #8B5CF6;">
+        <div class="label">🐷 Total Poupado</div>
+        <div class="num" id="kpiTotalPoupado" style="color: #8B5CF6;">R$ 0,00</div>
+        <div class="sub" id="kpiMetasStatus">0 metas ativas</div>
+      </div>
+
       <div class="kpi-card" style="border-top: 4px solid var(--danger);">
         <div class="label">📉 Total em Dívidas</div>
         <div class="num" id="kpiTotalDividas" style="color: var(--danger);">R$ 0,00</div>
@@ -142,7 +149,6 @@
 
     <!-- GRÁFICOS -->
     <div class="charts-grid">
-      <!-- HISTÓRICO POR CATEGORIA -->
       <div class="white-box">
         <div class="box-header">
           <div class="box-title">📈 Evolução Histórica de Gastos</div>
@@ -155,7 +161,6 @@
         </div>
       </div>
 
-      <!-- DISTRIBUIÇÃO MENSAL -->
       <div class="white-box">
         <div class="box-header">
           <div class="box-title">🍕 Gastos do Mês Atual por Categoria</div>
@@ -193,7 +198,22 @@
     </div>
   </div>
 
-  <!-- PESTAÑA 3: DÍVIDAS -->
+  <!-- PESTAÑA 3: POUPANÇA & METAS -->
+  <div id="viewPoupanca" class="tab-content">
+    <div class="white-box">
+      <div class="box-header">
+        <div>
+          <div class="box-title">🐷 Minhas Metas de Economia</div>
+          <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Acompanhe o progresso dos seus objetivos financeiros e faça aportes progressivos.</p>
+        </div>
+        <button class="btn-add" onclick="openModal('modalPoupanca')">➕ Nova Meta</button>
+      </div>
+
+      <div id="poupancaCardsList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;"></div>
+    </div>
+  </div>
+
+  <!-- PESTAÑA 4: DÍVIDAS -->
   <div id="viewDividas" class="tab-content">
     <div class="white-box">
       <div class="box-header">
@@ -205,7 +225,7 @@
     </div>
   </div>
 
-  <!-- PESTAÑA 4: CONTAS DO APÊ -->
+  <!-- PESTAÑA 5: CONTAS DO APÊ -->
   <div id="viewApe" class="tab-content">
     <div class="white-box">
       <div class="box-header">
@@ -270,6 +290,31 @@
       <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
         <button type="button" class="btn-outline" onclick="closeModal('modalLancamento')">Cancelar</button>
         <button type="submit" class="btn-add">Salvar Lançamento</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL POUPANÇA -->
+<div id="modalPoupanca" class="modal-overlay">
+  <div class="modal-box">
+    <div class="box-title" style="margin-bottom: 16px;">NOVA META DE POUPANÇA</div>
+    <form onsubmit="savePoupanca(event)">
+      <div class="form-group">
+        <label>Nome do Objetivo / Meta</label>
+        <input type="text" id="pNome" class="form-input" placeholder="Ex: Viagem de Férias, Carro, Reserva..." required>
+      </div>
+      <div class="form-group">
+        <label>Valor Alvo Final (Meta)</label>
+        <input type="number" step="0.01" id="pValorMeta" class="form-input" placeholder="0.00" required>
+      </div>
+      <div class="form-group">
+        <label>Valor Inicial Já Guardado</label>
+        <input type="number" step="0.01" id="pValorAtual" class="form-input" placeholder="0.00" value="0">
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+        <button type="button" class="btn-outline" onclick="closeModal('modalPoupanca')">Cancelar</button>
+        <button type="submit" class="btn-add">Criar Meta</button>
       </div>
     </form>
   </div>
@@ -340,6 +385,7 @@
   let financeData = {
     currency: "R$",
     transactions: [],
+    savings: [],
     debts: [],
     apeExpenses: []
   };
@@ -350,7 +396,7 @@
   window.onload = function() {
     const saved = localStorage.getItem('personalFinanceData');
     if (saved) {
-      try { financeData = Object.assign({ currency: "R$" }, JSON.parse(saved)); } catch(e) { console.error("Error loading finance data", e); }
+      try { financeData = Object.assign({ currency: "R$", savings: [] }, JSON.parse(saved)); } catch(e) { console.error("Error loading finance data", e); }
     }
     
     document.getElementById('currencySelect').value = financeData.currency || "R$";
@@ -375,6 +421,7 @@
   function refreshAll() {
     renderKPIs();
     renderTransactionsTable();
+    renderSavingsList();
     renderDebtsList();
     renderApeTable();
     populateCategoryFilter();
@@ -391,6 +438,9 @@
     } else if(tabKey === 'lancamentos') {
       document.getElementById('viewLancamentos').classList.add('active');
       document.getElementById('btnTabLancamentos').classList.add('active');
+    } else if(tabKey === 'poupanca') {
+      document.getElementById('viewPoupanca').classList.add('active');
+      document.getElementById('btnTabPoupanca').classList.add('active');
     } else if(tabKey === 'dividas') {
       document.getElementById('viewDividas').classList.add('active');
       document.getElementById('btnTabDividas').classList.add('active');
@@ -430,7 +480,15 @@
     document.getElementById('kpiTetoDiario').textContent = `${formatCurr(dailyLimit)} /dia`;
     document.getElementById('kpiDiasRestantes').textContent = `Para os próximos ${remainingDays} dias do mês`;
 
-    // 3. Dívidas
+    // 3. Total Poupado
+    let totalPoupado = 0;
+    (financeData.savings || []).forEach(s => {
+      totalPoupado += parseFloat(s.currentAmount || 0);
+    });
+    document.getElementById('kpiTotalPoupado').textContent = formatCurr(totalPoupado);
+    document.getElementById('kpiMetasStatus').textContent = `${(financeData.savings || []).length} metas ativas`;
+
+    // 4. Dívidas
     let totalDividaPendente = 0;
     financeData.debts.forEach(d => {
       totalDividaPendente += Math.max(0, parseFloat(d.totalAmount) - parseFloat(d.paidAmount));
@@ -438,7 +496,7 @@
     document.getElementById('kpiTotalDividas').textContent = formatCurr(totalDividaPendente);
     document.getElementById('kpiDividasStatus').textContent = `${financeData.debts.length} pendências ativas`;
 
-    // 4. Balanço do Apê
+    // 5. Balanço do Apê
     let apeNetBalance = 0;
     financeData.apeExpenses.forEach(a => {
       const val = parseFloat(a.amount);
@@ -446,9 +504,9 @@
       const yourShare = val / count;
 
       if (a.paidBy === 'VOCE') {
-        apeNetBalance += (val - yourShare); // Os outros te devem essa diferença
+        apeNetBalance += (val - yourShare);
       } else {
-        apeNetBalance -= yourShare; // Você deve a sua parte
+        apeNetBalance -= yourShare;
       }
     });
 
@@ -470,7 +528,7 @@
     }
   }
 
-  // --- TABELAS ---
+  // --- TABELAS E LISTAS ---
   function renderTransactionsTable() {
     const tbody = document.getElementById('tableLancamentos');
     tbody.innerHTML = '';
@@ -496,6 +554,53 @@
         </td>
       `;
       tbody.appendChild(tr);
+    });
+  }
+
+  function renderSavingsList() {
+    const container = document.getElementById('poupancaCardsList');
+    container.innerHTML = '';
+
+    if (!financeData.savings || financeData.savings.length === 0) {
+      container.innerHTML = '<p style="color: var(--text-muted); grid-column: 1/-1;">Nenhuma meta de poupança cadastrada. Clique em "+ Nova Meta".</p>';
+      return;
+    }
+
+    financeData.savings.forEach(s => {
+      const meta = parseFloat(s.targetAmount);
+      const atual = parseFloat(s.currentAmount);
+      const falta = Math.max(0, meta - atual);
+      const pct = Math.min(100, Math.round((atual / meta) * 100));
+      const isConcluido = atual >= meta;
+
+      const card = document.createElement('div');
+      card.style.cssText = 'background: #F8FAFC; border: 1px solid var(--border-color); border-radius: 12px; padding: 18px; display: flex; flex-direction: column; justify-content: space-between;';
+      card.innerHTML = `
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 8px;">
+            <h4 style="font-weight: 800; font-size: 16px; color: var(--primary);">${isConcluido ? '🎉 ' : '🎯 '}${s.name}</h4>
+            <button class="btn-danger" onclick="deletePoupanca('${s.id}')">Excluir</button>
+          </div>
+          
+          <div style="font-size: 12px; color: var(--text-muted);">Meta Final: <strong>${formatCurr(meta)}</strong></div>
+          <div style="font-size: 15px; font-weight: 800; color: var(--success); margin-top: 4px;">Guardado: ${formatCurr(atual)}</div>
+          
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" style="width: ${pct}%; background-color: ${isConcluido ? '#10B981' : '#2F5FD0'};"></div>
+          </div>
+          
+          <div style="display:flex; justify-content:space-between; font-size: 11px; color: var(--text-muted); margin-top: 6px;">
+            <span>${pct}% alcançado</span>
+            <span>${isConcluido ? 'Meta atingida!' : 'Falta: ' + formatCurr(falta)}</span>
+          </div>
+        </div>
+
+        <div style="display:flex; gap: 8px; margin-top: 16px;">
+          <button class="btn-add" style="flex:1; justify-content:center; padding: 6px 10px; font-size: 11px;" onclick="addDepositToPoupanca('${s.id}')">➕ Aportar</button>
+          <button class="btn-outline" style="flex:1; justify-content:center; padding: 6px 10px; font-size: 11px;" onclick="withdrawFromPoupanca('${s.id}')">➖ Resgatar</button>
+        </div>
+      `;
+      container.appendChild(card);
     });
   }
 
@@ -702,6 +807,53 @@
   function deleteLancamento(id) {
     financeData.transactions = financeData.transactions.filter(t => t.id !== id);
     saveData();
+  }
+
+  function savePoupanca(e) {
+    e.preventDefault();
+    const nome = document.getElementById('pNome').value.trim();
+    const meta = parseFloat(document.getElementById('pValorMeta').value);
+    const atual = parseFloat(document.getElementById('pValorAtual').value) || 0;
+
+    if (!financeData.savings) financeData.savings = [];
+
+    financeData.savings.push({
+      id: 'sav_' + new Date().getTime(),
+      name: nome, targetAmount: meta, currentAmount: atual
+    });
+
+    saveData();
+    closeModal('modalPoupanca');
+    e.target.reset();
+  }
+
+  function addDepositToPoupanca(id) {
+    const val = prompt(`Digite o valor a aportar nesta meta (${financeData.currency || 'R$'}):`);
+    if (val && !isNaN(parseFloat(val))) {
+      const item = financeData.savings.find(s => s.id === id);
+      if (item) {
+        item.currentAmount = parseFloat(item.currentAmount) + parseFloat(val);
+        saveData();
+      }
+    }
+  }
+
+  function withdrawFromPoupanca(id) {
+    const val = prompt(`Digite o valor a resgatar desta meta (${financeData.currency || 'R$'}):`);
+    if (val && !isNaN(parseFloat(val))) {
+      const item = financeData.savings.find(s => s.id === id);
+      if (item) {
+        item.currentAmount = Math.max(0, parseFloat(item.currentAmount) - parseFloat(val));
+        saveData();
+      }
+    }
+  }
+
+  function deletePoupanca(id) {
+    if (confirm("Deseja realmente excluir esta meta de poupança?")) {
+      financeData.savings = financeData.savings.filter(s => s.id !== id);
+      saveData();
+    }
   }
 
   function saveDivida(e) {
