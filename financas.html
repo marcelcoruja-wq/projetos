@@ -102,13 +102,12 @@
   <!-- BARRA SUPERIOR DE NAVEGAÇÃO -->
   <div class="top-bar">
     <div class="nav-tabs">
-      <!-- BOTÃO HOME ENXUTO -->
       <a href="index.html" class="tab-btn btn-home" title="Voltar ao Index">🏠</a>
       <button class="tab-btn active" id="btnTabDash" onclick="switchTab('dash')">📊 Dashboard</button>
       <button class="tab-btn" id="btnTabLancamentos" onclick="switchTab('lancamentos')">💸 Lançamentos</button>
       <button class="tab-btn" id="btnTabPoupanca" onclick="switchTab('poupanca')">🐷 Poupança & Metas</button>
       <button class="tab-btn" id="btnTabDividas" onclick="switchTab('dividas')">🎯 Dívidas</button>
-      <button class="tab-btn" id="btnTabApe" onclick="switchTab('ape')">🏠 Contas Compartilhadas</button>
+      <button class="tab-btn" id="btnTabApe" onclick="switchTab('ape')">🤝 Contas Compartilhadas</button>
     </div>
 
     <!-- SELETOR DE MOEDA -->
@@ -161,7 +160,7 @@
       </div>
 
       <div class="kpi-card" style="border-top: 4px solid var(--warning);">
-        <div class="label">🤝 Acerto do Apê (Período)</div>
+        <div class="label">🤝 Acerto de Contas (Período)</div>
         <div class="num" id="kpiApeSaldo">R$ 0,00</div>
         <div class="sub" id="kpiApeStatus">Tudo quitado</div>
       </div>
@@ -301,16 +300,15 @@
     </div>
   </div>
 
-  <!-- PESTAÑA 5: CONTAS DO APÊ -->
+  <!-- PESTAÑA 5: CONTAS COMPARTILHADAS -->
   <div id="viewApe" class="tab-content">
     <div class="white-box">
       <div class="box-header">
         <div>
-          <div class="box-title">🏠 Contas Compartilhadas do Apê (No Período)</div>
+          <div class="box-title">🤝 Contas Compartilhadas (No Período)</div>
           <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;" id="apeSettlementSummary">Calculando acerto de contas...</p>
         </div>
         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-          <!-- NOVO BOTÃO DE REGISTRAR RECEBIMENTO / PAGAMENTO DE ACERTO -->
           <button class="btn-settle" onclick="openModal('modalReceberApe')">💰 Registrar Recebimento / Pagamento</button>
           <button class="btn-add" onclick="openModal('modalApe')">➕ Nova Despesa Compartilhada</button>
         </div>
@@ -463,30 +461,31 @@
   </div>
 </div>
 
-<!-- MODAL APÊ (DESPESA) -->
+<!-- MODAL CONTAS COMPARTILHADAS (DESPESA) -->
 <div id="modalApe" class="modal-overlay">
   <div class="modal-box">
     <div class="modal-title box-title" style="margin-bottom: 16px;" id="modalApeTitle">NOVA DESPESA COMPARTILHADA</div>
     <form onsubmit="saveApe(event)">
       <input type="hidden" id="aEditId">
       <div class="form-group">
-        <label>Descrição / Subcategoria (Ex: Luz, Internet)</label>
-        <input type="text" id="aDesc" class="form-input" placeholder="Ex: Luz, Internet, Aluguel..." required>
+        <label>Descrição / Subcategoria (Ex: Luz, Internet, Viagem)</label>
+        <input type="text" id="aDesc" class="form-input" placeholder="Ex: Luz, Internet, Aluguel, Jantar..." required>
       </div>
       <div class="form-group">
         <label>Valor Total da Conta</label>
         <input type="number" step="0.01" id="aValor" class="form-input" placeholder="0.00" required>
       </div>
       <div class="form-group">
-        <label>Quem Pagou?</label>
+        <label>Quem Pagou Total?</label>
         <select id="aQuem" class="form-input" required>
           <option value="VOCE">🙋‍♂️ Eu paguei total</option>
-          <option value="COLEGA">🧑‍🤝‍🧑 Colega / Outro pagou total</option>
+          <option value="COLEGA">🧑‍🤝‍🧑 Colega / Outra pessoa pagou total</option>
         </select>
       </div>
       <div class="form-group">
-        <label>Quantidade de Pessoas a Dividir</label>
-        <input type="number" min="2" max="20" id="aPessoas" class="form-input" value="2" required>
+        <label>Quantidade de Pessoas na Divisão (Você + Outros)</label>
+        <input type="number" min="2" max="50" id="aPessoas" class="form-input" value="2" required>
+        <small style="font-size: 10px; color: var(--text-muted); display: block; margin-top: 4px;">Exemplo: digite 2 para você e +1 pessoa, 3 para você e +2 pessoas, etc.</small>
       </div>
       <div class="form-group">
         <label>Data</label>
@@ -500,7 +499,7 @@
   </div>
 </div>
 
-<!-- MODAL APÊ (REGISTRAR RECEBIMENTO OU PAGAMENTO DE ACERTO) -->
+<!-- MODAL REGISTRAR RECEBIMENTO OU PAGAMENTO DE ACERTO -->
 <div id="modalReceberApe" class="modal-overlay">
   <div class="modal-box">
     <div class="box-title" style="margin-bottom: 16px;">REGISTRAR RECEBIMENTO / PAGAMENTO DE ACERTO</div>
@@ -508,8 +507,8 @@
       <div class="form-group">
         <label>Operação</label>
         <select id="rTipo" class="form-input" required>
-          <option value="RECEBI">🟢 Recebi dinheiro do colega (Ex: Pix do acerto)</option>
-          <option value="PAGUEI">🔴 Paguei dinheiro ao colega (Ex: Envei Pix do acerto)</option>
+          <option value="RECEBI">🟢 Recebi dinheiro de terceiros (Ex: Pix de acerto)</option>
+          <option value="PAGUEI">🔴 Paguei dinheiro a terceiros (Ex: Enviei Pix de acerto)</option>
         </select>
       </div>
       <div class="form-group">
@@ -710,7 +709,7 @@
       document.getElementById('kpiApeSaldo').textContent = formatCurr(apeNetBalance);
       document.getElementById('kpiApeSaldo').style.color = "var(--danger)";
       document.getElementById('kpiApeStatus').textContent = "Você deve pagar este valor no total";
-      document.getElementById('apeSettlementSummary').textContent = `Neste período, você deve pagar ${formatCurr(Math.abs(apeNetBalance))} para zerar o grupo das contas.`;
+      document.getElementById('apeSettlementSummary').textContent = `Neste período, você deve pagar ${formatCurr(Math.abs(apeNetBalance))} para zerar as contas.`;
     } else {
       document.getElementById('kpiApeSaldo').textContent = formatCurr(0);
       document.getElementById('kpiApeSaldo').style.color = "var(--primary)";
@@ -1019,7 +1018,7 @@
         <td>${a.date}</td>
         <td style="font-weight: 600;">${isReimb ? '💸 ' : ''}${a.desc}</td>
         <td><span class="task-mini-tag" style="background:${isVoce ? '#EFF6FF' : '#FEF3C7'}; color:${isVoce ? '#2563EB' : '#D97706'}">${isVoce ? '🙋‍♂️ Você' : '🧑‍🤝‍🧑 Outro'}</span></td>
-        <td><span class="task-mini-tag">${isReimb ? 'Reembolso Acerto' : `1 / ${count} pessoas`}</span></td>
+        <td><span class="task-mini-tag">${isReimb ? 'Acerto Direto' : `1 / ${count} pessoas`}</span></td>
         <td style="font-weight: 700;">${formatCurr(val)}</td>
         <td style="color: var(--text-dark); font-weight: 600;">${formatCurr(myShare)}</td>
         <td style="text-align: center; vertical-align: middle;">
@@ -1039,7 +1038,7 @@
     });
   }
 
-  // --- ACERTO DO APÊ (NOVO RECEBIMENTO E QUITAÇÕES) ---
+  // --- ACERTO COMPARTILHADO (NOVO RECEBIMENTO E QUITAÇÕES) ---
   function saveReceberApe(e) {
     e.preventDefault();
     const tipo = document.getElementById('rTipo').value;
@@ -1048,7 +1047,7 @@
     const data = document.getElementById('rData').value;
     const isInc = (tipo === 'RECEBI');
 
-    const defaultDesc = isInc ? 'Recebimento de Acerto do Apê' : 'Pagamento de Acerto do Apê';
+    const defaultDesc = isInc ? 'Recebimento de Acerto Compartilhado' : 'Pagamento de Acerto Compartilhado';
     const finalDesc = descInput || defaultDesc;
 
     // 1. Lançamento no caixa real (Teto Diário)
@@ -1058,12 +1057,12 @@
       desc: finalDesc,
       amount: valor,
       type: isInc ? 'INCOME' : 'EXPENSE',
-      category: 'Contas do Apê',
+      category: 'Contas Compartilhadas',
       subcategory: 'Acerto Direto',
       date: data
     });
 
-    // 2. Registro no histórico do Apê para diminuir o saldo
+    // 2. Registro no histórico de contas compartilhadas para diminuir o saldo
     financeData.apeExpenses.push({
       id: 'ape_' + new Date().getTime(),
       desc: finalDesc,
@@ -1094,21 +1093,21 @@
     if (a.paidBy === 'VOCE') {
         transType = 'INCOME';
         transAmount = othersShare;
-        descPrefix = 'Recebimento Acerto Apê:';
+        descPrefix = 'Recebimento Acerto:';
     } else {
         transType = 'EXPENSE';
         transAmount = myShare;
-        descPrefix = 'Pagamento Acerto Apê:';
+        descPrefix = 'Pagamento Acerto:';
     }
 
-    if (confirm(`Saldar individualmente esta conta?\n\nIsso gerará automaticamente um lançamento de ${formatCurr(transAmount)} (sua parte do acerto).`)) {
+    if (confirm(`Saldar individualmente esta conta compartilhada?\n\nIsso gerará automaticamente um lançamento de ${formatCurr(transAmount)} (sua parte do acerto).`)) {
         const transId = 'trans_' + new Date().getTime();
         financeData.transactions.push({
             id: transId,
             desc: `${descPrefix} ${a.desc}`,
             amount: transAmount,
             type: transType,
-            category: 'Contas do Apê',
+            category: 'Contas Compartilhadas',
             subcategory: 'Acerto Individual',
             date: new Date().toISOString().split('T')[0]
         });
@@ -1123,7 +1122,7 @@
     const a = financeData.apeExpenses.find(x => x.id === id);
     if (!a) return;
 
-    if (confirm("Desfazer a quitação desta conta do Apê?\nIsso removerá o lançamento gerado automaticamente no acerto.")) {
+    if (confirm(`Desfazer a quitação desta conta compartilhada?\n\nIsso removerá o lançamento gerado automaticamente no acerto.`)) {
         a.settled = false;
         if (a.settlementTransId) {
             financeData.transactions = financeData.transactions.filter(t => t.id !== a.settlementTransId);
@@ -1139,7 +1138,7 @@
     const currCat = catSelect.value;
 
     catSelect.innerHTML = '<option value="ALL">Todas as Saídas (Geral)</option>';
-    catSelect.innerHTML += '<option value="CONTAS_APE">🏠 Contas do Apê</option>';
+    catSelect.innerHTML += '<option value="CONTAS_APE">🤝 Contas Compartilhadas</option>';
     catSelect.innerHTML += '<option value="DIVIDAS">🎯 Dívidas & Amortizações</option>';
     catSelect.innerHTML += '<option value="POUPANCA">🐷 Poupança & Aportes</option>';
 
@@ -1149,7 +1148,7 @@
     });
 
     Array.from(cats).sort().forEach(cat => {
-      if (!['CONTAS_APE', 'DIVIDAS', 'POUPANCA'].includes(cat)) {
+      if (!['CONTAS COMPARTILHADAS', 'CONTAS_APE', 'DIVIDAS', 'POUPANCA'].includes(cat)) {
         const opt = document.createElement('option');
         opt.value = cat;
         opt.textContent = cat;
@@ -1355,7 +1354,7 @@
     });
 
     financeData.apeExpenses.filter(a => isDateInRange(a.date) && !a.isReimbursement).forEach(a => {
-      const cat = 'CONTAS DO APÊ';
+      const cat = 'CONTAS COMPARTILHADAS';
       if (!catSums[cat]) catSums[cat] = 0;
       const count = parseInt(a.peopleCount) || 2;
       catSums[cat] += parseFloat(a.amount) / count;
@@ -1683,7 +1682,7 @@
     }
   }
 
-  // --- OPERAÇÕES CONTAS DO APÊ ---
+  // --- OPERAÇÕES CONTAS COMPARTILHADAS ---
   function saveApe(e) {
     e.preventDefault();
     const editId = document.getElementById('aEditId').value;
