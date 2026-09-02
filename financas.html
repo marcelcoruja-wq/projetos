@@ -109,15 +109,16 @@
       <button class="tab-btn" id="btnTabApe" onclick="switchTab('ape')">🏠 Contas Compartilhadas</button>
     </div>
 
-    <!-- SELETOR DE MOEDA -->
-    <div style="display: flex; align-items: center; gap: 8px;">
+    <!-- SELETOR DE MOEDA E BOTÃO ZERAR TUDO -->
+    <div style="display: flex; align-items: center; gap: 10px;">
       <span style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Moeda:</span>
       <select id="currencySelect" class="form-input" style="width: auto; padding: 6px 12px; font-weight: 700; cursor: pointer;" onchange="updateCurrency(this.value)">
+        <option value="€">€ (EUR)</option>
         <option value="R$">R$ (BRL)</option>
         <option value="$">$ (USD)</option>
-        <option value="€">€ (EUR)</option>
         <option value="£">£ (GBP)</option>
       </select>
+      <button class="btn-danger" style="padding: 6px 12px;" title="Apagar todos os registros e reiniciar limpo" onclick="resetAllData()">🗑️ Zerar Tudo</button>
     </div>
   </div>
 
@@ -136,32 +137,32 @@
     <div class="kpi-grid">
       <div class="kpi-card" style="border-top: 4px solid var(--focus-blue);">
         <div class="label">💰 Saldo do Período</div>
-        <div class="num" id="kpiSaldo">R$ 0,00</div>
-        <div class="sub" id="kpiReceitaDespesa">Receitas: R$ 0 | Gastos: R$ 0</div>
+        <div class="num" id="kpiSaldo">€ 0,00</div>
+        <div class="sub" id="kpiReceitaDespesa">Receitas: € 0 | Gastos: € 0</div>
       </div>
 
       <div class="kpi-card" style="border-top: 4px solid var(--success);">
         <div class="label">📅 Teto Diário Calculado</div>
-        <div class="num" id="kpiTetoDiario" style="color: var(--success);">R$ 0,00 /dia</div>
+        <div class="num" id="kpiTetoDiario" style="color: var(--success);">€ 0,00 /dia</div>
         <div class="sub" id="kpiDiasRestantes">Calculado para 0 dias restantes</div>
       </div>
 
       <div class="kpi-card" style="border-top: 4px solid #8B5CF6;">
         <div class="label">🐷 Total Poupado</div>
-        <div class="num" id="kpiTotalPoupado" style="color: #8B5CF6;">R$ 0,00</div>
+        <div class="num" id="kpiTotalPoupado" style="color: #8B5CF6;">€ 0,00</div>
         <div class="sub" id="kpiMetasStatus">0 metas ativas</div>
       </div>
 
       <div class="kpi-card" style="border-top: 4px solid var(--danger);">
         <div class="label">🏦 Dívida Bancária Real</div>
-        <div class="num" id="kpiDividaBancaria" style="color: var(--danger);">R$ 0,00</div>
+        <div class="num" id="kpiDividaBancaria" style="color: var(--danger);">€ 0,00</div>
         <div class="sub" id="kpiDividasBancariaStatus">0 contratos formais ativos</div>
       </div>
 
       <div class="kpi-card" style="border-top: 4px solid var(--warning);">
         <div class="label">👥 Pendências com Pessoas</div>
-        <div class="num" id="kpiAjustesPessoas" style="color: var(--primary);">R$ 0,00</div>
-        <div class="sub" id="kpiAjustesPessoasStatus">A receber: R$ 0 | A pagar: R$ 0</div>
+        <div class="num" id="kpiAjustesPessoas" style="color: var(--primary);">€ 0,00</div>
+        <div class="sub" id="kpiAjustesPessoasStatus">A receber: € 0 | A pagar: € 0</div>
       </div>
     </div>
 
@@ -551,7 +552,7 @@
 
 <script>
   let financeData = {
-    currency: "R$",
+    currency: "€",
     transactions: [],
     savings: [],
     debts: [],
@@ -564,10 +565,10 @@
   window.onload = function() {
     const saved = localStorage.getItem('personalFinanceData');
     if (saved) {
-      try { financeData = Object.assign({ currency: "R$", savings: [], debts: [], apeExpenses: [] }, JSON.parse(saved)); } catch(e) { console.error("Error loading finance data", e); }
+      try { financeData = Object.assign({ currency: "€", savings: [], debts: [], apeExpenses: [] }, JSON.parse(saved)); } catch(e) { console.error("Error loading finance data", e); }
     }
     
-    document.getElementById('currencySelect').value = financeData.currency || "R$";
+    document.getElementById('currencySelect').value = financeData.currency || "€";
     
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('lData').value = today;
@@ -578,7 +579,6 @@
     refreshAll();
   };
 
-  // INICIALIZADOR DE DATAS AJUSTADO PARA NÃO FILTRAR POR PADRÃO
   function initDateFilters() {
     document.getElementById('globalStartDate').value = '';
     document.getElementById('globalEndDate').value = '';
@@ -607,6 +607,20 @@
   function saveData() {
     localStorage.setItem('personalFinanceData', JSON.stringify(financeData));
     refreshAll();
+  }
+
+  function resetAllData() {
+    if (confirm("Tem certeza que deseja APAGAR TODOS OS DADOS do aplicativo? Esta ação deixará todas as telas em 0,00 e não pode ser desfeita.")) {
+      localStorage.removeItem('personalFinanceData');
+      financeData = {
+        currency: financeData.currency || "€",
+        transactions: [],
+        savings: [],
+        debts: [],
+        apeExpenses: []
+      };
+      refreshAll();
+    }
   }
 
   function refreshAll() {
@@ -804,7 +818,7 @@
     const sorted = financeData.transactions.filter(t => isDateInRange(t.date)).sort((a,b) => new Date(b.date) - new Date(a.date));
 
     if (sorted.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 20px; color: var(--text-muted);">Nenhum lançamento no período selecionado.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 20px; color: var(--text-muted);">Nenhum lançamento registrado.</td></tr>';
       return;
     }
 
@@ -835,7 +849,7 @@
     const sorted = financeData.transactions.filter(t => isDateInRange(t.date)).sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
 
     if (sorted.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px; color: var(--text-muted);">Nenhum lançamento recente neste período.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px; color: var(--text-muted);">Nenhum lançamento recente.</td></tr>';
       return;
     }
 
@@ -1371,7 +1385,7 @@
 
     if (historyChartInstance) historyChartInstance.destroy();
 
-    let chartLabel = `Todas as Saídas de Dinheiro (${financeData.currency || 'R$'})`;
+    let chartLabel = `Todas as Saídas de Dinheiro (${financeData.currency || '€'})`;
     if (selectedCat !== 'ALL') chartLabel = `${selectedCat}`;
     if (selectedSub !== 'ALL') chartLabel += ` > ${selectedSub}`;
 
@@ -1608,7 +1622,7 @@
   }
 
   function addDepositToPoupancaMain(id) {
-    const val = prompt(`Digite o valor a aportar nesta meta (${financeData.currency || 'R$'}):`);
+    const val = prompt(`Digite o valor a aportar nesta meta (${financeData.currency || '€'}):`);
     if (val && !isNaN(parseFloat(val))) {
       const item = financeData.savings.find(s => s.id === id);
       if (item) {
@@ -1619,7 +1633,7 @@
   }
 
   function withdrawFromPoupancaMain(id) {
-    const val = prompt(`Digite o valor a resgatar desta meta (${financeData.currency || 'R$'}):`);
+    const val = prompt(`Digite o valor a resgatar desta meta (${financeData.currency || '€'}):`);
     if (val && !isNaN(parseFloat(val))) {
       const item = financeData.savings.find(s => s.id === id);
       if (item) {
@@ -1630,7 +1644,7 @@
   }
 
   function addDepositToPoupancaArea(goalId, areaId) {
-    const val = prompt(`Digite o valor a aportar nesta área (${financeData.currency || 'R$'}):`);
+    const val = prompt(`Digite o valor a aportar nesta área (${financeData.currency || '€'}):`);
     if (val && !isNaN(parseFloat(val))) {
       const goal = financeData.savings.find(s => s.id === goalId);
       if (goal && goal.areas) {
@@ -1644,7 +1658,7 @@
   }
 
   function withdrawFromPoupancaArea(goalId, areaId) {
-    const val = prompt(`Digite o valor a resgatar desta área (${financeData.currency || 'R$'}):`);
+    const val = prompt(`Digite o valor a resgatar desta área (${financeData.currency || '€'}):`);
     if (val && !isNaN(parseFloat(val))) {
       const goal = financeData.savings.find(s => s.id === goalId);
       if (goal && goal.areas) {
@@ -1726,7 +1740,7 @@
     const debt = financeData.debts.find(d => d.id === id);
     if (!debt) return;
     const promptMsg = (debt.type === 'CONCEDIDO') ? 'Digite o valor recebido de volta:' : 'Digite o valor pago/amortizado:';
-    const val = prompt(`${promptMsg} (${financeData.currency || 'R$'})`);
+    const val = prompt(`${promptMsg} (${financeData.currency || '€'})`);
     if (val && !isNaN(parseFloat(val))) {
       debt.paidAmount = parseFloat(debt.paidAmount) + parseFloat(val);
       if (parseFloat(debt.paidAmount) >= parseFloat(debt.totalAmount)) {
@@ -1805,7 +1819,7 @@
   }
 
   function formatCurr(val) {
-    const curr = financeData.currency || "R$";
+    const curr = financeData.currency || "€";
     const num = (val || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     return `${curr} ${num}`;
   }
