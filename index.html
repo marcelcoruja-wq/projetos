@@ -30,11 +30,11 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 40px 20px;
         }
 
         .container {
-            width: min(1000px, 95%);
+            width: min(850px, 95%);
         }
 
         header {
@@ -43,72 +43,76 @@
         }
 
         header h1 {
-            font-size: 40px;
+            font-size: 38px;
             color: var(--azul);
             font-weight: 800;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         header p {
             color: var(--cinza);
-            font-size: 18px;
+            font-size: 16px;
         }
 
         .cards-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 24px;
         }
 
         .card-link {
             text-decoration: none;
             color: inherit;
+            display: flex;
         }
 
         .card {
             background: var(--card);
-            padding: 35px;
+            padding: 30px;
             border-radius: 18px;
             border: 2px solid var(--border-color);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.04);
-            transition: all 0.3s ease;
-            height: 100%;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.03);
+            transition: all 0.25s ease;
+            width: 100%;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
         }
 
         .card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-4px);
             border-color: var(--azul);
-            box-shadow: 0 15px 35px rgba(47, 95, 208, 0.12);
+            box-shadow: 0 12px 28px rgba(47, 95, 208, 0.12);
         }
 
         .card-icon {
-            font-size: 42px;
-            margin-bottom: 15px;
+            font-size: 36px;
+            margin-bottom: 12px;
+            line-height: 1;
         }
 
         .card h2 {
-            font-size: 24px;
+            font-size: 20px;
             color: var(--texto);
-            margin-bottom: 10px;
+            margin-bottom: 8px;
+            font-weight: 700;
         }
 
         .card p {
             color: var(--cinza);
-            font-size: 15px;
-            margin-bottom: 20px;
+            font-size: 14px;
+            margin-bottom: 24px;
             flex-grow: 1;
+            line-height: 1.5;
         }
 
         .btn-access {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             font-weight: 700;
             color: var(--azul);
-            font-size: 16px;
+            font-size: 15px;
         }
 
         .card:hover .btn-access {
@@ -119,7 +123,7 @@
             text-align: center;
             margin-top: 40px;
             color: var(--cinza);
-            font-size: 14px;
+            font-size: 13px;
         }
     </style>
 </head>
@@ -132,13 +136,25 @@
     </header>
 
     <div class="cards-grid">
-        <!-- Card Gestor de Projetos (Novo) -->
+        <!-- Card Gestor de Projetos -->
         <a href="projetos.html" class="card-link">
             <div class="card">
                 <div>
                     <div class="card-icon">📊</div>
                     <h2>Gestor de Projetos</h2>
                     <p>Dashboard modular para monitoramento de projetos por países, módulos, entregáveis e tarefas com estatísticas consolidadas.</p>
+                </div>
+                <div class="btn-access">Acessar App &rarr;</div>
+            </div>
+        </a>
+
+        <!-- Card Finanças Pessoais -->
+        <a href="financas.html" class="card-link">
+            <div class="card">
+                <div>
+                    <div class="card-icon">💰</div>
+                    <h2>Finanças Pessoais</h2>
+                    <p>Calculador de teto diário de gastos, acompanhamento histórico por categoria, evolução de dívidas e acerto 50/50 do apê.</p>
                 </div>
                 <div class="btn-access">Acessar App &rarr;</div>
             </div>
@@ -168,18 +184,6 @@
             </div>
         </a>
     </div>
-
-    <!-- Card Calculador de Finanças -->
-<a href="financas.html" class="card-link">
-    <div class="card">
-        <div>
-            <div class="card-icon">💰</div>
-            <h2>Finanças Pessoais</h2>
-            <p>Calculador de teto diário de gastos, acompanhamento histórico por categoria, evolução de dívidas e acerto 50/50 do apê.</p>
-        </div>
-        <div class="btn-access">Acessar App &rarr;</div>
-    </div>
-</a>
 
     <footer>
         <p>© Central de Ferramentas de Produtividade & Autoconhecimento</p>
