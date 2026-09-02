@@ -80,7 +80,6 @@
     .badge-expense { background: #FEF2F2; color: #991B1B; padding: 4px 8px; border-radius: 4px; font-weight: 700; font-size: 11px; }
     .task-mini-tag { background-color: #F1F5F9; color: #475569; font-size: 10px; font-weight: 700; padding: 3px 6px; border-radius: 4px; border: 1px solid #E2E8F0; text-transform: uppercase; display: inline-block; }
 
-    /* CARDS DE POUPANÇA E SUBCATEGORIAS */
     .savings-area-card { background: #FFFFFF; border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-top: 10px; }
 
     /* FORMULÁRIOS & MODAIS */
@@ -106,8 +105,8 @@
       <button class="tab-btn active" id="btnTabDash" onclick="switchTab('dash')">📊 Dashboard</button>
       <button class="tab-btn" id="btnTabLancamentos" onclick="switchTab('lancamentos')">💸 Lançamentos</button>
       <button class="tab-btn" id="btnTabPoupanca" onclick="switchTab('poupanca')">🐷 Poupança & Metas</button>
-      <button class="tab-btn" id="btnTabDividas" onclick="switchTab('dividas')">🎯 Dívidas</button>
-      <button class="tab-btn" id="btnTabApe" onclick="switchTab('ape')">🤝 Contas Compartilhadas</button>
+      <button class="tab-btn" id="btnTabDividas" onclick="switchTab('dividas')">🤝 Empréstimos & Crédito</button>
+      <button class="tab-btn" id="btnTabApe" onclick="switchTab('ape')">🏠 Contas Compartilhadas</button>
     </div>
 
     <!-- SELETOR DE MOEDA -->
@@ -154,15 +153,15 @@
       </div>
 
       <div class="kpi-card" style="border-top: 4px solid var(--danger);">
-        <div class="label">📉 Total em Dívidas</div>
-        <div class="num" id="kpiTotalDividas" style="color: var(--danger);">R$ 0,00</div>
-        <div class="sub" id="kpiDividasStatus">0 pendências em aberto</div>
+        <div class="label">🏦 Dívida Bancária Real</div>
+        <div class="num" id="kpiDividaBancaria" style="color: var(--danger);">R$ 0,00</div>
+        <div class="sub" id="kpiDividasBancariaStatus">0 contratos formais ativos</div>
       </div>
 
       <div class="kpi-card" style="border-top: 4px solid var(--warning);">
-        <div class="label">🤝 Acerto de Contas (Período)</div>
-        <div class="num" id="kpiApeSaldo">R$ 0,00</div>
-        <div class="sub" id="kpiApeStatus">Tudo quitado</div>
+        <div class="label">👥 Pendências com Pessoas</div>
+        <div class="num" id="kpiAjustesPessoas" style="color: var(--primary);">R$ 0,00</div>
+        <div class="sub" id="kpiAjustesPessoasStatus">A receber: R$ 0 | A pagar: R$ 0</div>
       </div>
     </div>
 
@@ -221,7 +220,7 @@
     <!-- RESUMO ESTATÍSTICO DE QUITAÇÕES -->
     <div class="white-box">
       <div class="box-header">
-        <div class="box-title">🏆 Resumo de Dívidas Saldadas Totalmente</div>
+        <div class="box-title">🏆 Resumo de Empréstimos e Créditos Saldados</div>
       </div>
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;" id="settlementStatsSummary"></div>
     </div>
@@ -269,26 +268,31 @@
     </div>
   </div>
 
-  <!-- PESTAÑA 4: DÍVIDAS -->
+  <!-- PESTAÑA 4: EMPRÉSTIMOS & CRÉDITO -->
   <div id="viewDividas" class="tab-content">
     <div class="white-box">
       <div class="box-header">
-        <div class="box-title">🎯 Monitoramento de Dívidas (Geral)</div>
-        <button class="btn-add" onclick="openModal('modalDivida')">➕ Nova Dívida</button>
+        <div>
+          <div class="box-title">🤝 Empréstimos, Crédito & Pendências Pessoais</div>
+          <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Gerencie separadamente seus contratos formais (bancos, crédito) de pequenos favores/ajustes com pessoas.</p>
+        </div>
+        <button class="btn-add" onclick="openModal('modalDivida')">➕ Novo Registro de Crédito / Empréstimo</button>
       </div>
 
-      <div id="dividasCardsList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px;"></div>
+      <div id="dividasCardsList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;"></div>
     </div>
 
     <div class="white-box">
       <div class="box-header">
-        <div class="box-title">📜 Histórico de Dívidas Totalmente Quitadas</div>
+        <div class="box-title">📜 Histórico de Empréstimos e Créditos Totalmente Quitados</div>
       </div>
       <div style="overflow-x: auto;">
         <table class="data-table">
           <thead>
             <tr>
-              <th>Dívida / Credor</th>
+              <th>Pessoa / Instituição</th>
+              <th>Origem</th>
+              <th>Tipo</th>
               <th>Valor Total Saldado</th>
               <th>Data da Quitação</th>
               <th>Status</th>
@@ -305,7 +309,7 @@
     <div class="white-box">
       <div class="box-header">
         <div>
-          <div class="box-title">🤝 Contas Compartilhadas (No Período)</div>
+          <div class="box-title">🏠 Contas Compartilhadas (No Período)</div>
           <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;" id="apeSettlementSummary">Calculando acerto de contas...</p>
         </div>
         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
@@ -435,27 +439,41 @@
   </div>
 </div>
 
-<!-- MODAL DÍVIDA -->
+<!-- MODAL EMPRÉSTIMO / CRÉDITO -->
 <div id="modalDivida" class="modal-overlay">
   <div class="modal-box">
-    <div class="box-title" style="margin-bottom: 16px;" id="modalDividaTitle">NOVA DÍVIDA / PENDÊNCIA</div>
+    <div class="box-title" style="margin-bottom: 16px;" id="modalDividaTitle">NOVO EMPRÉSTIMO / CRÉDITO</div>
     <form onsubmit="saveDivida(event)">
       <input type="hidden" id="dEditId">
       <div class="form-group">
-        <label>Credor / Nome da Dívida</label>
-        <input type="text" id="dNome" class="form-input" placeholder="Ex: Empréstimo, Cartão de Crédito..." required>
+        <label>Classificação / Origem</label>
+        <select id="dCategory" class="form-input" required>
+          <option value="PESSOAL">👥 Pessoal / Informal (Amigo, Cerveja, Aluguel Parcial...)</option>
+          <option value="BANCARIO">🏦 Bancário / Formal (Banco, Empréstimo, Financiamento...)</option>
+        </select>
       </div>
       <div class="form-group">
-        <label>Valor Total da Dívida</label>
+        <label>Nome da Pessoa ou Banco / Instituição</label>
+        <input type="text" id="dNome" class="form-input" placeholder="Ex: Fulano, Banco Nubank, Itaú..." required>
+      </div>
+      <div class="form-group">
+        <label>Tipo de Relação</label>
+        <select id="dTipo" class="form-input" required>
+          <option value="TOMADO">🔴 Peguei emprestado / Tenho crédito a pagar (EU DEVO)</option>
+          <option value="CONCEDIDO">🟢 Emprestei dinheiro / Tenho a receber (A PESSOA DEVE)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Valor Total</label>
         <input type="number" step="0.01" id="dValorTotal" class="form-input" placeholder="0.00" required>
       </div>
       <div class="form-group">
-        <label>Valor Já Pago</label>
+        <label>Valor Já Pago / Recebido</label>
         <input type="number" step="0.01" id="dValorPago" class="form-input" placeholder="0.00" value="0">
       </div>
       <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
         <button type="button" class="btn-outline" onclick="closeModal('modalDivida')">Cancelar</button>
-        <button type="submit" class="btn-add">Salvar Dívida</button>
+        <button type="submit" class="btn-add">Salvar Registro</button>
       </div>
     </form>
   </div>
@@ -671,15 +689,37 @@
     document.getElementById('kpiTotalPoupado').textContent = formatCurr(totalPoupado);
     document.getElementById('kpiMetasStatus').textContent = `${(financeData.savings || []).length} metas ativas`;
 
-    let totalDividaPendente = 0;
-    let pendenciasAtivas = 0;
+    // Separação de Dívida Bancária vs Ajustes com Pessoas
+    let dividaBancariaPendente = 0;
+    let contratosBancariosAtivos = 0;
+    let totalMeDevemPessoas = 0;
+    let totalEuDevoPessoas = 0;
+
     financeData.debts.forEach(d => {
       const rem = Math.max(0, parseFloat(d.totalAmount) - parseFloat(d.paidAmount));
-      if (rem > 0) pendenciasAtivas++;
-      totalDividaPendente += rem;
+      if (rem > 0) {
+        const category = d.category || 'PESSOAL';
+        if (category === 'BANCARIO') {
+          dividaBancariaPendente += rem;
+          contratosBancariosAtivos++;
+        } else {
+          if (d.type === 'CONCEDIDO') totalMeDevemPessoas += rem;
+          else totalEuDevoPessoas += rem;
+        }
+      }
     });
-    document.getElementById('kpiTotalDividas').textContent = formatCurr(totalDividaPendente);
-    document.getElementById('kpiDividasStatus').textContent = `${pendenciasAtivas} pendências em aberto`;
+
+    document.getElementById('kpiDividaBancaria').textContent = formatCurr(dividaBancariaPendente);
+    document.getElementById('kpiDividasBancariaStatus').textContent = `${contratosBancariosAtivos} compromisso(s) formal(is)`;
+
+    const netPessoas = totalMeDevemPessoas - totalEuDevoPessoas;
+    const kpiPessoasEl = document.getElementById('kpiAjustesPessoas');
+    kpiPessoasEl.textContent = formatCurr(netPessoas);
+    if (netPessoas > 0) kpiPessoasEl.style.color = "var(--success)";
+    else if (netPessoas < 0) kpiPessoasEl.style.color = "var(--danger)";
+    else kpiPessoasEl.style.color = "var(--primary)";
+
+    document.getElementById('kpiAjustesPessoasStatus').textContent = `A receber: ${formatCurr(totalMeDevemPessoas)} | A pagar: ${formatCurr(totalEuDevoPessoas)}`;
 
     let apeNetBalance = 0;
     financeData.apeExpenses.filter(a => isDateInRange(a.date)).forEach(a => {
@@ -718,7 +758,7 @@
     }
   }
 
-  // --- ESTATÍSTICAS DE QUITAÇÃO DE DÍVIDAS ---
+  // --- ESTATÍSTICAS DE QUITAÇÃO ---
   function renderSettlementStatsSummary() {
     const container = document.getElementById('settlementStatsSummary');
     if (!container) return;
@@ -743,14 +783,14 @@
 
     container.innerHTML = `
       <div style="background: #F8FAFC; border: 1px solid var(--border-color); border-radius: 12px; padding: 16px;">
-        <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted);">Dívidas Liquidadas</div>
-        <div style="font-size: 24px; font-weight: 800; color: var(--success); margin-top: 4px;">${totalQuitadasCount} dívidas</div>
-        <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Totalmente saldadas (Global)</div>
+        <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted);">Registros Liquidados</div>
+        <div style="font-size: 24px; font-weight: 800; color: var(--success); margin-top: 4px;">${totalQuitadasCount} concluídos</div>
+        <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Totalmente saldados (Global)</div>
       </div>
       <div style="background: #F8FAFC; border: 1px solid var(--border-color); border-radius: 12px; padding: 16px;">
         <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted);">Montante Quitado</div>
         <div style="font-size: 24px; font-weight: 800; color: var(--focus-blue); margin-top: 4px;">${formatCurr(totalSaldado)}</div>
-        <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Valor total eliminado (Global)</div>
+        <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Valor total acertado (Global)</div>
       </div>
       <div style="background: #F8FAFC; border: 1px solid var(--border-color); border-radius: 12px; padding: 16px;">
         <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted);">Última Quitação</div>
@@ -931,7 +971,7 @@
     const pendentes = financeData.debts.filter(d => (parseFloat(d.totalAmount) - parseFloat(d.paidAmount)) > 0);
 
     if (pendentes.length === 0) {
-      container.innerHTML = '<p style="color: var(--text-muted); grid-column: 1/-1;">Nenhuma dívida pendente em aberto no momento. 🎉</p>';
+      container.innerHTML = '<p style="color: var(--text-muted); grid-column: 1/-1;">Nenhum registro de empréstimo ou crédito pendente em aberto no momento. 🎉</p>';
       return;
     }
 
@@ -940,30 +980,48 @@
       const paid = parseFloat(d.paidAmount);
       const remaining = Math.max(0, total - paid);
       const pct = Math.min(100, Math.round((paid / total) * 100));
+      const isConcedido = (d.type === 'CONCEDIDO');
+      const isBancario = (d.category === 'BANCARIO');
 
       const card = document.createElement('div');
-      card.style.cssText = 'background: #F8FAFC; border: 1px solid var(--border-color); border-radius: 12px; padding: 16px;';
+      card.style.cssText = `background: #F8FAFC; border: 1px solid var(--border-color); border-left: 4px solid ${isBancario ? 'var(--danger)' : (isConcedido ? 'var(--success)' : 'var(--warning)')}; border-radius: 12px; padding: 16px;`;
+      
+      let badgeLabel = '';
+      if (isBancario) {
+        badgeLabel = '🏦 BANCÁRIO / FORMAL';
+      } else {
+        badgeLabel = isConcedido ? '👥 PESSOAL: A RECEBER' : '👥 PESSOAL: A PAGAR';
+      }
+
       card.innerHTML = `
         <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 8px;">
-          <h4 style="font-weight: 800; font-size: 15px;">${d.name}</h4>
+          <div>
+            <span class="task-mini-tag" style="background:${isBancario ? '#FEF2F2' : (isConcedido ? '#D1FAE5' : '#FEF3C7')}; color:${isBancario ? '#991B1B' : (isConcedido ? '#065F46' : '#D97706')}; margin-bottom:4px;">
+              ${badgeLabel}
+            </span>
+            <h4 style="font-weight: 800; font-size: 16px; margin-top:2px;">${d.name}</h4>
+          </div>
           <div>
             <button class="btn-icon" title="Editar" onclick="editDivida('${d.id}')">✏️</button>
             <button class="btn-danger" onclick="deleteDivida('${d.id}')">Excluir</button>
           </div>
         </div>
-        <div style="font-size: 12px; color: var(--text-muted);">Total Dívida: ${formatCurr(total)}</div>
-        <div style="font-size: 14px; font-weight: 700; color: var(--danger); margin-top: 4px;">Falta Pagar: ${formatCurr(remaining)}</div>
+        
+        <div style="font-size: 12px; color: var(--text-muted);">Valor Total: ${formatCurr(total)}</div>
+        <div style="font-size: 15px; font-weight: 800; color: ${isConcedido ? 'var(--success)' : 'var(--danger)'}; margin-top: 4px;">
+          ${isConcedido ? 'Falta Receber: ' : 'Falta Pagar: '}${formatCurr(remaining)}
+        </div>
         
         <div class="progress-bar-track">
-          <div class="progress-bar-fill" style="width: ${pct}%;"></div>
+          <div class="progress-bar-fill" style="width: ${pct}%; background-color: ${isConcedido ? '#10B981' : '#EF4444'};"></div>
         </div>
         <div style="display:flex; justify-content:space-between; font-size: 11px; color: var(--text-muted); margin-top: 6px;">
-          <span>Pago: ${formatCurr(paid)} (${pct}%)</span>
-          <button class="btn-outline" style="padding: 2px 6px; font-size: 10px;" onclick="addPaymentToDivida('${d.id}')">+ Amortizar</button>
+          <span>${isConcedido ? 'Recebido: ' : 'Pago: '}${formatCurr(paid)} (${pct}%)</span>
+          <button class="btn-outline" style="padding: 2px 6px; font-size: 10px;" onclick="addPaymentToDivida('${d.id}')">${isConcedido ? '+ Receber Parte' : '+ Amortizar'}</button>
         </div>
 
         <div style="margin-top: 12px; border-top: 1px dashed #CBD5E1; padding-top: 10px; text-align: right;">
-          <button class="btn-settle" onclick="settleDividaDirect('${d.id}')">✅ Saldar Dívida Totalmente</button>
+          <button class="btn-settle" onclick="settleDividaDirect('${d.id}')">✅ Saldar / Quitar Totalmente</button>
         </div>
       `;
       container.appendChild(card);
@@ -978,17 +1036,21 @@
     const quitadas = financeData.debts.filter(d => (parseFloat(d.paidAmount) >= parseFloat(d.totalAmount)) && parseFloat(d.totalAmount) > 0);
 
     if (quitadas.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 20px; color: var(--text-muted);">Nenhuma dívida quitada ainda.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px; color: var(--text-muted);">Nenhum empréstimo ou crédito quitado ainda.</td></tr>';
       return;
     }
 
     quitadas.forEach(d => {
+      const isConcedido = (d.type === 'CONCEDIDO');
+      const isBancario = (d.category === 'BANCARIO');
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td style="font-weight: 600;">${d.name}</td>
+        <td><span class="task-mini-tag">${isBancario ? '🏦 Bancário' : '👥 Pessoal'}</span></td>
+        <td><span class="task-mini-tag" style="background:${isConcedido ? '#D1FAE5' : '#FEE2E2'}; color:${isConcedido ? '#065F46' : '#991B1B'};">${isConcedido ? '🟢 A Receber' : '🔴 A Pagar'}</span></td>
         <td style="font-weight: 700; color: var(--success);">${formatCurr(d.totalAmount)}</td>
         <td>${d.settledDate || 'Informativo'}</td>
-        <td><span class="badge-income">✅ SALDADA</span></td>
+        <td><span class="badge-income">✅ QUITADO</span></td>
       `;
       tbody.appendChild(tr);
     });
@@ -1050,7 +1112,6 @@
     const defaultDesc = isInc ? 'Recebimento de Acerto Compartilhado' : 'Pagamento de Acerto Compartilhado';
     const finalDesc = descInput || defaultDesc;
 
-    // 1. Lançamento no caixa real (Teto Diário)
     const transId = 'trans_' + new Date().getTime();
     financeData.transactions.push({
       id: transId,
@@ -1062,7 +1123,6 @@
       date: data
     });
 
-    // 2. Registro no histórico de contas compartilhadas para diminuir o saldo
     financeData.apeExpenses.push({
       id: 'ape_' + new Date().getTime(),
       desc: finalDesc,
@@ -1139,7 +1199,7 @@
 
     catSelect.innerHTML = '<option value="ALL">Todas as Saídas (Geral)</option>';
     catSelect.innerHTML += '<option value="CONTAS_APE">🤝 Contas Compartilhadas</option>';
-    catSelect.innerHTML += '<option value="DIVIDAS">🎯 Dívidas & Amortizações</option>';
+    catSelect.innerHTML += '<option value="DIVIDAS">🎯 Empréstimos & Crédito</option>';
     catSelect.innerHTML += '<option value="POUPANCA">🐷 Poupança & Aportes</option>';
 
     const cats = new Set();
@@ -1616,21 +1676,23 @@
     }
   }
 
-  // --- OPERAÇÕES DÍVIDAS ---
+  // --- OPERAÇÕES EMPRÉSTIMOS ---
   function saveDivida(e) {
     e.preventDefault();
     const editId = document.getElementById('dEditId').value;
+    const category = document.getElementById('dCategory').value;
     const nome = document.getElementById('dNome').value.trim();
+    const tipo = document.getElementById('dTipo').value;
     const total = parseFloat(document.getElementById('dValorTotal').value);
     const pago = parseFloat(document.getElementById('dValorPago').value) || 0;
 
     if (editId) {
       const item = financeData.debts.find(d => d.id === editId);
-      if (item) { item.name = nome; item.totalAmount = total; item.paidAmount = pago; }
+      if (item) { item.category = category; item.name = nome; item.type = tipo; item.totalAmount = total; item.paidAmount = pago; }
     } else {
       financeData.debts.push({
         id: 'debt_' + new Date().getTime(),
-        name: nome, totalAmount: total, paidAmount: pago, settledDate: null
+        category: category, name: nome, type: tipo, totalAmount: total, paidAmount: pago, settledDate: null
       });
     }
 
@@ -1643,17 +1705,20 @@
     const item = financeData.debts.find(d => d.id === id);
     if (!item) return;
     document.getElementById('dEditId').value = item.id;
+    document.getElementById('dCategory').value = item.category || 'PESSOAL';
     document.getElementById('dNome').value = item.name || '';
+    document.getElementById('dTipo').value = item.type || 'TOMADO';
     document.getElementById('dValorTotal').value = item.totalAmount || '';
     document.getElementById('dValorPago').value = item.paidAmount || 0;
-    document.getElementById('modalDividaTitle').textContent = "EDITAR DÍVIDA";
+    document.getElementById('modalDividaTitle').textContent = "EDITAR REGISTRO";
     openModal('modalDivida');
   }
 
   function settleDividaDirect(id) {
     const debt = financeData.debts.find(d => d.id === id);
     if (debt) {
-      if (confirm(`Confirmar a quitação total da dívida "${debt.name}" no valor de ${formatCurr(debt.totalAmount)}?`)) {
+      const actionStr = (debt.type === 'CONCEDIDO') ? 'recebido integralmente' : 'quitado totalmente';
+      if (confirm(`Confirmar que "${debt.name}" foi ${actionStr} (${formatCurr(debt.totalAmount)})?`)) {
         debt.paidAmount = debt.totalAmount;
         debt.settledDate = new Date().toISOString().split('T')[0];
         saveData();
@@ -1662,21 +1727,21 @@
   }
 
   function addPaymentToDivida(id) {
-    const val = prompt(`Digite o valor que deseja amortizar nesta dívida (${financeData.currency || 'R$'}):`);
+    const debt = financeData.debts.find(d => d.id === id);
+    if (!debt) return;
+    const promptMsg = (debt.type === 'CONCEDIDO') ? 'Digite o valor recebido de volta:' : 'Digite o valor pago/amortizado:';
+    const val = prompt(`${promptMsg} (${financeData.currency || 'R$'})`);
     if (val && !isNaN(parseFloat(val))) {
-      const debt = financeData.debts.find(d => d.id === id);
-      if (debt) {
-        debt.paidAmount = parseFloat(debt.paidAmount) + parseFloat(val);
-        if (parseFloat(debt.paidAmount) >= parseFloat(debt.totalAmount)) {
-          debt.settledDate = new Date().toISOString().split('T')[0];
-        }
-        saveData();
+      debt.paidAmount = parseFloat(debt.paidAmount) + parseFloat(val);
+      if (parseFloat(debt.paidAmount) >= parseFloat(debt.totalAmount)) {
+        debt.settledDate = new Date().toISOString().split('T')[0];
       }
+      saveData();
     }
   }
 
   function deleteDivida(id) {
-    if (confirm("Deseja realmente remover esta dívida?")) {
+    if (confirm("Deseja realmente remover este registro?")) {
       financeData.debts = financeData.debts.filter(d => d.id !== id);
       saveData();
     }
