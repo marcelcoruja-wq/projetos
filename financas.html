@@ -248,7 +248,7 @@
       <div class="box-header">
         <div>
           <div class="box-title">🐷 Minhas Metas de Economia</div>
-          <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Crie metas gerais (ex: Viagem) e estruture orçamentos por áreas (Hospedagem, Passagens, Alimentação...).</p>
+          <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Crie metas de aporte direto (ex: Videogame) ou divida seu objetivo em áreas (ex: Viagem -> Hospedagem, Voo).</p>
         </div>
         <button class="btn-add" onclick="openModal('modalPoupanca')">➕ Nova Meta de Poupança</button>
       </div>
@@ -374,7 +374,16 @@
       <input type="hidden" id="pEditId">
       <div class="form-group">
         <label>Nome do Objetivo / Meta</label>
-        <input type="text" id="pNome" class="form-input" placeholder="Ex: Viagem de Férias, Carro Novo, Reserva..." required>
+        <input type="text" id="pNome" class="form-input" placeholder="Ex: Viagem de Férias, Videogame..." required>
+      </div>
+      <div class="form-group">
+        <label>Valor Alvo Final (Meta)</label>
+        <input type="number" step="0.01" id="pValorMeta" class="form-input" placeholder="0.00">
+        <small style="font-size: 10px; color: var(--text-muted); display: block; margin-top: 4px;">Deixe zerado se for dividir esta meta em subáreas.</small>
+      </div>
+      <div class="form-group">
+        <label>Valor Inicial Já Guardado</label>
+        <input type="number" step="0.01" id="pValorAtual" class="form-input" placeholder="0.00" value="0">
       </div>
       <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
         <button type="button" class="btn-outline" onclick="closeModal('modalPoupanca')">Cancelar</button>
@@ -738,8 +747,9 @@
     financeData.savings.forEach(s => {
       let goalTotalMeta = 0;
       let goalTotalAtual = 0;
+      const hasAreas = s.areas && s.areas.length > 0;
 
-      if (s.areas && s.areas.length > 0) {
+      if (hasAreas) {
         s.areas.forEach(a => {
           goalTotalMeta += parseFloat(a.targetAmount || 0);
           goalTotalAtual += parseFloat(a.currentAmount || 0);
@@ -754,7 +764,7 @@
       const isConcluidoGoal = goalTotalAtual >= goalTotalMeta && goalTotalMeta > 0;
 
       let areasHTML = '';
-      if (s.areas && s.areas.length > 0) {
+      if (hasAreas) {
         s.areas.forEach(a => {
           const aMeta = parseFloat(a.targetAmount || 0);
           const aAtual = parseFloat(a.currentAmount || 0);
@@ -783,16 +793,15 @@
             </div>
           `;
         });
-      } else {
-        areasHTML = '<p style="font-size:11px; color:var(--text-muted); margin-top:10px; font-style:italic;">Nenhuma área (ex: Hospedagem, Passagens) adicionada ainda.</p>';
       }
 
       const card = document.createElement('div');
       card.style.cssText = 'background: #F8FAFC; border: 1px solid var(--border-color); border-radius: 14px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between;';
+      
       card.innerHTML = `
         <div>
           <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 8px;">
-            <h4 style="font-weight: 800; font-size: 17px; color: var(--primary);">${isConcluidoGoal ? '🎉 ' : '✈️ '}${s.name}</h4>
+            <h4 style="font-weight: 800; font-size: 17px; color: var(--primary);">${isConcluidoGoal ? '🎉 ' : '🎯 '}${s.name}</h4>
             <div>
               <button class="btn-icon" title="Editar Nome" onclick="editPoupanca('${s.id}')">✏️</button>
               <button class="btn-danger" onclick="deletePoupanca('${s.id}')">Excluir</button>
@@ -811,13 +820,20 @@
             <span>${isConcluidoGoal ? 'Meta Atingida!' : 'Falta: ' + formatCurr(faltaGoal)}</span>
           </div>
 
+          ${!hasAreas ? `
+            <div style="display:flex; gap: 8px; margin-top: 16px; margin-bottom: 4px;">
+              <button class="btn-add" style="flex:1; justify-content:center; padding: 6px 10px; font-size: 11px;" onclick="addDepositToPoupancaMain('${s.id}')">➕ Aportar</button>
+              <button class="btn-outline" style="flex:1; justify-content:center; padding: 6px 10px; font-size: 11px;" onclick="withdrawFromPoupancaMain('${s.id}')">➖ Resgatar</button>
+            </div>
+          ` : ''}
+
           <!-- ÁREAS / SUBCATEGORIAS DA META -->
           <div style="margin-top: 16px; border-top: 1px solid #E2E8F0; padding-top: 12px;">
             <div style="display:flex; justify-content:space-between; align-items:center;">
-              <span style="font-size:11px; font-weight:800; text-transform:uppercase; color:var(--text-muted);">Áreas do Orçamento:</span>
+              <span style="font-size:11px; font-weight:800; text-transform:uppercase; color:var(--text-muted);">Áreas de Gastos:</span>
               <button class="btn-outline" style="padding: 2px 8px; font-size:10px; font-weight:700;" onclick="openAddPoupancaAreaModal('${s.id}')">➕ Add Área</button>
             </div>
-            ${areasHTML}
+            ${hasAreas ? areasHTML : `<p style="font-size:11px; color:var(--text-muted); margin-top:10px; font-style:italic;">Quer dividir o orçamento por partes? Adicione uma área.</p>`}
           </div>
         </div>
       `;
@@ -982,7 +998,7 @@
         if (d.name) subCats.add(d.name.toUpperCase().trim());
       });
       financeData.savings.forEach(s => {
-        if (s.areas) {
+        if (s.areas && s.areas.length > 0) {
           s.areas.forEach(ar => subCats.add(ar.name.toUpperCase().trim()));
         } else if (s.name) subCats.add(s.name.toUpperCase().trim());
       });
@@ -996,7 +1012,7 @@
       });
     } else if (catVal === 'POUPANCA') {
       financeData.savings.forEach(s => {
-        if (s.areas) {
+        if (s.areas && s.areas.length > 0) {
           s.areas.forEach(ar => subCats.add(ar.name.toUpperCase().trim()));
         } else if (s.name) subCats.add(s.name.toUpperCase().trim());
       });
@@ -1228,8 +1244,10 @@
   }
 
   function deleteLancamento(id) {
-    financeData.transactions = financeData.transactions.filter(t => t.id !== id);
-    saveData();
+    if (confirm("Deseja realmente remover este lançamento?")) {
+      financeData.transactions = financeData.transactions.filter(t => t.id !== id);
+      saveData();
+    }
   }
 
   // --- OPERAÇÕES POUPANÇA & METAS ---
@@ -1237,16 +1255,24 @@
     e.preventDefault();
     const editId = document.getElementById('pEditId').value;
     const nome = document.getElementById('pNome').value.trim();
+    const meta = parseFloat(document.getElementById('pValorMeta').value) || 0;
+    const atual = parseFloat(document.getElementById('pValorAtual').value) || 0;
 
     if (!financeData.savings) financeData.savings = [];
 
     if (editId) {
       const item = financeData.savings.find(s => s.id === editId);
-      if (item) { item.name = nome; }
+      if (item) { 
+        item.name = nome; 
+        if(!item.areas || item.areas.length === 0) {
+          item.targetAmount = meta;
+          item.currentAmount = atual;
+        }
+      }
     } else {
       financeData.savings.push({
         id: 'sav_' + new Date().getTime(),
-        name: nome, targetAmount: 0, currentAmount: 0, areas: []
+        name: nome, targetAmount: meta, currentAmount: atual, areas: []
       });
     }
 
@@ -1260,11 +1286,39 @@
     if (!item) return;
     document.getElementById('pEditId').value = item.id;
     document.getElementById('pNome').value = item.name || '';
-    document.getElementById('modalPoupancaTitle').textContent = "EDITAR NOME DA META";
+    document.getElementById('pValorMeta').value = item.targetAmount || '';
+    document.getElementById('pValorAtual').value = item.currentAmount || 0;
+    
+    const hasAreas = item.areas && item.areas.length > 0;
+    document.getElementById('pValorMeta').disabled = hasAreas;
+    document.getElementById('pValorAtual').disabled = hasAreas;
+
+    document.getElementById('modalPoupancaTitle').textContent = "EDITAR META";
     openModal('modalPoupanca');
   }
 
   function openAddPoupancaAreaModal(goalId) {
+    const goal = financeData.savings.find(s => s.id === goalId);
+    if (!goal) return;
+
+    // Migração de meta simples para complexa sem perder dados
+    if ((!goal.areas || goal.areas.length === 0) && (parseFloat(goal.targetAmount) > 0 || parseFloat(goal.currentAmount) > 0)) {
+      if (confirm("Ao adicionar uma subárea, o saldo atual da sua meta se transformará em uma área chamada 'Geral' para não perder os valores depositados. Continuar?")) {
+        if (!goal.areas) goal.areas = [];
+        goal.areas.push({
+          id: 'area_' + new Date().getTime(),
+          name: 'Geral (Saldo Inicial)',
+          targetAmount: goal.targetAmount,
+          currentAmount: goal.currentAmount
+        });
+        goal.targetAmount = 0;
+        goal.currentAmount = 0;
+        saveData();
+      } else {
+        return;
+      }
+    }
+
     document.getElementById('paGoalId').value = goalId;
     document.getElementById('paAreaId').value = '';
     document.getElementById('paNome').value = '';
@@ -1316,6 +1370,28 @@
     e.target.reset();
   }
 
+  function addDepositToPoupancaMain(id) {
+    const val = prompt(`Digite o valor a aportar nesta meta (${financeData.currency || 'R$'}):`);
+    if (val && !isNaN(parseFloat(val))) {
+      const item = financeData.savings.find(s => s.id === id);
+      if (item) {
+        item.currentAmount = parseFloat(item.currentAmount || 0) + parseFloat(val);
+        saveData();
+      }
+    }
+  }
+
+  function withdrawFromPoupancaMain(id) {
+    const val = prompt(`Digite o valor a resgatar desta meta (${financeData.currency || 'R$'}):`);
+    if (val && !isNaN(parseFloat(val))) {
+      const item = financeData.savings.find(s => s.id === id);
+      if (item) {
+        item.currentAmount = Math.max(0, parseFloat(item.currentAmount || 0) - parseFloat(val));
+        saveData();
+      }
+    }
+  }
+
   function addDepositToPoupancaArea(goalId, areaId) {
     const val = prompt(`Digite o valor a aportar nesta área (${financeData.currency || 'R$'}):`);
     if (val && !isNaN(parseFloat(val))) {
@@ -1323,7 +1399,7 @@
       if (goal && goal.areas) {
         const area = goal.areas.find(a => a.id === areaId);
         if (area) {
-          area.currentAmount = parseFloat(area.currentAmount) + parseFloat(val);
+          area.currentAmount = parseFloat(area.currentAmount || 0) + parseFloat(val);
           saveData();
         }
       }
@@ -1337,7 +1413,7 @@
       if (goal && goal.areas) {
         const area = goal.areas.find(a => a.id === areaId);
         if (area) {
-          area.currentAmount = Math.max(0, parseFloat(area.currentAmount) - parseFloat(val));
+          area.currentAmount = Math.max(0, parseFloat(area.currentAmount || 0) - parseFloat(val));
           saveData();
         }
       }
@@ -1346,7 +1422,7 @@
 
   function deletePoupancaArea(goalId, areaId) {
     const goal = financeData.savings.find(s => s.id === goalId);
-    if (goal && goal.areas && confirm("Deseja realmente remover esta área da meta?")) {
+    if (goal && goal.areas && confirm("Deseja realmente remover esta área do orçamento?")) {
       goal.areas = goal.areas.filter(a => a.id !== areaId);
       saveData();
     }
@@ -1464,8 +1540,10 @@
   }
 
   function deleteApe(id) {
-    financeData.apeExpenses = financeData.apeExpenses.filter(a => a.id !== id);
-    saveData();
+    if (confirm("Deseja realmente excluir esta conta compartilhada?")) {
+      financeData.apeExpenses = financeData.apeExpenses.filter(a => a.id !== id);
+      saveData();
+    }
   }
 
   // --- AUXILIARES ---
@@ -1477,6 +1555,12 @@
     document.getElementById(modalId).classList.remove('active');
     const hiddenInputs = document.querySelectorAll('input[type="hidden"]');
     hiddenInputs.forEach(i => i.value = '');
+    
+    // Libera os campos de poupança ao fechar
+    const pValorMeta = document.getElementById('pValorMeta');
+    const pValorAtual = document.getElementById('pValorAtual');
+    if (pValorMeta) pValorMeta.disabled = false;
+    if (pValorAtual) pValorAtual.disabled = false;
   }
 
   function formatCurr(val) {
