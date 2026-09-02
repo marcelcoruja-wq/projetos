@@ -152,9 +152,15 @@
       <div class="white-box">
         <div class="box-header">
           <div class="box-title">📈 Evolução Histórica de Gastos</div>
-          <select id="chartCategoryFilter" class="form-input" style="width: auto; padding: 4px 8px;" onchange="updateHistoryChart()">
-            <option value="ALL">Todas as Categorias</option>
-          </select>
+          <!-- FILTROS DUPLOS: CATEGORIA E SUBCATEGORIA -->
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <select id="chartCategoryFilter" class="form-input" style="width: auto; padding: 4px 8px; font-weight: 600;" onchange="onCategoryFilterChange()">
+              <option value="ALL">Todas as Categorias</option>
+            </select>
+            <select id="chartSubCategoryFilter" class="form-input" style="width: auto; padding: 4px 8px; font-weight: 600;" onchange="updateHistoryChart()">
+              <option value="ALL">Todas as Subcategorias</option>
+            </select>
+          </div>
         </div>
         <div class="chart-container">
           <canvas id="historyChart"></canvas>
@@ -187,6 +193,7 @@
               <th>Data</th>
               <th>Descrição</th>
               <th>Categoria</th>
+              <th>Subcategoria</th>
               <th>Tipo</th>
               <th>Valor</th>
               <th style="text-align: center;">Ações</th>
@@ -241,7 +248,7 @@
           <thead>
             <tr>
               <th>Data</th>
-              <th>Descrição</th>
+              <th>Descrição / Subcategoria</th>
               <th>Quem Pagou</th>
               <th>Divisão</th>
               <th>Valor Total</th>
@@ -263,7 +270,7 @@
     <form onsubmit="saveLancamento(event)">
       <div class="form-group">
         <label>Descrição</label>
-        <input type="text" id="lDesc" class="form-input" placeholder="Ex: Supermercado, Salário..." required>
+        <input type="text" id="lDesc" class="form-input" placeholder="Ex: Mercado mensal, Salário..." required>
       </div>
       <div class="form-group">
         <label>Valor</label>
@@ -277,10 +284,17 @@
         </select>
       </div>
       <div class="form-group">
-        <label>Categoria</label>
-        <input type="text" id="lCat" class="form-input" placeholder="Ex: Luz, Mercado, Lazer..." required list="catList">
+        <label>Categoria Principal</label>
+        <input type="text" id="lCat" class="form-input" placeholder="Ex: Moradia, Alimentação, Lazer..." required list="catList">
         <datalist id="catList">
-          <option value="Luz"><option value="Água"><option value="Internet"><option value="Mercado"><option value="Lazer"><option value="Transporte">
+          <option value="Moradia"><option value="Alimentação"><option value="Lazer"><option value="Transporte"><option value="Saúde">
+        </datalist>
+      </div>
+      <div class="form-group">
+        <label>Subcategoria / Item (Opcional)</label>
+        <input type="text" id="lSubCat" class="form-input" placeholder="Ex: Luz, Internet, Feira, Gasolina..." list="subCatList">
+        <datalist id="subCatList">
+          <option value="Luz"><option value="Água"><option value="Internet"><option value="Aluguel"><option value="Feira">
         </datalist>
       </div>
       <div class="form-group">
@@ -351,8 +365,8 @@
     <div class="modal-title box-title" style="margin-bottom: 16px;">NOVA DESPESA COMPARTILHADA</div>
     <form onsubmit="saveApe(event)">
       <div class="form-group">
-        <label>Descrição da Conta</label>
-        <input type="text" id="aDesc" class="form-input" placeholder="Ex: Aluguel, Conta de Luz..." required>
+        <label>Descrição / Subcategoria (Ex: Luz, Internet)</label>
+        <input type="text" id="aDesc" class="form-input" placeholder="Ex: Luz, Internet, Aluguel..." required>
       </div>
       <div class="form-group">
         <label>Valor Total da Conta</label>
@@ -424,7 +438,7 @@
     renderSavingsList();
     renderDebtsList();
     renderApeTable();
-    populateCategoryFilter();
+    populateCategoryFilters();
     initOrUpdateCharts();
   }
 
@@ -456,7 +470,6 @@
     const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();
 
-    // 1. Saldo do Mês
     let monthIncome = 0;
     let monthExpense = 0;
 
@@ -472,7 +485,6 @@
     document.getElementById('kpiSaldo').textContent = formatCurr(netMonth);
     document.getElementById('kpiReceitaDespesa').textContent = `Entradas: ${formatCurr(monthIncome)} | Gastos: ${formatCurr(monthExpense)}`;
 
-    // 2. Teto Diário de Hoje
     const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
     const remainingDays = daysInMonth - now.getDate() + 1;
     const dailyLimit = netMonth > 0 ? (netMonth / remainingDays) : 0;
@@ -480,7 +492,6 @@
     document.getElementById('kpiTetoDiario').textContent = `${formatCurr(dailyLimit)} /dia`;
     document.getElementById('kpiDiasRestantes').textContent = `Para os próximos ${remainingDays} dias do mês`;
 
-    // 3. Total Poupado
     let totalPoupado = 0;
     (financeData.savings || []).forEach(s => {
       totalPoupado += parseFloat(s.currentAmount || 0);
@@ -488,7 +499,6 @@
     document.getElementById('kpiTotalPoupado').textContent = formatCurr(totalPoupado);
     document.getElementById('kpiMetasStatus').textContent = `${(financeData.savings || []).length} metas ativas`;
 
-    // 4. Dívidas
     let totalDividaPendente = 0;
     financeData.debts.forEach(d => {
       totalDividaPendente += Math.max(0, parseFloat(d.totalAmount) - parseFloat(d.paidAmount));
@@ -496,7 +506,6 @@
     document.getElementById('kpiTotalDividas').textContent = formatCurr(totalDividaPendente);
     document.getElementById('kpiDividasStatus').textContent = `${financeData.debts.length} pendências ativas`;
 
-    // 5. Balanço do Apê
     let apeNetBalance = 0;
     financeData.apeExpenses.forEach(a => {
       const val = parseFloat(a.amount);
@@ -536,7 +545,7 @@
     const sorted = [...financeData.transactions].sort((a,b) => new Date(b.date) - new Date(a.date));
 
     if (sorted.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px; color: var(--text-muted);">Nenhum lançamento registrado.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 20px; color: var(--text-muted);">Nenhum lançamento registrado.</td></tr>';
       return;
     }
 
@@ -547,6 +556,7 @@
         <td>${t.date}</td>
         <td style="font-weight: 600;">${t.desc}</td>
         <td><span class="task-mini-tag">${t.category}</span></td>
+        <td><span class="task-mini-tag" style="background:#F1F5F9; color:#334155;">${t.subcategory || '-'}</span></td>
         <td><span class="${isInc ? 'badge-income' : 'badge-expense'}">${isInc ? 'ENTRADA' : 'GASTO'}</span></td>
         <td style="font-weight: 700; color: ${isInc ? 'var(--success)' : 'var(--danger)'}">${isInc ? '+' : '-'} ${formatCurr(t.amount)}</td>
         <td style="text-align: center;">
@@ -674,11 +684,13 @@
     });
   }
 
-  // --- FILTRO DE CATEGORIAS ---
-  function populateCategoryFilter() {
-    const select = document.getElementById('chartCategoryFilter');
-    const currVal = select.value;
-    select.innerHTML = '<option value="ALL">Todas as Categorias</option>';
+  // --- FILTROS ENCADEADOS (CATEGORIA E SUBCATEGORIA) ---
+  function populateCategoryFilters() {
+    const catSelect = document.getElementById('chartCategoryFilter');
+    const currCat = catSelect.value;
+
+    catSelect.innerHTML = '<option value="ALL">Todas as Categorias</option>';
+    catSelect.innerHTML += '<option value="CONTAS_APE">🏠 Contas do Apê</option>';
 
     const cats = new Set();
     financeData.transactions.forEach(t => {
@@ -686,11 +698,58 @@
     });
 
     Array.from(cats).sort().forEach(cat => {
+      if (cat !== 'CONTAS_APE') {
+        const opt = document.createElement('option');
+        opt.value = cat;
+        opt.textContent = cat;
+        if (cat === currCat) opt.selected = true;
+        catSelect.appendChild(opt);
+      }
+    });
+
+    populateSubCategoryFilter();
+  }
+
+  function onCategoryFilterChange() {
+    populateSubCategoryFilter();
+    updateHistoryChart();
+  }
+
+  function populateSubCategoryFilter() {
+    const catVal = document.getElementById('chartCategoryFilter').value;
+    const subSelect = document.getElementById('chartSubCategoryFilter');
+    const currSub = subSelect.value;
+
+    subSelect.innerHTML = '<option value="ALL">Todas as Subcategorias</option>';
+
+    const subCats = new Set();
+
+    if (catVal === 'ALL') {
+      financeData.transactions.forEach(t => {
+        if (t.type === 'EXPENSE' && t.subcategory) subCats.add(t.subcategory.toUpperCase().trim());
+      });
+      financeData.apeExpenses.forEach(a => {
+        if (a.desc) subCats.add(a.desc.toUpperCase().trim());
+      });
+    } else if (catVal === 'CONTAS_APE') {
+      financeData.apeExpenses.forEach(a => {
+        if (a.desc) subCats.add(a.desc.toUpperCase().trim());
+      });
+    } else {
+      financeData.transactions.forEach(t => {
+        if (t.type === 'EXPENSE' && t.category && t.category.toUpperCase().trim() === catVal) {
+          if (t.subcategory) subCats.add(t.subcategory.toUpperCase().trim());
+          else if (t.desc) subCats.add(t.desc.toUpperCase().trim());
+        }
+      });
+    }
+
+    Array.from(subCats).sort().forEach(sub => {
       const opt = document.createElement('option');
-      opt.value = cat;
-      opt.textContent = cat;
-      if (cat === currVal) opt.selected = true;
-      select.appendChild(opt);
+      opt.value = sub;
+      opt.textContent = sub;
+      if (sub === currSub) opt.selected = true;
+      subSelect.appendChild(opt);
     });
   }
 
@@ -703,32 +762,61 @@
   function updateHistoryChart() {
     const ctx = document.getElementById('historyChart').getContext('2d');
     const selectedCat = document.getElementById('chartCategoryFilter').value;
+    const selectedSub = document.getElementById('chartSubCategoryFilter').value;
 
     const monthlyData = {};
-    financeData.transactions.forEach(t => {
-      if (t.type !== 'EXPENSE') return;
-      
-      const cat = (t.category || '').toUpperCase().trim();
-      if (selectedCat !== 'ALL' && cat !== selectedCat) return;
 
-      const dateObj = new Date(t.date);
-      const monthKey = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
+    // 1. Processa Transações
+    if (selectedCat !== 'CONTAS_APE') {
+      financeData.transactions.forEach(t => {
+        if (t.type !== 'EXPENSE') return;
+        
+        const cat = (t.category || '').toUpperCase().trim();
+        const sub = (t.subcategory || t.desc || '').toUpperCase().trim();
 
-      if (!monthlyData[monthKey]) monthlyData[monthKey] = 0;
-      monthlyData[monthKey] += parseFloat(t.amount);
-    });
+        if (selectedCat !== 'ALL' && cat !== selectedCat) return;
+        if (selectedSub !== 'ALL' && sub !== selectedSub) return;
+
+        const dateObj = new Date(t.date);
+        const monthKey = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
+
+        if (!monthlyData[monthKey]) monthlyData[monthKey] = 0;
+        monthlyData[monthKey] += parseFloat(t.amount);
+      });
+    }
+
+    // 2. Processa Contas do Apê
+    if (selectedCat === 'ALL' || selectedCat === 'CONTAS_APE') {
+      financeData.apeExpenses.forEach(a => {
+        const sub = (a.desc || '').toUpperCase().trim();
+        if (selectedSub !== 'ALL' && sub !== selectedSub) return;
+
+        const dateObj = new Date(a.date);
+        const monthKey = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
+
+        if (!monthlyData[monthKey]) monthlyData[monthKey] = 0;
+        
+        const count = parseInt(a.peopleCount) || 2;
+        const myShare = parseFloat(a.amount) / count;
+        monthlyData[monthKey] += myShare;
+      });
+    }
 
     const labels = Object.keys(monthlyData).sort();
     const values = labels.map(k => monthlyData[k]);
 
     if (historyChartInstance) historyChartInstance.destroy();
 
+    let chartLabel = `Gastos (${financeData.currency || 'R$'})`;
+    if (selectedCat !== 'ALL') chartLabel = `${selectedCat}`;
+    if (selectedSub !== 'ALL') chartLabel += ` > ${selectedSub}`;
+
     historyChartInstance = new Chart(ctx, {
       type: 'line',
       data: {
         labels: labels,
         datasets: [{
-          label: selectedCat === 'ALL' ? `Gastos Totais (${financeData.currency || 'R$'})` : `Gastos em ${selectedCat} (${financeData.currency || 'R$'})`,
+          label: chartLabel,
           data: values,
           borderColor: '#2F5FD0',
           backgroundColor: 'rgba(47, 95, 208, 0.1)',
@@ -753,6 +841,7 @@
     const currentYear = now.getFullYear();
 
     const catSums = {};
+
     financeData.transactions.forEach(t => {
       if (t.type !== 'EXPENSE') return;
       const d = new Date(t.date);
@@ -760,6 +849,16 @@
         const cat = (t.category || 'Outros').toUpperCase().trim();
         if (!catSums[cat]) catSums[cat] = 0;
         catSums[cat] += parseFloat(t.amount);
+      }
+    });
+
+    financeData.apeExpenses.forEach(a => {
+      const d = new Date(a.date);
+      if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
+        const cat = 'CONTAS DO APÊ';
+        if (!catSums[cat]) catSums[cat] = 0;
+        const count = parseInt(a.peopleCount) || 2;
+        catSums[cat] += parseFloat(a.amount) / count;
       }
     });
 
@@ -792,11 +891,12 @@
     const valor = parseFloat(document.getElementById('lValor').value);
     const tipo = document.getElementById('lTipo').value;
     const cat = document.getElementById('lCat').value.trim();
+    const subcat = document.getElementById('lSubCat').value.trim();
     const data = document.getElementById('lData').value;
 
     financeData.transactions.push({
       id: 'trans_' + new Date().getTime(),
-      desc, amount: valor, type: tipo, category: cat, date: data
+      desc, amount: valor, type: tipo, category: cat, subcategory: subcat, date: data
     });
 
     saveData();
