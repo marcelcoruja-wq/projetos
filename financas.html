@@ -57,9 +57,9 @@
     .tab-content { display: none !important; }
     .tab-content.active { display: block !important; }
 
-    /* SEÇÃO DE FILAS KPIS DO DASHBOARD */
+    /* SEÇÃO DE FILAS KPIS DO DASHBOARD - PROPORÇÃO CARD MANTIDA */
     .kpi-section-title { font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; letter-spacing: 0.5px; }
-    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 20px; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
     .kpi-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
     .kpi-card .label { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
     .kpi-card .num { font-size: 24px; font-weight: 800; line-height: 1.2; }
@@ -112,7 +112,11 @@
     .progress-bar-track { background-color: #E2E8F0; height: 12px; border-radius: 20px; overflow: hidden; margin-top: 8px; }
     .progress-bar-fill { height: 100%; background-color: var(--success); width: 0%; transition: width 0.3s; }
 
-    /* REGRAS MOBILE */
+    /* REGRAS RESPONSIVAS */
+    @media (max-width: 900px) {
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    }
+
     @media (max-width: 600px) {
       body { padding: 10px; }
       .kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
@@ -583,7 +587,7 @@
   </div>
 </div>
 
-<!-- MODAL EMPRÉSTIMO -->
+<!-- MODAL EMPRÉSTIMO COM CÁLCULO DINÂMICO DE VALOR FALTA/PAGO -->
 <div id="modalDivida" class="modal-overlay">
   <div class="modal-box">
     <div class="modal-header">
