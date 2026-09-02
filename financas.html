@@ -296,7 +296,10 @@
           <div class="box-title">🏠 Contas Compartilhadas do Apê</div>
           <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;" id="apeSettlementSummary">Calculando acerto de contas...</p>
         </div>
-        <button class="btn-add" onclick="openModal('modalApe')">➕ Nova Despesa Compartilhada</button>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button class="btn-settle" onclick="settleApeBalance()">✅ Saldar / Zerar Acerto do Apê</button>
+          <button class="btn-add" onclick="openModal('modalApe')">➕ Nova Despesa Compartilhada</button>
+        </div>
       </div>
 
       <div style="overflow-x: auto;">
@@ -309,7 +312,7 @@
               <th>Divisão</th>
               <th>Valor Total</th>
               <th>Sua Parte</th>
-              <th style="text-align: center;">Ações</th>
+              <th style="text-align: center;">Status / Ações</th>
             </tr>
           </thead>
           <tbody id="tableApe"></tbody>
@@ -606,6 +609,7 @@
 
     let apeNetBalance = 0;
     financeData.apeExpenses.forEach(a => {
+      if (a.settled) return;
       const val = parseFloat(a.amount);
       const count = parseInt(a.peopleCount) || 2;
       const yourShare = val / count;
@@ -635,7 +639,53 @@
     }
   }
 
-  // --- ESTATÍSTICAS DE QUITAÇÃO ---
+  // --- QUITAÇÃO DO APÊ ---
+  function settleApeBalance() {
+    let apeNetBalance = 0;
+    const activeExpenses = financeData.apeExpenses.filter(a => !a.settled);
+
+    if (activeExpenses.length === 0) {
+      alert("Não há contas pendentes para saldar no Apê.");
+      return;
+    }
+
+    activeExpenses.forEach(a => {
+      const val = parseFloat(a.amount);
+      const count = parseInt(a.peopleCount) || 2;
+      const yourShare = val / count;
+      if (a.paidBy === 'VOCE') apeNetBalance += (val - yourShare);
+      else apeNetBalance -= yourShare;
+    });
+
+    if (apeNetBalance === 0) {
+      alert("O saldo do Apê já está perfeitamente zerado!");
+      return;
+    }
+
+    const actionMsg = apeNetBalance > 0
+      ? `Você receberá ${formatCurr(apeNetBalance)}. Isso será registrado como uma ENTRADA (Receita) nos Lançamentos.`
+      : `Você pagará ${formatCurr(Math.abs(apeNetBalance))}. Isso será registrado como um GASTO (Despesa) nos Lançamentos.`;
+
+    if (confirm(`Confirmar o acerto total das contas do Apê?\n\n${actionMsg}`)) {
+      const today = new Date().toISOString().split('T')[0];
+
+      activeExpenses.forEach(a => a.settled = true);
+
+      financeData.transactions.push({
+        id: 'trans_' + new Date().getTime(),
+        desc: 'Acerto de Contas do Apê',
+        amount: Math.abs(apeNetBalance),
+        type: apeNetBalance > 0 ? 'INCOME' : 'EXPENSE',
+        category: 'Contas do Apê',
+        subcategory: 'Acerto / Quitação',
+        date: today
+      });
+
+      saveData();
+    }
+  }
+
+  // --- ESTATÍSTICAS DE QUITAÇÃO DE DÍVIDAS ---
   function renderSettlementStatsSummary() {
     const container = document.getElementById('settlementStatsSummary');
     if (!container) return;
@@ -928,6 +978,7 @@
       const count = parseInt(a.peopleCount) || 2;
       const myShare = val / count;
       const isVoce = a.paidBy === 'VOCE';
+      const isSettled = a.settled;
 
       tr.innerHTML = `
         <td>${a.date}</td>
@@ -937,8 +988,10 @@
         <td style="font-weight: 700;">${formatCurr(val)}</td>
         <td style="color: var(--text-dark); font-weight: 600;">${formatCurr(myShare)}</td>
         <td style="text-align: center;">
-          <button class="btn-icon" title="Editar" onclick="editApe('${a.id}')">✏️</button>
-          <button class="btn-danger" title="Excluir" onclick="deleteApe('${a.id}')">X</button>
+          ${isSettled ? '<span class="badge-income">✅ QUITADO</span>' : `
+            <button class="btn-icon" title="Editar" onclick="editApe('${a.id}')">✏️</button>
+            <button class="btn-danger" title="Excluir" onclick="deleteApe('${a.id}')">X</button>
+          `}
         </td>
       `;
       tbody.appendChild(tr);
@@ -1301,7 +1354,6 @@
     const goal = financeData.savings.find(s => s.id === goalId);
     if (!goal) return;
 
-    // Migração de meta simples para complexa sem perder dados
     if ((!goal.areas || goal.areas.length === 0) && (parseFloat(goal.targetAmount) > 0 || parseFloat(goal.currentAmount) > 0)) {
       if (confirm("Ao adicionar uma subárea, o saldo atual da sua meta se transformará em uma área chamada 'Geral' para não perder os valores depositados. Continuar?")) {
         if (!goal.areas) goal.areas = [];
@@ -1517,7 +1569,7 @@
     } else {
       financeData.apeExpenses.push({
         id: 'ape_' + new Date().getTime(),
-        desc, amount: valor, paidBy: quem, peopleCount: pessoas, date: data
+        desc, amount: valor, paidBy: quem, peopleCount: pessoas, date: data, settled: false
       });
     }
 
@@ -1556,7 +1608,6 @@
     const hiddenInputs = document.querySelectorAll('input[type="hidden"]');
     hiddenInputs.forEach(i => i.value = '');
     
-    // Libera os campos de poupança ao fechar
     const pValorMeta = document.getElementById('pValorMeta');
     const pValorAtual = document.getElementById('pValorAtual');
     if (pValorMeta) pValorMeta.disabled = false;
