@@ -57,8 +57,9 @@
     .tab-content { display: none !important; }
     .tab-content.active { display: block !important; }
 
-    /* CARDS KPIS */
-    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    /* SEÇÃO DE FILAS KPIS DO DASHBOARD */
+    .kpi-section-title { font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; letter-spacing: 0.5px; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 20px; }
     .kpi-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
     .kpi-card .label { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
     .kpi-card .num { font-size: 24px; font-weight: 800; line-height: 1.2; }
@@ -141,6 +142,7 @@
       <a href="index.html" class="tab-btn btn-home" title="Voltar ao Index">🏠</a>
       <button class="tab-btn active" id="btnTabDash" onclick="switchTab('dash')">📊 Dashboard</button>
       <button class="tab-btn" id="btnTabLancamentos" onclick="switchTab('lancamentos')">💸 Lançamentos</button>
+      <button class="tab-btn" id="btnTabGastosFixos" onclick="switchTab('gastosFixos')">📌 Gastos Fixos</button>
       <button class="tab-btn" id="btnTabPoupanca" onclick="switchTab('poupanca')">🐷 Poupança & Metas</button>
       <button class="tab-btn" id="btnTabDividas" onclick="switchTab('dividas')">🤝 Empréstimos</button>
       <button class="tab-btn" id="btnTabApe" onclick="switchTab('ape')">🏢 Contas do Apê</button>
@@ -173,7 +175,9 @@
 
   <!-- PESTAÑA 1: DASHBOARD -->
   <div id="viewDash" class="tab-content active">
-    <!-- CARDS KPIS -->
+    
+    <!-- FILA 1: CAIXA REAL & METAS -->
+    <div class="kpi-section-title">💵 CAIXA REAL & PLANEJAMENTO</div>
     <div class="kpi-grid">
       <div class="kpi-card" style="border-top: 4px solid var(--focus-blue);">
         <div class="label">💰 Saldo do Período</div>
@@ -193,12 +197,16 @@
         <div class="sub" id="kpiMetasStatus">0 metas ativas</div>
       </div>
 
-      <div class="kpi-card" style="border-top: 4px solid var(--danger);">
-        <div class="label">🤝 Empréstimos Ativos</div>
-        <div class="num" id="kpiDividaBancaria" style="color: var(--danger);">€ 0,00</div>
-        <div class="sub" id="kpiDividasBancariaStatus">0 empréstimos em aberto</div>
+      <div class="kpi-card" style="border-top: 4px solid #3B82F6;">
+        <div class="label">📌 Gastos Fixos</div>
+        <div class="num" id="kpiGastosFixos" style="color: #2563EB;">€ 0,00</div>
+        <div class="sub" id="kpiGastosFixosStatus">Estimativa: € 0</div>
       </div>
+    </div>
 
+    <!-- FILA 2: COMPROMISSOS & TERCEIROS -->
+    <div class="kpi-section-title" style="margin-top: 24px;">👥 COMPROMISSOS & ACERTOS</div>
+    <div class="kpi-grid">
       <div class="kpi-card" style="border-top: 4px solid var(--warning);">
         <div class="label">🏢 Contas do Apê</div>
         <div class="num" id="kpiApeSaldo" style="color: var(--primary);">€ 0,00</div>
@@ -210,10 +218,16 @@
         <div class="num" id="kpiFavoresSaldo" style="color: var(--primary);">€ 0,00</div>
         <div class="sub" id="kpiFavoresStatus"></div>
       </div>
+
+      <div class="kpi-card" style="border-top: 4px solid var(--danger);">
+        <div class="label">🤝 Empréstimos Ativos</div>
+        <div class="num" id="kpiDividaBancaria" style="color: var(--danger);">€ 0,00</div>
+        <div class="sub" id="kpiDividasBancariaStatus">0 empréstimos em aberto</div>
+      </div>
     </div>
 
     <!-- GRÁFICOS & ANÁLISE POR CATEGORIA -->
-    <div class="charts-grid">
+    <div class="charts-grid" style="margin-top: 24px;">
       <div class="white-box">
         <div class="box-header">
           <div>
@@ -313,7 +327,39 @@
     </div>
   </div>
 
-  <!-- PESTAÑA 3: POUPANÇA & METAS COM SUBÁREAS -->
+  <!-- PESTAÑA 3: GASTOS FIXOS (AUTOMÁTICA) -->
+  <div id="viewGastosFixos" class="tab-content">
+    <div class="white-box">
+      <div class="box-header">
+        <div>
+          <div class="box-title">📌 Gastos Fixos Mensais</div>
+          <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Lançamentos marcados com a etiqueta "Gasto Fixo" aparecem automaticamente nesta aba.</p>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+          <span style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Estimativa Média Mensal:</span>
+          <input type="number" id="fixedEstimateInput" class="form-input" style="width: 130px; font-weight: 700;" placeholder="0.00" onchange="updateFixedEstimate(this.value)">
+        </div>
+      </div>
+
+      <div style="overflow-x: auto;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Descrição</th>
+              <th>Categoria</th>
+              <th>Subcategoria</th>
+              <th>Valor</th>
+              <th style="text-align: center;">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tableGastosFixos"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- PESTAÑA 4: POUPANÇA & METAS COM SUBÁREAS -->
   <div id="viewPoupanca" class="tab-content">
     <div class="white-box">
       <div class="box-header">
@@ -328,7 +374,7 @@
     </div>
   </div>
 
-  <!-- PESTAÑA 4: EMPRÉSTIMOS -->
+  <!-- PESTAÑA 5: EMPRÉSTIMOS -->
   <div id="viewDividas" class="tab-content">
     <div class="white-box">
       <div class="box-header">
@@ -363,7 +409,7 @@
     </div>
   </div>
 
-  <!-- PESTAÑA 5: CONTAS DO APÊ -->
+  <!-- PESTAÑA 6: CONTAS DO APÊ -->
   <div id="viewApe" class="tab-content">
     <div class="white-box">
       <div class="box-header">
@@ -393,7 +439,7 @@
     </div>
   </div>
 
-  <!-- PESTAÑA 6: FAVORES -->
+  <!-- PESTAÑA 7: FAVORES -->
   <div id="viewFavores" class="tab-content">
     <div class="white-box">
       <div class="box-header">
@@ -423,7 +469,7 @@
   </div>
 </div>
 
-<!-- MODAL LANÇAMENTO -->
+<!-- MODAL LANÇAMENTO COM CAIXA DE SELEÇÃO DE GASTO FIXO -->
 <div id="modalLancamento" class="modal-overlay">
   <div class="modal-box">
     <div class="modal-header">
@@ -464,6 +510,10 @@
       <div class="form-group">
         <label>Data</label>
         <input type="date" id="lData" class="form-input" required>
+      </div>
+      <div class="form-group" style="display: flex; align-items: center; gap: 8px; margin-top: 12px; background: #F8FAFC; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+        <input type="checkbox" id="lIsFixed" style="width: 18px; height: 18px; cursor: pointer;">
+        <label for="lIsFixed" style="margin-bottom: 0; cursor: pointer; text-transform: none; font-size: 12px; font-weight: 700; color: var(--primary);">📌 Marcar como Gasto Fixo Mensal</label>
       </div>
       <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
         <button type="button" class="btn-outline" onclick="closeModal('modalLancamento')">Cancelar</button>
@@ -533,7 +583,7 @@
   </div>
 </div>
 
-<!-- MODAL EMPRÉSTIMO COM CÁLCULO DINÂMICO DE VALOR FALTA/PAGO -->
+<!-- MODAL EMPRÉSTIMO -->
 <div id="modalDivida" class="modal-overlay">
   <div class="modal-box">
     <div class="modal-header">
@@ -650,6 +700,7 @@
 <script>
   let financeData = {
     currency: "€",
+    fixedEstimate: 0,
     transactions: [],
     savings: [],
     debts: [],
@@ -667,6 +718,7 @@
         const parsed = JSON.parse(saved);
         financeData = {
           currency: parsed.currency || "€",
+          fixedEstimate: parseFloat(parsed.fixedEstimate) || 0,
           transactions: Array.isArray(parsed.transactions) ? parsed.transactions : [],
           savings: Array.isArray(parsed.savings) ? parsed.savings : [],
           debts: Array.isArray(parsed.debts) ? parsed.debts : [],
@@ -679,7 +731,8 @@
     }
     
     document.getElementById('currencySelect').value = financeData.currency || "€";
-    
+    document.getElementById('fixedEstimateInput').value = financeData.fixedEstimate || '';
+
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('lData').value = today;
     document.getElementById('aData').value = today;
@@ -723,6 +776,11 @@
     saveData();
   }
 
+  function updateFixedEstimate(val) {
+    financeData.fixedEstimate = parseFloat(val) || 0;
+    saveData();
+  }
+
   function saveData() {
     try {
       localStorage.setItem('personalFinanceData', JSON.stringify(financeData));
@@ -759,12 +817,14 @@
         if (parsed && typeof parsed === 'object') {
           financeData = {
             currency: parsed.currency || "€",
+            fixedEstimate: parseFloat(parsed.fixedEstimate) || 0,
             transactions: Array.isArray(parsed.transactions) ? parsed.transactions : [],
             savings: Array.isArray(parsed.savings) ? parsed.savings : [],
             debts: Array.isArray(parsed.debts) ? parsed.debts : [],
             apeExpenses: Array.isArray(parsed.apeExpenses) ? parsed.apeExpenses : [],
             favors: Array.isArray(parsed.favors) ? parsed.favors : []
           };
+          document.getElementById('fixedEstimateInput').value = financeData.fixedEstimate || '';
           saveData();
           alert("Backup restaurado com sucesso!");
         } else {
@@ -788,6 +848,7 @@
       renderDividasQuitadasTable();
       renderApeTable();
       renderFavoresTable();
+      renderGastosFixosTable();
       renderSettlementStatsSummary();
       populateCategoryFilters();
       initOrUpdateCharts();
@@ -806,6 +867,9 @@
     } else if(tabKey === 'lancamentos') {
       document.getElementById('viewLancamentos').classList.add('active');
       document.getElementById('btnTabLancamentos').classList.add('active');
+    } else if(tabKey === 'gastosFixos') {
+      document.getElementById('viewGastosFixos').classList.add('active');
+      document.getElementById('btnTabGastosFixos').classList.add('active');
     } else if(tabKey === 'poupanca') {
       document.getElementById('viewPoupanca').classList.add('active');
       document.getElementById('btnTabPoupanca').classList.add('active');
@@ -867,6 +931,16 @@
     });
     document.getElementById('kpiTotalPoupado').textContent = formatCurr(totalPoupado);
     document.getElementById('kpiMetasStatus').textContent = `${(financeData.savings || []).length} metas ativas`;
+
+    // 📌 Gastos Fixos
+    let totalFixos = 0;
+    (financeData.transactions || []).filter(t => t.type === 'EXPENSE' && t.isFixed && isDateInRange(t.date)).forEach(t => {
+      totalFixos += parseFloat(t.amount || 0);
+    });
+
+    const estVal = parseFloat(financeData.fixedEstimate || 0);
+    document.getElementById('kpiGastosFixos').textContent = formatCurr(totalFixos);
+    document.getElementById('kpiGastosFixosStatus').textContent = `Estimativa: ${formatCurr(estVal)}`;
 
     // 🏦 Dívidas Bancárias Formais
     let dividaBancariaPendente = 0;
@@ -991,11 +1065,42 @@
       const isInc = t.type === 'INCOME';
       tr.innerHTML = `
         <td>${t.date}</td>
-        <td style="font-weight: 600;">${t.desc}</td>
+        <td style="font-weight: 600;">${t.desc} ${t.isFixed ? '<span class="task-mini-tag" style="background:#DBEAFE; color:#1E40AF;">📌 FIXO</span>' : ''}</td>
         <td><span class="task-mini-tag">${t.category}</span></td>
         <td><span class="task-mini-tag" style="background:#F1F5F9; color:#334155;">${t.subcategory || '-'}</span></td>
         <td><span class="${isInc ? 'badge-income' : 'badge-expense'}">${isInc ? 'ENTRADA' : 'GASTO'}</span></td>
         <td style="font-weight: 700; color: ${isInc ? 'var(--success)' : 'var(--danger)'}">${isInc ? '+' : '-'} ${formatCurr(t.amount)}</td>
+        <td style="text-align: center;">
+          <button class="btn-icon" title="Editar" onclick="editLancamento('${t.id}')">✏️</button>
+          <button class="btn-danger" title="Excluir" onclick="deleteLancamento('${t.id}')">X</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function renderGastosFixosTable() {
+    const tbody = document.getElementById('tableGastosFixos');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    const sorted = (financeData.transactions || [])
+      .filter(t => t.type === 'EXPENSE' && t.isFixed && isDateInRange(t.date))
+      .sort((a,b) => new Date(b.date) - new Date(a.date));
+
+    if (sorted.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px; color: var(--text-muted);">Nenhum gasto fixo registrado no período.</td></tr>';
+      return;
+    }
+
+    sorted.forEach(t => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${t.date}</td>
+        <td style="font-weight: 600;">${t.desc}</td>
+        <td><span class="task-mini-tag">${t.category}</span></td>
+        <td><span class="task-mini-tag" style="background:#F1F5F9; color:#334155;">${t.subcategory || '-'}</span></td>
+        <td style="font-weight: 700; color: var(--danger);">- ${formatCurr(t.amount)}</td>
         <td style="text-align: center;">
           <button class="btn-icon" title="Editar" onclick="editLancamento('${t.id}')">✏️</button>
           <button class="btn-danger" title="Excluir" onclick="deleteLancamento('${t.id}')">X</button>
@@ -1022,7 +1127,7 @@
       const isInc = t.type === 'INCOME';
       tr.innerHTML = `
         <td>${t.date}</td>
-        <td style="font-weight: 600;">${t.desc}</td>
+        <td style="font-weight: 600;">${t.desc} ${t.isFixed ? '<span class="task-mini-tag" style="background:#DBEAFE; color:#1E40AF;">📌 FIXO</span>' : ''}</td>
         <td><span class="task-mini-tag">${t.category}</span></td>
         <td><span class="task-mini-tag" style="background:#F1F5F9; color:#334155;">${t.subcategory || '-'}</span></td>
         <td><span class="${isInc ? 'badge-income' : 'badge-expense'}">${isInc ? 'ENTRADA' : 'GASTO'}</span></td>
@@ -1772,17 +1877,18 @@
       const cat = document.getElementById('lCat').value.trim() || 'Geral';
       const subcat = document.getElementById('lSubCat').value.trim() || '';
       const data = document.getElementById('lData').value || new Date().toISOString().split('T')[0];
+      const isFixed = document.getElementById('lIsFixed').checked;
 
       if (editId) {
         const item = financeData.transactions.find(t => t.id === editId);
         if (item) {
           item.desc = desc; item.amount = valor; item.type = tipo;
-          item.category = cat; item.subcategory = subcat; item.date = data;
+          item.category = cat; item.subcategory = subcat; item.date = data; item.isFixed = isFixed;
         }
       } else {
         financeData.transactions.push({
           id: 'trans_' + new Date().getTime(),
-          desc, amount: valor, type: tipo, category: cat, subcategory: subcat, date: data
+          desc, amount: valor, type: tipo, category: cat, subcategory: subcat, date: data, isFixed: isFixed
         });
       }
 
@@ -1804,6 +1910,7 @@
     document.getElementById('lCat').value = item.category || '';
     document.getElementById('lSubCat').value = item.subcategory || '';
     document.getElementById('lData').value = item.date || '';
+    document.getElementById('lIsFixed').checked = !!item.isFixed;
     document.getElementById('modalLancamentoTitle').textContent = "EDITAR LANÇAMENTO";
     openModal('modalLancamento');
   }
@@ -2188,6 +2295,9 @@
     document.body.classList.remove('modal-open');
     const hiddenInputs = document.querySelectorAll('#' + modalId + ' input[type="hidden"]');
     hiddenInputs.forEach(i => i.value = '');
+
+    const checkFixed = document.getElementById('lIsFixed');
+    if (checkFixed) checkFixed.checked = false;
     
     const pValorMeta = document.getElementById('pValorMeta');
     const pValorAtual = document.getElementById('pValorAtual');
