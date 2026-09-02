@@ -36,7 +36,7 @@
     .btn-home { background-color: #E2E8F0; color: var(--primary); font-weight: 700; }
     .btn-home:hover { background-color: #CBD5E1; }
 
-    /* BOTÕES GENERALES */
+    /* BOTÕES GERAIS */
     .btn-add { background-color: var(--focus-blue); color: white; border: none; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 4px rgba(47, 95, 208, 0.2); }
     .btn-add:hover { background-color: #1e3a8a; }
     .btn-outline { background-color: transparent; border: 1px solid var(--border-color); color: var(--text-muted); padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer; transition: 0.2s; }
@@ -71,6 +71,7 @@
 
     .badge-income { background: #D1FAE5; color: #065F46; padding: 4px 8px; border-radius: 4px; font-weight: 700; font-size: 11px; }
     .badge-expense { background: #FEF2F2; color: #991B1B; padding: 4px 8px; border-radius: 4px; font-weight: 700; font-size: 11px; }
+    .task-mini-tag { background-color: #F1F5F9; color: #475569; font-size: 10px; font-weight: 700; padding: 3px 6px; border-radius: 4px; border: 1px solid #E2E8F0; text-transform: uppercase; display: inline-block; }
 
     /* FORMULÁRIOS & MODAIS */
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); z-index: 1000; justify-content: center; align-items: center; padding: 16px; backdrop-filter: blur(3px); }
@@ -95,7 +96,18 @@
       <button class="tab-btn active" id="btnTabDash" onclick="switchTab('dash')">📊 Dashboard</button>
       <button class="tab-btn" id="btnTabLancamentos" onclick="switchTab('lancamentos')">💸 Lançamentos</button>
       <button class="tab-btn" id="btnTabDividas" onclick="switchTab('dividas')">🎯 Dívidas</button>
-      <button class="tab-btn" id="btnTabApe" onclick="switchTab('ape')">🏠 Contas do Apê</button>
+      <button class="tab-btn" id="btnTabApe" onclick="switchTab('ape')">🏠 Contas Compartilhadas</button>
+    </div>
+
+    <!-- SELETOR DE MOEDA -->
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <span style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Moeda:</span>
+      <select id="currencySelect" class="form-input" style="width: auto; padding: 6px 12px; font-weight: 700; cursor: pointer;" onchange="updateCurrency(this.value)">
+        <option value="R$">R$ (BRL)</option>
+        <option value="$">$ (USD)</option>
+        <option value="€">€ (EUR)</option>
+        <option value="£">£ (GBP)</option>
+      </select>
     </div>
   </div>
 
@@ -122,7 +134,7 @@
       </div>
 
       <div class="kpi-card" style="border-top: 4px solid var(--warning);">
-        <div class="label">🤝 Acerto do Apê (50/50)</div>
+        <div class="label">🤝 Acerto do Apê</div>
         <div class="num" id="kpiApeSaldo">R$ 0,00</div>
         <div class="sub" id="kpiApeStatus">Tudo quitado</div>
       </div>
@@ -198,10 +210,10 @@
     <div class="white-box">
       <div class="box-header">
         <div>
-          <div class="box-title">🏠 Contas Compartilhadas do Apê (50/50)</div>
+          <div class="box-title">🏠 Contas Compartilhadas do Apê</div>
           <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;" id="apeSettlementSummary">Calculando acerto de contas...</p>
         </div>
-        <button class="btn-add" onclick="openModal('modalApe')">➕ Nova Despesa do Apê</button>
+        <button class="btn-add" onclick="openModal('modalApe')">➕ Nova Despesa Compartilhada</button>
       </div>
 
       <div style="overflow-x: auto;">
@@ -211,8 +223,9 @@
               <th>Data</th>
               <th>Descrição</th>
               <th>Quem Pagou</th>
+              <th>Divisão</th>
               <th>Valor Total</th>
-              <th>Sua Parte (50%)</th>
+              <th>Sua Parte</th>
               <th style="text-align: center;">Ações</th>
             </tr>
           </thead>
@@ -233,7 +246,7 @@
         <input type="text" id="lDesc" class="form-input" placeholder="Ex: Supermercado, Salário..." required>
       </div>
       <div class="form-group">
-        <label>Valor (R$)</label>
+        <label>Valor</label>
         <input type="number" step="0.01" id="lValor" class="form-input" placeholder="0.00" required>
       </div>
       <div class="form-group">
@@ -272,11 +285,11 @@
         <input type="text" id="dNome" class="form-input" placeholder="Ex: Empréstimo, Cartão de Crédito..." required>
       </div>
       <div class="form-group">
-        <label>Valor Total da Dívida (R$)</label>
+        <label>Valor Total da Dívida</label>
         <input type="number" step="0.01" id="dValorTotal" class="form-input" placeholder="0.00" required>
       </div>
       <div class="form-group">
-        <label>Valor Já Pago (R$)</label>
+        <label>Valor Já Pago</label>
         <input type="number" step="0.01" id="dValorPago" class="form-input" placeholder="0.00" value="0">
       </div>
       <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
@@ -290,22 +303,26 @@
 <!-- MODAL APÊ -->
 <div id="modalApe" class="modal-overlay">
   <div class="modal-box">
-    <div class="modal-title box-title" style="margin-bottom: 16px;">NOVA DESPESA COMPARTILHADA DO APÊ</div>
+    <div class="modal-title box-title" style="margin-bottom: 16px;">NOVA DESPESA COMPARTILHADA</div>
     <form onsubmit="saveApe(event)">
       <div class="form-group">
         <label>Descrição da Conta</label>
         <input type="text" id="aDesc" class="form-input" placeholder="Ex: Aluguel, Conta de Luz..." required>
       </div>
       <div class="form-group">
-        <label>Valor Total da Conta (R$)</label>
+        <label>Valor Total da Conta</label>
         <input type="number" step="0.01" id="aValor" class="form-input" placeholder="0.00" required>
       </div>
       <div class="form-group">
         <label>Quem Pagou?</label>
         <select id="aQuem" class="form-input" required>
           <option value="VOCE">🙋‍♂️ Eu paguei total</option>
-          <option value="COLEGA">🧑‍🤝‍🧑 Colega de Apê pagou total</option>
+          <option value="COLEGA">🧑‍🤝‍🧑 Colega / Outro pagou total</option>
         </select>
+      </div>
+      <div class="form-group">
+        <label>Quantidade de Pessoas a Dividir</label>
+        <input type="number" min="2" max="20" id="aPessoas" class="form-input" value="2" required>
       </div>
       <div class="form-group">
         <label>Data</label>
@@ -321,6 +338,7 @@
 
 <script>
   let financeData = {
+    currency: "R$",
     transactions: [],
     debts: [],
     apeExpenses: []
@@ -332,16 +350,22 @@
   window.onload = function() {
     const saved = localStorage.getItem('personalFinanceData');
     if (saved) {
-      try { financeData = JSON.parse(saved); } catch(e) { console.error("Error loading finance data", e); }
+      try { financeData = Object.assign({ currency: "R$" }, JSON.parse(saved)); } catch(e) { console.error("Error loading finance data", e); }
     }
     
-    // Configura data padrão de hoje nos inputs
+    document.getElementById('currencySelect').value = financeData.currency || "R$";
+    
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('lData').value = today;
     document.getElementById('aData').value = today;
 
     refreshAll();
   };
+
+  function updateCurrency(val) {
+    financeData.currency = val;
+    saveData();
+  }
 
   function saveData() {
     localStorage.setItem('personalFinanceData', JSON.stringify(financeData));
@@ -395,15 +419,15 @@
     });
 
     const netMonth = monthIncome - monthExpense;
-    document.getElementById('kpiSaldo').textContent = formatBRL(netMonth);
-    document.getElementById('kpiReceitaDespesa').textContent = `Entradas: ${formatBRL(monthIncome)} | Gastos: ${formatBRL(monthExpense)}`;
+    document.getElementById('kpiSaldo').textContent = formatCurr(netMonth);
+    document.getElementById('kpiReceitaDespesa').textContent = `Entradas: ${formatCurr(monthIncome)} | Gastos: ${formatCurr(monthExpense)}`;
 
     // 2. Teto Diário de Hoje
     const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-    const remainingDays = daysInMonth - now.getDate() + 1; // contando com hoje
+    const remainingDays = daysInMonth - now.getDate() + 1;
     const dailyLimit = netMonth > 0 ? (netMonth / remainingDays) : 0;
 
-    document.getElementById('kpiTetoDiario').textContent = `${formatBRL(dailyLimit)} /dia`;
+    document.getElementById('kpiTetoDiario').textContent = `${formatCurr(dailyLimit)} /dia`;
     document.getElementById('kpiDiasRestantes').textContent = `Para os próximos ${remainingDays} dias do mês`;
 
     // 3. Dívidas
@@ -411,37 +435,42 @@
     financeData.debts.forEach(d => {
       totalDividaPendente += Math.max(0, parseFloat(d.totalAmount) - parseFloat(d.paidAmount));
     });
-    document.getElementById('kpiTotalDividas').textContent = formatBRL(totalDividaPendente);
+    document.getElementById('kpiTotalDividas').textContent = formatCurr(totalDividaPendente);
     document.getElementById('kpiDividasStatus').textContent = `${financeData.debts.length} pendências ativas`;
 
     // 4. Balanço do Apê
-    let vocePagou = 0;
-    let colegaPagou = 0;
+    let apeNetBalance = 0;
     financeData.apeExpenses.forEach(a => {
-      if (a.paidBy === 'VOCE') vocePagou += parseFloat(a.amount);
-      else colegaPagou += parseFloat(a.amount);
+      const val = parseFloat(a.amount);
+      const count = parseInt(a.peopleCount) || 2;
+      const yourShare = val / count;
+
+      if (a.paidBy === 'VOCE') {
+        apeNetBalance += (val - yourShare); // Os outros te devem essa diferença
+      } else {
+        apeNetBalance -= yourShare; // Você deve a sua parte
+      }
     });
 
-    const saldoApe = (vocePagou - colegaPagou) / 2;
-    if (saldoApe > 0) {
-      document.getElementById('kpiApeSaldo').textContent = `+ ${formatBRL(saldoApe)}`;
+    if (apeNetBalance > 0) {
+      document.getElementById('kpiApeSaldo').textContent = `+ ${formatCurr(apeNetBalance)}`;
       document.getElementById('kpiApeSaldo').style.color = "var(--success)";
-      document.getElementById('kpiApeStatus').textContent = "Seu colega deve te pagar este valor";
-      document.getElementById('apeSettlementSummary').textContent = `Seu colega deve te pagar ${formatBRL(saldoApe)} para zerar as contas.`;
-    } else if (saldoApe < 0) {
-      document.getElementById('kpiApeSaldo').textContent = formatBRL(saldoApe);
+      document.getElementById('kpiApeStatus').textContent = "Outros devem te pagar este valor";
+      document.getElementById('apeSettlementSummary').textContent = `Outras pessoas devem te pagar ${formatCurr(apeNetBalance)} no total para zerar as contas.`;
+    } else if (apeNetBalance < 0) {
+      document.getElementById('kpiApeSaldo').textContent = formatCurr(apeNetBalance);
       document.getElementById('kpiApeSaldo').style.color = "var(--danger)";
-      document.getElementById('kpiApeStatus').textContent = "Você deve pagar este valor ao seu colega";
-      document.getElementById('apeSettlementSummary').textContent = `Você deve pagar ${formatBRL(Math.abs(saldoApe))} ao seu colega para zerar as contas.`;
+      document.getElementById('kpiApeStatus').textContent = "Você deve pagar este valor no total";
+      document.getElementById('apeSettlementSummary').textContent = `Você deve pagar ${formatCurr(Math.abs(apeNetBalance))} para zerar o grupo das contas.`;
     } else {
-      document.getElementById('kpiApeSaldo').textContent = formatBRL(0);
+      document.getElementById('kpiApeSaldo').textContent = formatCurr(0);
       document.getElementById('kpiApeSaldo').style.color = "var(--primary)";
-      document.getElementById('kpiApeStatus').textContent = "Tudo quitado em partes iguais (50/50)";
-      document.getElementById('apeSettlementSummary').textContent = `Todas as contas estão perfeitamente equilibradas em 50/50.`;
+      document.getElementById('kpiApeStatus').textContent = "Tudo quitado em partes iguais";
+      document.getElementById('apeSettlementSummary').textContent = `Todas as contas estão perfeitamente equilibradas.`;
     }
   }
 
-  // --- TAREFAS / TABELAS ---
+  // --- TABELAS ---
   function renderTransactionsTable() {
     const tbody = document.getElementById('tableLancamentos');
     tbody.innerHTML = '';
@@ -461,7 +490,7 @@
         <td style="font-weight: 600;">${t.desc}</td>
         <td><span class="task-mini-tag">${t.category}</span></td>
         <td><span class="${isInc ? 'badge-income' : 'badge-expense'}">${isInc ? 'ENTRADA' : 'GASTO'}</span></td>
-        <td style="font-weight: 700; color: ${isInc ? 'var(--success)' : 'var(--danger)'}">${isInc ? '+' : '-'} ${formatBRL(t.amount)}</td>
+        <td style="font-weight: 700; color: ${isInc ? 'var(--success)' : 'var(--danger)'}">${isInc ? '+' : '-'} ${formatCurr(t.amount)}</td>
         <td style="text-align: center;">
           <button class="btn-danger" onclick="deleteLancamento('${t.id}')">X</button>
         </td>
@@ -492,14 +521,14 @@
           <h4 style="font-weight: 800; font-size: 15px;">${d.name}</h4>
           <button class="btn-danger" onclick="deleteDivida('${d.id}')">Excluir</button>
         </div>
-        <div style="font-size: 12px; color: var(--text-muted);">Total Dívida: ${formatBRL(total)}</div>
-        <div style="font-size: 14px; font-weight: 700; color: var(--danger); margin-top: 4px;">Falta Pagar: ${formatBRL(remaining)}</div>
+        <div style="font-size: 12px; color: var(--text-muted);">Total Dívida: ${formatCurr(total)}</div>
+        <div style="font-size: 14px; font-weight: 700; color: var(--danger); margin-top: 4px;">Falta Pagar: ${formatCurr(remaining)}</div>
         
         <div class="progress-bar-track">
           <div class="progress-bar-fill" style="width: ${pct}%;"></div>
         </div>
         <div style="display:flex; justify-content:space-between; font-size: 11px; color: var(--text-muted); margin-top: 6px;">
-          <span>Pago: ${formatBRL(paid)} (${pct}%)</span>
+          <span>Pago: ${formatCurr(paid)} (${pct}%)</span>
           <button class="btn-outline" style="padding: 2px 6px; font-size: 10px;" onclick="addPaymentToDivida('${d.id}')">+ Amortizar</button>
         </div>
       `;
@@ -514,22 +543,24 @@
     const sorted = [...financeData.apeExpenses].sort((a,b) => new Date(b.date) - new Date(a.date));
 
     if (sorted.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px; color: var(--text-muted);">Nenhuma conta do apê registrada.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 20px; color: var(--text-muted);">Nenhuma conta compartilhada registrada.</td></tr>';
       return;
     }
 
     sorted.forEach(a => {
       const tr = document.createElement('tr');
       const val = parseFloat(a.amount);
-      const half = val / 2;
+      const count = parseInt(a.peopleCount) || 2;
+      const myShare = val / count;
       const isVoce = a.paidBy === 'VOCE';
 
       tr.innerHTML = `
         <td>${a.date}</td>
         <td style="font-weight: 600;">${a.desc}</td>
-        <td><span class="task-mini-tag" style="background:${isVoce ? '#EFF6FF' : '#FEF3C7'}; color:${isVoce ? '#2563EB' : '#D97706'}">${isVoce ? '🙋‍♂️ Você' : '🧑‍🤝‍🧑 Colega'}</span></td>
-        <td style="font-weight: 700;">${formatBRL(val)}</td>
-        <td style="color: var(--text-muted);">${formatBRL(half)}</td>
+        <td><span class="task-mini-tag" style="background:${isVoce ? '#EFF6FF' : '#FEF3C7'}; color:${isVoce ? '#2563EB' : '#D97706'}">${isVoce ? '🙋‍♂️ Você' : '🧑‍🤝‍🧑 Outro'}</span></td>
+        <td><span class="task-mini-tag">1 / ${count} pessoas</span></td>
+        <td style="font-weight: 700;">${formatCurr(val)}</td>
+        <td style="color: var(--text-dark); font-weight: 600;">${formatCurr(myShare)}</td>
         <td style="text-align: center;">
           <button class="btn-danger" onclick="deleteApe('${a.id}')">X</button>
         </td>
@@ -538,7 +569,7 @@
     });
   }
 
-  // --- FILTRO DE CATEGORIAS DO GRÁFICO ---
+  // --- FILTRO DE CATEGORIAS ---
   function populateCategoryFilter() {
     const select = document.getElementById('chartCategoryFilter');
     const currVal = select.value;
@@ -558,7 +589,7 @@
     });
   }
 
-  // --- GRÁFICOS (CHART.JS) ---
+  // --- GRÁFICOS ---
   function initOrUpdateCharts() {
     updateHistoryChart();
     updateCategoryChart();
@@ -592,7 +623,7 @@
       data: {
         labels: labels,
         datasets: [{
-          label: selectedCat === 'ALL' ? 'Gastos Totais (R$)' : `Gastos em ${selectedCat} (R$)`,
+          label: selectedCat === 'ALL' ? `Gastos Totais (${financeData.currency || 'R$'})` : `Gastos em ${selectedCat} (${financeData.currency || 'R$'})`,
           data: values,
           borderColor: '#2F5FD0',
           backgroundColor: 'rgba(47, 95, 208, 0.1)',
@@ -690,7 +721,7 @@
   }
 
   function addPaymentToDivida(id) {
-    const val = prompt("Digite o valor que deseja amortizar nesta dívida (R$):");
+    const val = prompt(`Digite o valor que deseja amortizar nesta dívida (${financeData.currency || 'R$'}):`);
     if (val && !isNaN(parseFloat(val))) {
       const debt = financeData.debts.find(d => d.id === id);
       if (debt) {
@@ -712,11 +743,12 @@
     const desc = document.getElementById('aDesc').value.trim();
     const valor = parseFloat(document.getElementById('aValor').value);
     const quem = document.getElementById('aQuem').value;
+    const pessoas = parseInt(document.getElementById('aPessoas').value) || 2;
     const data = document.getElementById('aData').value;
 
     financeData.apeExpenses.push({
       id: 'ape_' + new Date().getTime(),
-      desc, amount: valor, paidBy: quem, date: data
+      desc, amount: valor, paidBy: quem, peopleCount: pessoas, date: data
     });
 
     saveData();
@@ -738,8 +770,10 @@
     document.getElementById(modalId).classList.remove('active');
   }
 
-  function formatBRL(val) {
-    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val || 0);
+  function formatCurr(val) {
+    const curr = financeData.currency || "R$";
+    const num = (val || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return `${curr} ${num}`;
   }
 </script>
 
