@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestor de Proyectos Personales</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-main: #F8FAFC; 
+      --card-bg: #FFFFFF; 
+      --text-dark: #1E293B; 
+      --text-muted: #64748B;
+      --border-color: #E2E8F0; 
+      --primary: #1E293B; 
+      --accent: #38BDF8; 
+      --focus-blue: #2563EB;
+      --success: #10B981; 
+      --warning: #F59E0B; 
+      --danger: #EF4444; 
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, sans-serif; }
+    body { background-color: var(--bg-main); color: var(--text-dark); line-height: 1.5; padding: 16px; }
+    .main-wrapper { max-width: 1200px; margin: 0 auto; display: none; }
+
+    #loadingScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-main); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; }
+    .spinner { border: 4px solid var(--border-color); border-top: 4px solid var(--primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 12px; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }
+    .nav-tabs { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .tab-btn { padding: 10px 18px; background: var(--card-bg); border: 1px solid var(--border-color); font-weight: 600; font-size: 13px; cursor: pointer; border-radius: 8px; color: var(--text-muted); transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.03); display: inline-flex; align-items: center; gap: 6px; }
+    .tab-btn.active { background: var(--primary); color: #FFFFFF; border-color: var(--primary); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+    .tab-btn:hover:not(.active) { background: #E2E8F0; }
+
+    .btn-back { background-color: #E2E8F0; color: var(--primary); border: 1px solid var(--border-color); font-weight: 700; }
+    .btn-back:hover { background-color: #CBD5E1; }
+
+    .btn-add { background-color: var(--focus-blue); color: white; border: none; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2); }
+    .btn-add:hover { background-color: #1D4ED8; box-shadow: 0 4px 8px rgba(37, 99, 235, 0.3); }
+    .btn-outline { background-color: transparent; border: 1px solid var(--border-color); color: var(--text-muted); padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer; transition: 0.2s; text-decoration: none; display: inline-flex; align-items: center; }
+    .btn-outline:hover { background-color: #F1F5F9; color: var(--primary); }
+    .btn-small { padding: 6px 12px; font-size: 11px; }
+    .btn-icon { background: none; border: none; cursor: pointer; font-size: 15px; padding: 4px 8px; border-radius: 4px; transition: background 0.2s; color: var(--text-muted); }
+    .btn-icon:hover { background: #E2E8F0; color: var(--primary); }
+    .btn-danger-link { background: none; border: none; color: var(--danger); font-size: 12px; font-weight: 600; cursor: pointer; padding: 6px 0; }
+    .btn-danger-link:hover { text-decoration: underline; }
+    .btn-reset { background-color: #FEE2E2; color: #DC2626; border: 1px solid #FCA5A5; padding: 6px 14px; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; }
+    .btn-reset:hover { background-color: #EF4444; color: #FFFFFF; }
+
+    .tab-content { display: none !important; }
+    .tab-content.active { display: block !important; }
+
+    .dashboard-summary-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .dash-card-topbar { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 20px 16px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: center; align-items: center; }
+    .dash-card-topbar.border-red { border-top: 4px solid var(--danger); }
+    .dash-card-topbar.border-amber { border-top: 4px solid var(--warning); }
+    .dash-card-topbar.border-green { border-top: 4px solid var(--success); }
+    .dash-card-topbar.border-blue { border-top: 4px solid var(--focus-blue); }
+
+    .dash-card-topbar .num { font-size: 38px; font-weight: 800; line-height: 1.1; margin-bottom: 8px; }
+    .dash-card-topbar .label { font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 6px; }
+
+    .dashboard-section-title { font-size: 15px; font-weight: 800; color: var(--primary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+    .dashboard-header h3 { color: var(--primary); font-size: 20px; margin: 0; }
+
+    .summary-table-container { background: #FFFFFF; border: 1px solid var(--border-color); border-radius: 16px; padding: 24px; margin-bottom: 32px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+    .summary-table-subhead { font-size: 13px; font-weight: 700; color: var(--text-muted); margin-bottom: 16px; display: flex; align-items: center; gap: 6px; }
+    .summary-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .summary-table th { background: #F8FAFC; color: #475569; font-weight: 700; text-transform: uppercase; font-size: 11px; padding: 14px 16px; border-bottom: 2px solid var(--border-color); text-align: center; }
+    .summary-table th:first-child { text-align: left; }
+    .summary-table td { padding: 14px 16px; border-bottom: 1px solid var(--border-color); font-weight: 600; text-align: center; vertical-align: middle; }
+    .summary-table td:first-child { text-align: left; font-weight: 800; color: var(--primary); cursor: pointer; transition: color 0.2s; }
+    .summary-table td:first-child:hover { color: var(--focus-blue); }
+
+    .hub-intro-text { text-align: center; font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 24px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .hub-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 20px; }
+    .hub-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 28px 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.02); transition: all 0.25s ease; display: flex; flex-direction: column; justify-content: space-between; gap: 16px; cursor: pointer; }
+    .hub-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.06); border-color: #CBD5E1; }
+    .hub-card-header { display: flex; justify-content: space-between; align-items: flex-start; }
+    .hub-card-icon { font-size: 28px; line-height: 1; margin-bottom: 8px; }
+    .hub-card h3 { font-size: 18px; font-weight: 800; color: var(--primary); margin-bottom: 6px; }
+    .hub-card p { font-size: 13px; color: var(--text-muted); line-height: 1.4; flex: 1; }
+    .hub-card-action { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: var(--focus-blue); margin-top: 8px; transition: gap 0.2s; cursor: pointer; }
+    .hub-card:hover .hub-card-action { gap: 10px; }
+
+    .white-container-box { background: #FFFFFF; border: 1px solid var(--border-color); border-radius: 16px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+    .white-box-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; }
+    .white-box-title-group { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .white-box-subtext { font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 16px; }
+
+    .progress-row-full { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+    .progress-bar-track-full { flex: 1; background-color: #E2E8F0; height: 10px; border-radius: 20px; overflow: hidden; }
+    .progress-bar-fill-full { height: 100%; background-color: var(--success); transition: width 0.4s ease; width: 0%; }
+    .progress-pct-full { font-size: 15px; font-weight: 800; color: var(--primary); min-width: 45px; text-align: right; }
+
+    .three-stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px; }
+    .stat-card-clean { background: #FFFFFF; border: 1px solid var(--border-color); border-radius: 10px; padding: 16px 12px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+    .stat-card-clean .num { font-size: 26px; font-weight: 800; line-height: 1.1; margin-bottom: 4px; }
+    .stat-card-clean .label { font-size: 10.5px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); }
+
+    .tag-badge { background: #EFF6FF; color: #2563EB; font-size: 12px; padding: 6px 12px; border-radius: 6px; font-weight: 800; border: 1px solid #BFDBFE; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    .task-mini-tag { background-color: #F1F5F9; color: #475569; font-size: 10px; font-weight: 700; padding: 3px 6px; border-radius: 4px; margin-left: 8px; border: 1px solid #E2E8F0; text-transform: uppercase; display: inline-block; vertical-align: middle; }
+
+    .container { background: #FFFFFF; padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+    .controls-bar { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+    .search-input { flex: 2; min-width: 200px; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; outline: none; }
+    .search-input:focus { border-color: var(--focus-blue); }
+    .filter-select { flex: 1; min-width: 160px; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; outline: none; background: #FFFFFF; font-weight: 600; color: var(--primary); }
+
+    .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .data-table th { background: #F8FAFC; color: #475569; font-weight: 700; text-transform: uppercase; font-size: 11px; padding: 12px; border-bottom: 2px solid var(--border-color); text-align: left; }
+    .data-table td { padding: 12px; border-bottom: 1px solid var(--border-color); vertical-align: top; }
+    
+    .status-select { padding: 6px 8px; border-radius: 6px; border: 1px solid var(--border-color); font-weight: 600; font-size: 12px; cursor: pointer; outline: none; width: 100%; max-width: 150px; }
+    .status-pending { background-color: #FEF2F2; color: #991B1B; border-color: #FCA5A5; }
+    .status-progress { background-color: #FEF3C7; color: #92400E; border-color: #FDE68A; }
+    .status-completed { background-color: #D1FAE5; color: #065F46; border-color: #6EE7B7; }
+
+    .task-checklist-display { margin-top: 8px; padding-left: 12px; border-left: 2px solid var(--border-color); display: flex; flex-direction: column; gap: 6px; }
+    .task-checklist-item { display: flex; align-items: flex-start; gap: 8px; font-size: 12px; color: var(--text-muted); }
+    .task-checklist-item input[type="checkbox"] { margin-top: 2px; cursor: pointer; accent-color: var(--focus-blue); width: 14px; height: 14px; }
+    
+    .checklist-item-input { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; }
+    .checklist-item-input input[type="text"] { flex: 1; }
+    .btn-remove-item { background: #FEE2E2; color: #EF4444; border: 1px solid #FCA5A5; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; font-size: 12px; }
+    .btn-remove-item:hover { background: #EF4444; color: #FFF; }
+
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); z-index: 1000; justify-content: center; align-items: center; padding: 16px; backdrop-filter: blur(3px); }
+    .modal-overlay.active { display: flex; }
+    .modal-box { background: var(--card-bg); width: 100%; max-width: 650px; border-radius: var(--radius); padding: 28px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); max-height: 90vh; overflow-y: auto; }
+    .modal-title-main { font-size: 18px; font-weight: 800; text-align: center; color: var(--primary); text-transform: uppercase; margin-bottom: 20px; letter-spacing: 0.5px; border-bottom: 2px solid var(--border-color); padding-bottom: 12px; }
+    
+    .form-section-card { background: #F8FAFC; border: 1px solid var(--border-color); border-radius: 10px; padding: 18px; margin-bottom: 18px; }
+    .form-section-header { font-size: 12px; font-weight: 700; color: var(--focus-blue); text-transform: uppercase; margin-bottom: 14px; display: flex; align-items: center; gap: 6px; }
+    
+    .form-group { margin-bottom: 14px; }
+    .form-group:last-child { margin-bottom: 0; }
+    .form-group label { display: block; font-size: 11px; font-weight: 700; color: var(--text-dark); text-transform: uppercase; margin-bottom: 6px; }
+    .form-input { width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; outline: none; background: #FFFFFF; }
+    .form-input:focus { border-color: var(--focus-blue); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+    
+    .modal-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; }
+    .modal-actions-right { display: flex; gap: 10px; }
+
+    .step-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; display: flex; gap: 16px; align-items: flex-start; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+    .step-num { background: var(--focus-blue); color: #fff; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-weight: 800; font-size: 15px; flex-shrink: 0; }
+    .step-text h4 { font-size: 15px; font-weight: 800; color: var(--primary); margin-bottom: 6px; }
+    .step-text p { font-size: 13.5px; color: var(--text-muted); line-height: 1.5; }
+  </style>
+</head>
+<body>
+
+<div id="loadingScreen">
+  <div class="spinner"></div>
+  <p style="font-weight: 600; color: var(--primary);">Cargando panel...</p>
+</div>
+
+<div class="main-wrapper" id="appWrapper">
+  <div class="top-bar">
+    <div class="nav-tabs">
+      <button class="tab-btn active" id="btnTabDashboard" onclick="switchTab('dashboard')">📊 Visión General</button>
+      <button class="tab-btn" id="btnTabHub" onclick="switchTab('hub')">📁 Proyectos</button>
+      <button class="tab-btn" id="btnTabManual" onclick="switchTab('manual')">📖 Cómo Usar</button>
+      <button class="tab-btn btn-back" id="btnBackToHub" onclick="switchTab('hub')" style="display: none;">⬅ Volver a Proyectos</button>
+    </div>
+    <a href="index.html" class="btn-outline">🏠 Volver al Hub</a>
+  </div>
+
+  <!-- PESTAÑA 1: DASHBOARD -->
+  <div id="viewDashboard" class="tab-content active">
+    <div class="dashboard-section-title">📊 Estadísticas Generales (Todos los proyectos)</div>
+    
+    <div class="dashboard-summary-cards">
+      <div class="dash-card-topbar border-red">
+        <div class="num" id="globalPendingTasks" style="color: #EF4444;">0</div>
+        <div class="label">🔴 PENDIENTES</div>
+      </div>
+      <div class="dash-card-topbar border-amber">
+        <div class="num" id="globalInProgressTasks" style="color: #F59E0B;">0</div>
+        <div class="label">🟡 EN PROGRESO</div>
+      </div>
+      <div class="dash-card-topbar border-green">
+        <div class="num" id="globalCompletedTasks" style="color: #10B981;">0</div>
+        <div class="label">🟢 COMPLETADAS</div>
+      </div>
+      <div class="dash-card-topbar border-blue">
+        <div class="num" id="globalTotalTasks" style="color: #2563EB;">0</div>
+        <div class="label">🔵 TOTAL TAREAS</div>
+      </div>
+    </div>
+
+    <div class="dashboard-header" style="margin-top: 28px;">
+      <h3>Resumen por Módulo</h3>
+      <button class="btn-add" onclick="openModal('modalProject')">➕ Nuevo Proyecto</button>
+    </div>
+
+    <div class="controls-bar" style="margin-bottom: 24px;">
+      <input type="text" id="dashSearchInput" class="search-input" placeholder="🔍 Buscar proyecto por nombre..." onkeyup="filterDashboard()">
+      <select id="dashTagFilter" class="filter-select" onchange="filterDashboard()">
+        <option value="">📌 Seleccionar etiqueta...</option>
+      </select>
+    </div>
+    
+    <div id="dashboardProjectsGrid"></div>
+  </div>
+
+  <!-- PESTAÑA 2: HUB DE PROYECTOS -->
+  <div id="viewHub" class="tab-content">
+    <div class="dashboard-header">
+      <h3>Módulos de Proyectos</h3>
+      <button class="btn-add" onclick="openModal('modalProject')">➕ Nuevo Proyecto</button>
+    </div>
+    <p class="hub-intro-text">Selecciona una etiqueta para acceder a los proyectos y gestionar sus tareas</p>
+    <div class="hub-grid" id="hubCardsGrid"></div>
+  </div>
+
+  <!-- PESTAÑA 3: MANUAL -->
+  <div id="viewManual" class="tab-content">
+    <div class="dashboard-header">
+      <h3>📖 Manual de Uso (Metodología del Proyecto)</h3>
+    </div>
+    <p class="hub-intro-text" style="text-align: left; margin-bottom: 24px;">Sigue estos 5 pasos para crear, estructurar y monitorizar tus proyectos de forma eficiente.</p>
+    
+    <div class="step-card">
+      <div class="step-num">1</div>
+      <div class="step-text">
+        <h4>Registro e Identificación</h4>
+        <p>Inicia haciendo clic en el botón azul "➕ Nuevo Proyecto". Asigna un nombre claro que identifique el destino, cliente o iniciativa principal.</p>
+      </div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">2</div>
+      <div class="step-text">
+        <h4>Mapeo de Módulos (Etiquetas)</h4>
+        <p>Define a qué áreas pertenece el proyecto usando etiquetas separadas por comas (ej: <em>COTIZADOR, TARIFARIO</em>).</p>
+      </div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">3</div>
+      <div class="step-text">
+        <h4>Texto Explicativo del Módulo</h4>
+        <p>En la pestaña Proyectos, haz clic en el lápiz (✏️) de cada tarjeta para personalizar la descripción que acompañará a la etiqueta.</p>
+      </div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">4</div>
+      <div class="step-text">
+        <h4>Estructuración de Tareas y Subtareas</h4>
+        <p>Selecciona tu proyecto en el filtro azul y añade las tareas requeridas con sus checklists correspondientes.</p>
+      </div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">5</div>
+      <div class="step-text">
+        <h4>Ejecución y Monitoreo</h4>
+        <p>Actualiza los estados de cada tarea (🔴, 🟡, 🟢) para reflejar los avances en la Visión General.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- PESTAÑA 4: TAREAS -->
+  <div id="viewTasks" class="tab-content">
+    <div class="white-container-box">
+      <div class="white-box-header">
+        <div class="white-box-title-group">
+          <span id="currentModuleTagBadge" class="tag-badge">COTIZADOR</span>
+          <span id="currentProjectTitle" style="font-size: 18px; font-weight: 800; color: var(--primary); margin-left: 8px;"></span>
+          <button class="btn-icon" id="btnEditProjectHeader" title="Editar Proyecto" onclick="openEditActiveProject()" style="display: none;">✏️</button>
+        </div>
+        <button class="btn-reset" id="btnResetHeader" onclick="resetCurrentProject()" style="display: none;">🔄 Reiniciar Proyecto</button>
+      </div>
+      
+      <div class="white-box-subtext" id="headerSubtext" style="margin-bottom: 8px;">0 proyectos vinculados • 0 de 0 tareas completadas</div>
+
+      <div class="progress-row-full">
+        <div class="progress-bar-track-full">
+          <div class="progress-bar-fill-full" id="projectProgressBar"></div>
+        </div>
+        <div class="progress-pct-full" id="projectProgressText">0%</div>
+      </div>
+
+      <div class="three-stats-grid">
+        <div class="stat-card-clean">
+          <div class="num" id="statGenerales" style="color: var(--primary);">0</div>
+          <div class="label">GENERALES</div>
+        </div>
+        <div class="stat-card-clean">
+          <div class="num" id="statProgreso" style="color: var(--warning);">0</div>
+          <div class="label">PROGRESO</div>
+        </div>
+        <div class="stat-card-clean">
+          <div class="num" id="statFinalizadas" style="color: var(--success);">0</div>
+          <div class="label">FINALIZADAS</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="controls-bar">
+        <button class="btn-add" onclick="openModal('modalTask')">➕ Nueva Tarea</button>
+        
+        <select id="singleProjectFilter" class="filter-select" style="border: 2px solid var(--focus-blue);" onchange="filterTasksBySpecificProject(this.value)">
+          <option value="">📌 Seleccionar proyecto...</option>
+        </select>
+        
+        <input type="text" id="searchInput" class="search-input" placeholder="🔍 Buscar tarea..." onkeyup="filterTasks()">
+        <select id="filterSelect" class="filter-select" onchange="filterTasks()">
+          <option value="all">Todos los estados</option>
+          <option value="pending">❌ Pendientes</option>
+          <option value="progress">⏳ En Progreso</option>
+          <option value="completed">✅ Completadas</option>
+        </select>
+      </div>
+
+      <div style="overflow-x: auto;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width: 8%; text-align: center;">#</th>
+              <th style="width: 62%;">Descripción de la Tarea</th>
+              <th style="width: 30%; text-align: center;">Estado Actual</th>
+            </tr>
+          </thead>
+          <tbody id="taskTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODALES -->
+
+<div id="modalProject" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-title-main">REGISTRO / NUEVO PROYECTO</div>
+    <form id="formProject" onsubmit="submitNewProject(event)">
+      <div class="form-section-card">
+        <div class="form-section-header">📌 INFORMACIÓN GENERAL DEL PROYECTO</div>
+        <div class="form-group">
+          <label for="projectName">NOMBRE DEL PROYECTO</label>
+          <input type="text" id="projectName" class="form-input" placeholder="Ej: Brasil, Egipto..." required autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label for="projectCategory">ETIQUETAS DEL PROYECTO (SEPARADAS POR COMA)</label>
+          <input type="text" id="projectCategory" class="form-input" placeholder="Ej: COTIZADOR, TARIFARIO..." required autocomplete="off" oninput="updateProjectTagsPreview(this.value, 'newProjectTagsPreview')">
+          <div id="newProjectTagsPreview" style="margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap;"></div>
+        </div>
+      </div>
+      <div class="modal-actions" style="justify-content: flex-end;">
+        <button type="button" class="btn-outline" style="margin-right: 10px;" onclick="closeModal('modalProject')">CANCELAR</button>
+        <button type="submit" class="btn-add">GUARDAR PROYECTO</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="modalEditProject" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-title-main">EDITAR PROYECTO</div>
+    <form id="formEditProject" onsubmit="submitEditProject(event)">
+      <input type="hidden" id="editProjectId">
+      <div class="form-section-card">
+        <div class="form-section-header">📌 INFORMACIÓN DEL PROYECTO</div>
+        <div class="form-group">
+          <label for="editProjectName">NOMBRE DEL PROYECTO</label>
+          <input type="text" id="editProjectName" class="form-input" required autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label for="editProjectCategory">ETIQUETAS ASIGNADAS (SEPARADAS POR COMA)</label>
+          <input type="text" id="editProjectCategory" class="form-input" required autocomplete="off" oninput="updateProjectTagsPreview(this.value, 'editProjectTagsPreview')">
+          <div id="editProjectTagsPreview" style="margin-top: 6px; display: flex; gap: 6px; flex-wrap: wrap;"></div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-danger-link" onclick="deleteTargetProject()">🗑️ ELIMINAR PROYECTO</button>
+        <div class="modal-actions-right">
+          <button type="button" class="btn-outline" onclick="closeModal('modalEditProject')">CANCELAR</button>
+          <button type="submit" class="btn-add">ACTUALIZAR</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="modalEditTagDesc" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-title-main">PERSONALIZAR ETIQUETA / MÓDULO</div>
+    <form id="formEditTagDesc" onsubmit="submitEditTagDesc(event)">
+      <input type="hidden" id="editTagTargetName">
+      <div class="form-section-card">
+        <div class="form-section-header">📝 DESCRIPCIÓN DEL MÓDULO</div>
+        <div class="form-group">
+          <label>ETIQUETA</label>
+          <input type="text" id="editTagDisplayName" class="form-input" disabled style="background: #E2E8F0; font-weight: 800;">
+        </div>
+        <div class="form-group">
+          <label for="editTagText">TEXTO EXPLICATIVO PERSONALIZADO</label>
+          <textarea id="editTagText" class="form-input" rows="3" placeholder="Escribe aquí el texto que acompaña a la etiqueta..." required style="resize: vertical;"></textarea>
+        </div>
+      </div>
+      <div class="modal-actions" style="justify-content: flex-end;">
+        <button type="button" class="btn-outline" style="margin-right: 10px;" onclick="closeModal('modalEditTagDesc')">CANCELAR</button>
+        <button type="submit" class="btn-add">GUARDAR TEXTO</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="modalTask" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-title-main">REGISTRO / NUEVA TAREA</div>
+    <form id="formTask" onsubmit="submitNewTask(event)">
+      <div class="form-section-card">
+        <div class="form-section-header">📌 DETALLES DE LA TAREA</div>
+        <div class="form-group">
+          <label for="taskName">DESCRIPCIÓN DE LA TAREA</label>
+          <input type="text" id="taskName" class="form-input" placeholder="Ej: Tour Egipto clásico 8 días..." required autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label for="taskTags">ETIQUETAS DE LA TAREA (SEPARADAS POR COMA)</label>
+          <input type="text" id="taskTags" class="form-input" placeholder="Ej: Online, Presencial..." autocomplete="off">
+        </div>
+      </div>
+      <div class="form-section-card">
+        <div class="form-section-header">✅ CHECKLIST (OPCIONAL)</div>
+        <div id="newTaskChecklistContainer"></div>
+        <button type="button" class="btn-outline btn-small" onclick="addChecklistItem('newTaskChecklistContainer')" style="margin-top: 8px;">➕ Añadir Subtarea</button>
+      </div>
+      <div class="modal-actions" style="justify-content: flex-end;">
+        <button type="button" class="btn-outline" style="margin-right: 10px;" onclick="closeModal('modalTask')">CANCELAR</button>
+        <button type="submit" class="btn-add">GUARDAR TAREA</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="modalEditTask" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-title-main">EDITAR TAREA</div>
+    <form id="formEditTask" onsubmit="submitEditTask(event)">
+      <input type="hidden" id="editTaskIndex">
+      <div class="form-section-card">
+        <div class="form-section-header">📌 DETALLES DE LA TAREA</div>
+        <div class="form-group">
+          <label for="editTaskName">DESCRIPCIÓN DE LA TAREA</label>
+          <input type="text" id="editTaskName" class="form-input" required autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label for="editTaskTags">ETIQUETAS DE LA TAREA (SEPARADAS POR COMA)</label>
+          <input type="text" id="editTaskTags" class="form-input" autocomplete="off">
+        </div>
+      </div>
+      <div class="form-section-card">
+        <div class="form-section-header">✅ CHECKLIST (OPCIONAL)</div>
+        <div id="editTaskChecklistContainer"></div>
+        <button type="button" class="btn-outline btn-small" onclick="addChecklistItem('editTaskChecklistContainer')" style="margin-top: 8px;">➕ Añadir Subtarea</button>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-danger-link" onclick="deleteTargetTask()">🗑️ ELIMINAR TAREA</button>
+        <div class="modal-actions-right">
+          <button type="button" class="btn-outline" onclick="closeModal('modalEditTask')">CANCELAR</button>
+          <button type="submit" class="btn-add">ACTUALIZAR</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  let localProjectsData = {};
+  let currentSelectedTag = "";
+  let currentSingleProjectFilter = "";
+
+  let tagMetadata = {
+    "COTIZADOR": { icon: "📊", desc: "Panel de gestión y actualización de cotizadores por país." },
+    "TARIFARIO": { icon: "💰", desc: "Acceso al portal general de tarifas y consulta de precios." },
+    "MARKETING": { icon: "📈", desc: "Materiales y especificaciones técnicas de difusión." },
+    "NOTAS": { icon: "📝", desc: "Hub de notas y registro de historial de información." }
+  };
+
+  window.onload = function() {
+    try {
+      const savedMeta = localStorage.getItem('customTagMetadata');
+      if (savedMeta) tagMetadata = Object.assign({}, tagMetadata, JSON.parse(savedMeta));
+
+      const savedData = localStorage.getItem('localProjectsData');
+      if (savedData) localProjectsData = JSON.parse(savedData);
+
+      switchTab('dashboard');
+    } catch(err) {
+      console.error("Error al cargar datos locales:", err);
+    } finally {
+      document.getElementById('loadingScreen').style.display = 'none';
+      document.getElementById('appWrapper').style.display = 'block';
+    }
+  };
+
+  function saveToCloud() {
+    try {
+      localStorage.setItem('localProjectsData', JSON.stringify(localProjectsData));
+    } catch(e) {
+      console.error("Error al guardar localmente:", e);
+    }
+  }
+
+  function switchTab(tabId) {
+    const dashView = document.getElementById('viewDashboard');
+    const hubView = document.getElementById('viewHub');
+    const tasksView = document.getElementById('viewTasks');
+    const manualView = document.getElementById('viewManual');
+    
+    const btnDash = document.getElementById('btnTabDashboard');
+    const btnHub = document.getElementById('btnTabHub');
+    const btnManual = document.getElementById('btnTabManual');
+    const btnBack = document.getElementById('btnBackToHub');
+
+    dashView.classList.remove('active');
+    hubView.classList.remove('active');
+    tasksView.classList.remove('active');
+    manualView.classList.remove('active');
+    
+    btnDash.classList.remove('active');
+    btnHub.classList.remove('active');
+    btnManual.classList.remove('active');
+    btnBack.style.display = 'none';
+
+    if (tabId === 'dashboard') {
+      dashView.classList.add('active');
+      btnDash.classList.add('active');
+      renderDashboard();
+    } else if (tabId === 'hub') {
+      hubView.classList.add('active');
+      btnHub.classList.add('active');
+      renderHub();
+    } else if (tabId === 'manual') {
+      manualView.classList.add('active');
+      btnManual.classList.add('active');
+    } else if (tabId === 'tasks') {
+      tasksView.classList.add('active');
+      btnBack.style.display = 'inline-flex';
+      renderTasksTable();
+    }
+  }
+
+  function openTagTasks(tag, targetProjectId = "") {
+    currentSelectedTag = tag;
+    currentSingleProjectFilter = targetProjectId;
+    switchTab('tasks');
+  }
+
+  function renderHub() {
+    const grid = document.getElementById('hubCardsGrid');
+    grid.innerHTML = '';
+
+    const categories = [...new Set(Object.keys(localProjectsData).map(k => localProjectsData[k].category || 'TARIFARIO'))].sort();
+
+    if (categories.length === 0) {
+      grid.innerHTML = '<p style="color: var(--text-muted); text-align: center; grid-column: 1/-1;">No hay módulos o etiquetas disponibles.</p>';
+      return;
+    }
+
+    categories.forEach(cat => {
+      const meta = tagMetadata[cat] || { icon: "📁", desc: `Acceso al panel completo de proyectos vinculados a la etiqueta ${cat}.` };
+      const card = document.createElement('div');
+      card.className = 'hub-card';
+      card.innerHTML = `
+        <div>
+          <div class="hub-card-header">
+            <div class="hub-card-icon">${meta.icon}</div>
+            <button class="btn-icon" title="Editar texto de la etiqueta" onclick="openEditTagDescModal('${cat}', event)">✏️</button>
+          </div>
+          <h3>${cat}</h3>
+          <p>${meta.desc}</p>
+        </div>
+        <div class="hub-card-action" onclick="openTagTasks('${cat}', '')">Acceder al Módulo ➔</div>
+      `;
+      grid.appendChild(card);
+    });
+  }
+
+  function renderTasksTable() {
+    const tag = currentSelectedTag || Object.values(localProjectsData)[0]?.category || "TARIFARIO";
+    currentSelectedTag = tag;
+
+    document.getElementById('currentModuleTagBadge').textContent = tag;
+
+    const matchingKeys = Object.keys(localProjectsData).filter(k => localProjectsData[k].category === tag);
+    const filterSelect = document.getElementById('singleProjectFilter');
+    
+    filterSelect.innerHTML = '<option value="">📌 Seleccionar proyecto...</option>';
+    matchingKeys.forEach(k => {
+      const opt = document.createElement('option');
+      opt.value = k;
+      opt.textContent = `📄 ${localProjectsData[k].name}`;
+      if (k === currentSingleProjectFilter) opt.selected = true;
+      filterSelect.appendChild(opt);
+    });
+
+    const tbody = document.getElementById('taskTableBody');
+    tbody.innerHTML = '';
+
+    const btnEditHeader = document.getElementById('btnEditProjectHeader');
+    const btnResetHeader = document.getElementById('btnResetHeader');
+
+    if (!currentSingleProjectFilter || !localProjectsData[currentSingleProjectFilter]) {
+      let moduleTasks = [];
+      matchingKeys.forEach(k => {
+        moduleTasks = moduleTasks.concat(localProjectsData[k].tasks || []);
+      });
+
+      const totalModuleTasks = moduleTasks.length;
+      const completedModuleTasks = moduleTasks.filter(t => t && t.status === 'completed').length;
+      
+      document.getElementById('currentProjectTitle').textContent = "";
+      document.getElementById('headerSubtext').textContent = `${matchingKeys.length} proyectos vinculados • ${completedModuleTasks} de ${totalModuleTasks} tareas completadas`;
+      
+      btnEditHeader.style.display = 'none';
+      btnResetHeader.style.display = 'none';
+
+      updateProjectStats(moduleTasks);
+
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="3" style="text-align: center; padding: 48px 20px;">
+            <div style="font-size: 32px; margin-bottom: 12px;">📂</div>
+            <h4 style="font-size: 15px; font-weight: 700; color: var(--primary); margin-bottom: 6px;">Seleccionar un proyecto</h4>
+            <p style="font-size: 13px; color: var(--text-muted);">Usa el desplegable azul "📌 Seleccionar proyecto..." de arriba para ver las tareas de un proyecto específico.</p>
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    const activeProj = localProjectsData[currentSingleProjectFilter];
+    const projTasks = activeProj.tasks || [];
+    const totalProjTasks = projTasks.length;
+    const completedProjTasks = projTasks.filter(t => t && t.status === 'completed').length;
+
+    document.getElementById('currentProjectTitle').textContent = activeProj.name;
+    document.getElementById('headerSubtext').textContent = `${matchingKeys.length} proyectos vinculados • ${completedProjTasks} de ${totalProjTasks} tareas completadas`;
+
+    btnEditHeader.style.display = 'inline-block';
+    btnResetHeader.style.display = 'inline-flex';
+
+    if (projTasks.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding: 32px; color: var(--text-muted);">No hay tareas registradas en este proyecto. Haz clic en "+ Nueva Tarea".</td></tr>';
+      updateProjectStats([]);
+      return;
+    }
+
+    projTasks.forEach((task, tIndex) => {
+      let taskTagsHTML = '';
+      if (task.tags) {
+        const tTags = task.tags.split(',').map(t => t.trim()).filter(t => t);
+        tTags.forEach(t => {
+          taskTagsHTML += `<span class="task-mini-tag">${t}</span>`;
+        });
+      }
+
+      let checklistHTML = '';
+      if (task.checklist && task.checklist.length > 0) {
+        checklistHTML = '<div class="task-checklist-display">';
+        task.checklist.forEach((cItem, cIndex) => {
+          const isChecked = cItem.done ? 'checked' : '';
+          const textStyle = cItem.done ? 'text-decoration: line-through; color: #94A3B8;' : '';
+          
+          checklistHTML += `
+            <div class="task-checklist-item">
+              <input type="checkbox" ${isChecked} onchange="toggleChecklistItem('${currentSingleProjectFilter}', ${tIndex}, ${cIndex}, this.checked)">
+              <span style="${textStyle}">${cItem.text || ''}</span>
+            </div>
+          `;
+        });
+        checklistHTML += '</div>';
+      }
+
+      const tr = document.createElement('tr');
+      tr.setAttribute('data-title', (task.title || '').toLowerCase());
+      tr.setAttribute('data-status', task.status || 'pending');
+
+      tr.innerHTML = `
+        <td style="text-align: center; font-weight: 700; color: #64748B;">${tIndex + 1}</td>
+        <td style="font-weight: 500; color: #1E293B;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div style="flex: 1;">
+              <span style="font-weight: 600;">${task.title || ''}</span> ${taskTagsHTML}
+              ${checklistHTML}
+            </div>
+            <button class="btn-icon" style="margin-left: 10px;" title="Editar Tarea" onclick="openEditTaskModal('${currentSingleProjectFilter}', ${tIndex})">✏️</button>
+          </div>
+        </td>
+        <td style="text-align: center;">
+          <select class="status-select ${getStatusClass(task.status)}" onchange="updateTaskStatusDirect('${currentSingleProjectFilter}', ${tIndex}, this.value, this)">
+            <option value="pending" ${task.status === 'pending' ? 'selected' : ''}>❌ Pendiente</option>
+            <option value="progress" ${task.status === 'progress' ? 'selected' : ''}>⏳ En Progreso</option>
+            <option value="completed" ${task.status === 'completed' ? 'selected' : ''}>✅ Completada</option>
+          </select>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    updateProjectStats(projTasks);
+    filterTasks();
+  }
+
+  function filterTasksBySpecificProject(val) {
+    currentSingleProjectFilter = val;
+    renderTasksTable();
+  }
+
+  function updateTaskStatusDirect(projId, taskIndex, newStatus, selectElement) {
+    if (localProjectsData[projId] && localProjectsData[projId].tasks[taskIndex]) {
+      localProjectsData[projId].tasks[taskIndex].status = newStatus;
+      selectElement.className = `status-select ${getStatusClass(newStatus)}`;
+      renderTasksTable();
+      saveToCloud();
+    }
+  }
+
+  function toggleChecklistItem(projId, taskIndex, checklistIndex, isDone) {
+    if (localProjectsData[projId] && localProjectsData[projId].tasks[taskIndex]) {
+      localProjectsData[projId].tasks[taskIndex].checklist[checklistIndex].done = isDone;
+      saveToCloud();
+      renderTasksTable();
+    }
+  }
+
+  function openEditTagDescModal(tag, event) {
+    if (event) event.stopPropagation();
+    document.getElementById('editTagTargetName').value = tag;
+    document.getElementById('editTagDisplayName').value = tag;
+    
+    const currentMeta = tagMetadata[tag] || { desc: "" };
+    document.getElementById('editTagText').value = currentMeta.desc || "";
+    
+    openModal('modalEditTagDesc');
+  }
+
+  function submitEditTagDesc(e) {
+    e.preventDefault();
+    const tag = document.getElementById('editTagTargetName').value;
+    const text = document.getElementById('editTagText').value.trim();
+    
+    if (tag && text) {
+      if (!tagMetadata[tag]) tagMetadata[tag] = { icon: "📁", desc: "" };
+      tagMetadata[tag].desc = text;
+      
+      try {
+        localStorage.setItem('customTagMetadata', JSON.stringify(tagMetadata));
+      } catch(e) { console.error("Error saving meta", e); }
+
+      renderHub();
+      renderDashboard();
+      closeModal('modalEditTagDesc');
+    }
+  }
+
+  function renderDashboard() {
+    const projectKeys = Object.keys(localProjectsData);
+    const container = document.getElementById('dashboardProjectsGrid');
+    container.innerHTML = '';
+
+    let globalTotal = 0;
+    let globalPending = 0;
+    let globalInProgress = 0;
+    let globalCompleted = 0;
+
+    if (projectKeys.length === 0) {
+      container.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 40px;">No hay proyectos registrados.</p>';
+      updateGlobalCards(0, 0, 0, 0);
+      return;
+    }
+
+    const groupedData = {};
+    const allCategories = new Set();
+    
+    projectKeys.forEach(key => {
+      const proj = localProjectsData[key];
+      if (!proj) return;
+      const cat = proj.category || 'TARIFARIO';
+      allCategories.add(cat);
+      
+      if (!groupedData[cat]) {
+        groupedData[cat] = { projects: [], totalTasks: 0, completedTasks: 0, inProgressTasks: 0 };
+      }
+      
+      const tasks = proj.tasks || [];
+      const pTasksCount = tasks.length;
+      const pCompCount = tasks.filter(t => t && t.status === 'completed').length;
+      const pProgCount = tasks.filter(t => t && t.status === 'progress').length;
+      const pPendCount = pTasksCount - pCompCount - pProgCount;
+      
+      groupedData[cat].projects.push({ id: key, name: proj.name, tCount: pTasksCount, cCount: pCompCount, pCount: pProgCount, pendCount: pPendCount });
+      groupedData[cat].totalTasks += pTasksCount;
+      groupedData[cat].completedTasks += pCompCount;
+      groupedData[cat].inProgressTasks += pProgCount;
+
+      globalTotal += pTasksCount;
+      globalPending += pPendCount;
+      globalInProgress += pProgCount;
+      globalCompleted += pCompCount;
+    });
+
+    updateGlobalCards(globalPending, globalInProgress, globalCompleted, globalTotal);
+    populateDashTagFilter(Array.from(allCategories));
+
+    Object.keys(groupedData).sort().forEach(category => {
+      const group = groupedData[category];
+      const groupPct = group.totalTasks > 0 ? Math.round((group.completedTasks / group.totalTasks) * 100) : 0;
+      const tagMeta = tagMetadata[category] || { desc: "" };
+      
+      const whiteBox = document.createElement('div');
+      whiteBox.className = 'summary-table-container white-container-box';
+      whiteBox.setAttribute('data-category', category);
+      
+      let rowsHTML = '';
+      group.projects.sort((a,b) => a.name.localeCompare(b.name)).forEach(p => {
+        rowsHTML += `
+          <tr>
+            <td onclick="openTagTasks('${category}', '${p.id}')">${p.name}</td>
+            <td style="color: #EF4444;">${p.pendCount}</td>
+            <td style="color: #F59E0B;">${p.pCount}</td>
+            <td style="color: #10B981;">${p.cCount}</td>
+            <td style="color: #2563EB;">${p.tCount}</td>
+          </tr>
+        `;
+      });
+
+      whiteBox.innerHTML = `
+        <div class="white-box-header">
+          <div class="white-box-title-group">
+            <span class="tag-badge">${category}</span>
+          </div>
+          ${tagMeta.desc ? `<div style="font-size: 12.5px; font-weight: 600; color: var(--text-muted); text-align: right; max-width: 60%;">📝 ${tagMeta.desc}</div>` : ''}
+        </div>
+
+        <div class="white-box-subtext">${group.projects.length} proyectos vinculados • ${group.completedTasks} de ${group.totalTasks} tareas completadas</div>
+        
+        <div class="progress-row-full">
+          <div class="progress-bar-track-full">
+            <div class="progress-bar-fill-full" style="width: ${groupPct}%;"></div>
+          </div>
+          <div class="progress-pct-full">${groupPct}%</div>
+        </div>
+
+        <div class="three-stats-grid">
+          <div class="stat-card-clean">
+            <div class="num" style="color: var(--primary);">${group.totalTasks}</div>
+            <div class="label">GENERALES</div>
+          </div>
+          <div class="stat-card-clean">
+            <div class="num" style="color: var(--warning);">${group.inProgressTasks}</div>
+            <div class="label">PROGRESO</div>
+          </div>
+          <div class="stat-card-clean">
+            <div class="num" style="color: var(--success);">${group.completedTasks}</div>
+            <div class="label">FINALIZADAS</div>
+          </div>
+        </div>
+
+        <div class="summary-table-subhead">📋 Resumen de Proyectos por País / Destino:</div>
+        
+        <div style="overflow-x: auto;">
+          <table class="summary-table">
+            <thead>
+              <tr>
+                <th>PAÍS / DESTINO</th>
+                <th style="color: #EF4444;">🔴 PENDIENTES</th>
+                <th style="color: #F59E0B;">🟡 EN PROGRESO</th>
+                <th style="color: #10B981;">🟢 COMPLETADAS</th>
+                <th style="color: #2563EB;">TOTAL TAREAS</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rowsHTML}
+            </tbody>
+          </table>
+        </div>
+      `;
+
+      container.appendChild(whiteBox);
+    });
+
+    filterDashboard();
+  }
+
+  function populateDashTagFilter(categories) {
+    const select = document.getElementById('dashTagFilter');
+    if (!select) return;
+    const currentValue = select.value;
+    select.innerHTML = '<option value="">📌 Seleccionar etiqueta...</option><option value="all">🏷️ Todas las Etiquetas</option>';
+    
+    categories.sort().forEach(cat => {
+      const option = document.createElement('option');
+      option.value = cat;
+      option.textContent = `🏷️ ${cat}`;
+      if (cat === currentValue) option.selected = true;
+      select.appendChild(option);
+    });
+  }
+
+  function filterDashboard() {
+    const searchInput = document.getElementById('dashSearchInput');
+    const tagFilter = document.getElementById('dashTagFilter');
+    if (!searchInput || !tagFilter) return;
+
+    const searchValue = searchInput.value.toLowerCase();
+    const selectedTag = tagFilter.value;
+    
+    const boxes = document.querySelectorAll('#dashboardProjectsGrid .white-container-box');
+    
+    boxes.forEach(box => {
+      const boxCategory = box.getAttribute('data-category');
+      
+      if (selectedTag === "") {
+        box.style.display = 'none';
+        return;
+      }
+
+      const matchesTag = (selectedTag === 'all') || (boxCategory === selectedTag);
+      
+      if (!matchesTag) {
+        box.style.display = 'none';
+        return;
+      }
+
+      const rows = box.querySelectorAll('tbody tr');
+      let visibleRowsCount = 0;
+      
+      rows.forEach(row => {
+        const title = row.cells[0]?.textContent?.toLowerCase() || '';
+        const matchesSearch = title.includes(searchValue);
+        
+        if (matchesSearch) {
+          row.style.display = '';
+          visibleRowsCount++;
+        } else {
+          row.style.display = 'none';
+        }
+      });
+
+      box.style.display = (visibleRowsCount > 0) ? 'block' : 'none';
+    });
+  }
+
+  function updateGlobalCards(pending, inProgress, completed, total) {
+    document.getElementById('globalPendingTasks').textContent = pending;
+    document.getElementById('globalInProgressTasks').textContent = inProgress;
+    document.getElementById('globalCompletedTasks').textContent = completed;
+    document.getElementById('globalTotalTasks').textContent = total;
+  }
+
+  function openModal(modalId) {
+    document.getElementById(modalId).classList.add('active');
+    if (modalId === 'modalProject') document.getElementById('projectName').focus();
+    if (modalId === 'modalTask') document.getElementById('taskName').focus();
+  }
+
+  function closeModal(modalId) {
+    document.getElementById(modalId).classList.remove('active');
+    if (modalId === 'modalProject') document.getElementById('formProject').reset();
+    if (modalId === 'modalTask') {
+      document.getElementById('formTask').reset();
+      document.getElementById('newTaskChecklistContainer').innerHTML = ''; 
+    }
+    if (modalId === 'modalEditProject') document.getElementById('formEditProject').reset();
+    if (modalId === 'modalEditTask') {
+      document.getElementById('formEditTask').reset();
+      document.getElementById('editTaskChecklistContainer').innerHTML = ''; 
+    }
+    if (modalId === 'modalEditTagDesc') document.getElementById('formEditTagDesc').reset();
+  }
+
+  function updateProjectTagsPreview(textValue, containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    
+    container.innerHTML = '';
+    const tags = textValue.split(',').map(t => t.trim().toUpperCase()).filter(t => t !== '');
+    
+    if (tags.length === 0) {
+      container.innerHTML = '<span style="font-size: 11px; color: var(--text-muted); font-style: italic;">Sin etiquetas...</span>';
+      return;
+    }
+    
+    tags.forEach(tag => {
+      const badge = document.createElement('span');
+      badge.className = 'tag-badge';
+      badge.textContent = tag;
+      container.appendChild(badge);
+    });
+  }
+
+  function openEditProjectModal(projectId, event) {
+    if (event) event.stopPropagation();
+    const proj = localProjectsData[projectId];
+    if (!proj) return;
+    
+    document.getElementById('editProjectId').value = projectId;
+    document.getElementById('editProjectName').value = proj.name || "";
+    
+    const groupTags = proj.allCategories || [proj.category];
+    const tagsString = groupTags.join(', ');
+    
+    document.getElementById('editProjectCategory').value = tagsString;
+    updateProjectTagsPreview(tagsString, 'editProjectTagsPreview');
+    
+    openModal('modalEditProject');
+    document.getElementById('editProjectName').focus();
+  }
+
+  function openEditActiveProject() {
+    if (currentSingleProjectFilter && localProjectsData[currentSingleProjectFilter]) {
+      openEditProjectModal(currentSingleProjectFilter);
+    }
+  }
+
+  function submitNewProject(e) {
+    e.preventDefault();
+    const nameInput = document.getElementById('projectName').value.trim();
+    const rawCats = document.getElementById('projectCategory').value.trim().toUpperCase() || 'TARIFARIO';
+    if (!nameInput) return;
+    
+    const cats = rawCats.split(',').map(c => c.trim()).filter(c => c !== '');
+    const groupId = 'group_' + new Date().getTime();
+    
+    let firstNewId = null;
+    cats.forEach((cat, index) => {
+      const newId = groupId + '_' + index;
+      localProjectsData[newId] = { 
+        groupId: groupId, 
+        name: nameInput, 
+        category: cat, 
+        allCategories: cats, 
+        tasks: [] 
+      };
+      if (!firstNewId) firstNewId = newId;
+    });
+    
+    saveToCloud();
+    closeModal('modalProject');
+    openTagTasks(cats[0], firstNewId);
+  }
+
+  function submitEditProject(e) {
+    e.preventDefault();
+    const projectId = document.getElementById('editProjectId').value;
+    const newName = document.getElementById('editProjectName').value.trim();
+    const rawCats = document.getElementById('editProjectCategory').value.trim().toUpperCase() || 'TARIFARIO';
+    
+    if (projectId && newName && localProjectsData[projectId]) {
+      const targetProj = localProjectsData[projectId];
+      const gId = targetProj.groupId || projectId;
+      const newCats = rawCats.split(',').map(c => c.trim()).filter(c => c !== '');
+      
+      const existingKeys = Object.keys(localProjectsData).filter(k => localProjectsData[k].groupId === gId || k === projectId);
+      
+      existingKeys.forEach(k => {
+        localProjectsData[k].name = newName;
+        localProjectsData[k].allCategories = newCats;
+        localProjectsData[k].groupId = gId;
+      });
+
+      newCats.forEach(cat => {
+        const hasCat = existingKeys.some(k => localProjectsData[k].category === cat);
+        if (!hasCat) {
+          const newId = gId + '_' + cat.toLowerCase().replace(/[^a-z0-9]/g, '_');
+          const sampleTasks = targetProj.tasks || [];
+          const clonedTasks = sampleTasks.map(t => {
+            const clonedChecklist = t.checklist ? t.checklist.map(c => ({ text: c.text, done: false })) : [];
+            return { title: t.title, status: 'pending', tags: t.tags || "", checklist: clonedChecklist };
+          });
+          localProjectsData[newId] = { 
+            groupId: gId, 
+            name: newName, 
+            category: cat, 
+            allCategories: newCats, 
+            tasks: clonedTasks 
+          };
+        }
+      });
+
+      existingKeys.forEach(k => {
+        if (!newCats.includes(localProjectsData[k].category)) {
+          delete localProjectsData[k];
+        }
+      });
+      
+      saveToCloud();
+      renderDashboard();
+      if (document.getElementById('viewTasks').classList.contains('active')) {
+        renderTasksTable();
+      }
+      closeModal('modalEditProject');
+    }
+  }
+
+  function deleteTargetProject() {
+    const projectId = document.getElementById('editProjectId').value;
+    if (!projectId || !localProjectsData[projectId]) return;
+
+    const proj = localProjectsData[projectId];
+    const gId = proj.groupId || projectId;
+
+    if (confirm(`¿Seguro que deseas eliminar el proyecto "${proj.name}" y todas sus tareas?`)) {
+      Object.keys(localProjectsData).forEach(k => {
+        if (localProjectsData[k].groupId === gId || k === projectId) {
+          delete localProjectsData[k];
+        }
+      });
+      
+      saveToCloud();
+      renderDashboard();
+      closeModal('modalEditProject');
+      switchTab('hub');
+    }
+  }
+
+  function addChecklistItem(containerId, value = "", done = false) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    const div = document.createElement('div');
+    div.className = 'checklist-item-input';
+    div.innerHTML = `
+        <input type="text" class="form-input checklist-val" data-done="${done}" placeholder="Item de la subtarea..." value="${value}">
+        <button type="button" class="btn-remove-item" onclick="this.parentElement.remove()" title="Eliminar subtarea">X</button>
+    `;
+    container.appendChild(div);
+  }
+
+  function submitNewTask(e) {
+    e.preventDefault();
+    
+    if (!currentSingleProjectFilter || !localProjectsData[currentSingleProjectFilter]) {
+      alert("Selecciona un proyecto en el filtro azul antes de añadir una nueva tarea.");
+      return;
+    }
+    
+    const taskInput = document.getElementById('taskName').value.trim();
+    const taskTags = document.getElementById('taskTags').value.trim();
+    if (!taskInput) return;
+    
+    const checklistInputs = document.querySelectorAll('#newTaskChecklistContainer .checklist-val');
+    const checklistData = Array.from(checklistInputs)
+      .map(input => ({ text: input.value.trim(), done: false }))
+      .filter(item => item.text !== "");
+    
+    if (!localProjectsData[currentSingleProjectFilter].tasks) {
+      localProjectsData[currentSingleProjectFilter].tasks = [];
+    }
+    
+    localProjectsData[currentSingleProjectFilter].tasks.push({ 
+      title: taskInput, 
+      status: "pending", 
+      tags: taskTags,
+      checklist: checklistData 
+    });
+    
+    saveToCloud();
+    renderTasksTable();
+    closeModal('modalTask');
+  }
+
+  function openEditTaskModal(projId, taskIndex) {
+    const task = localProjectsData[projId]?.tasks[taskIndex];
+    if (!task) return;
+    
+    document.getElementById('editTaskIndex').value = projId + '___' + taskIndex;
+    document.getElementById('editTaskName').value = task.title || "";
+    document.getElementById('editTaskTags').value = task.tags || "";
+    
+    const container = document.getElementById('editTaskChecklistContainer');
+    container.innerHTML = '';
+    if (task.checklist && task.checklist.length > 0) {
+      task.checklist.forEach(item => addChecklistItem('editTaskChecklistContainer', item.text, item.done));
+    }
+    
+    openModal('modalEditTask');
+    document.getElementById('editTaskName').focus();
+  }
+
+  function submitEditTask(e) {
+    e.preventDefault();
+    const compositeVal = document.getElementById('editTaskIndex').value;
+    const [projId, indexStr] = compositeVal.split('___');
+    const index = parseInt(indexStr);
+    
+    const newName = document.getElementById('editTaskName').value.trim();
+    const newTags = document.getElementById('editTaskTags').value.trim();
+    
+    if (projId && !isNaN(index) && newName && localProjectsData[projId]?.tasks[index]) {
+      localProjectsData[projId].tasks[index].title = newName;
+      localProjectsData[projId].tasks[index].tags = newTags;
+      
+      const checklistInputs = document.querySelectorAll('#editTaskChecklistContainer .checklist-val');
+      const checklistData = Array.from(checklistInputs)
+        .map(input => ({ text: input.value.trim(), done: input.getAttribute('data-done') === 'true' }))
+        .filter(item => item.text !== "");
+        
+      localProjectsData[projId].tasks[index].checklist = checklistData;
+
+      saveToCloud();
+      renderTasksTable();
+      closeModal('modalEditTask');
+    }
+  }
+
+  function deleteTargetTask() {
+    const compositeVal = document.getElementById('editTaskIndex').value;
+    const [projId, indexStr] = compositeVal.split('___');
+    const index = parseInt(indexStr);
+
+    if (projId && !isNaN(index) && localProjectsData[projId]?.tasks[index]) {
+      const taskName = localProjectsData[projId].tasks[index].title;
+      if (confirm(`¿Seguro que deseas eliminar la tarea "${taskName}"?`)) {
+        localProjectsData[projId].tasks.splice(index, 1);
+        saveToCloud();
+        renderTasksTable();
+        closeModal('modalEditTask');
+      }
+    }
+  }
+
+  function resetCurrentProject() {
+    if (!currentSingleProjectFilter || !localProjectsData[currentSingleProjectFilter]) return;
+    
+    if (confirm(`¿Deseas reiniciar el estado de todas las tareas del proyecto "${localProjectsData[currentSingleProjectFilter].name}"?`)) {
+      (localProjectsData[currentSingleProjectFilter].tasks || []).forEach(t => t.status = 'pending');
+      renderTasksTable();
+      saveToCloud();
+    }
+  }
+
+  function updateProjectStats(tasks) {
+    let completed = 0, progress = 0, pending = 0;
+    (tasks || []).forEach(t => {
+      if (t.status === 'completed') completed++;
+      else if (t.status === 'progress') progress++;
+      else pending++;
+    });
+
+    const total = (tasks || []).length;
+    const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+    document.getElementById('statGenerales').textContent = total;
+    document.getElementById('statProgreso').textContent = progress;
+    document.getElementById('statFinalizadas').textContent = completed;
+    document.getElementById('projectProgressBar').style.width = percentage + '%';
+    document.getElementById('projectProgressText').textContent = percentage + '%';
+  }
+
+  function filterTasks() {
+    const searchInput = document.getElementById('searchInput');
+    const filterSelect = document.getElementById('filterSelect');
+    if (!searchInput || !filterSelect) return;
+
+    const searchValue = searchInput.value.toLowerCase();
+    const filterValue = filterSelect.value;
+    const rows = document.querySelectorAll('#taskTableBody tr');
+
+    rows.forEach(row => {
+      const text = row.getAttribute('data-title') || '';
+      const status = row.getAttribute('data-status') || '';
+      const matchesSearch = text.includes(searchValue);
+      const matchesFilter = (filterValue === 'all') || (status === filterValue);
+      row.style.display = (matchesSearch && matchesFilter) ? '' : 'none';
+    });
+  }
+
+  function getStatusClass(status) {
+    if (status === 'completed') return 'status-completed';
+    if (status === 'progress') return 'status-progress';
+    return 'status-pending';
+  }
+</script>
+
+</body>
+</html>
