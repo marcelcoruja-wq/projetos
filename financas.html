@@ -28,13 +28,16 @@
     .main-wrapper { max-width: 1200px; margin: 0 auto; }
 
     /* BARRA SUPERIOR DE NAVEGAÇÃO */
-    .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }
+    .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 16px; }
     .nav-tabs { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
     .tab-btn { padding: 10px 18px; background: var(--card-bg); border: 1px solid var(--border-color); font-weight: 600; font-size: 13px; cursor: pointer; border-radius: 8px; color: var(--text-muted); transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.03); display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
     .tab-btn.active { background: var(--primary); color: #FFFFFF; border-color: var(--primary); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
     .tab-btn:hover:not(.active) { background: #E2E8F0; }
     .btn-home { background-color: #E2E8F0; color: var(--primary); font-weight: 700; }
     .btn-home:hover { background-color: #CBD5E1; }
+
+    /* FILTRO DE DATA GLOBAL */
+    .global-date-filter { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; background: var(--card-bg); padding: 12px 20px; border-radius: var(--radius); border: 1px solid var(--border-color); box-shadow: 0 2px 8px rgba(0,0,0,0.02); flex-wrap: wrap; }
 
     /* BOTÕES GERAIS */
     .btn-add { background-color: var(--focus-blue); color: white; border: none; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 4px rgba(47, 95, 208, 0.2); }
@@ -45,7 +48,7 @@
     .btn-danger:hover { background-color: #EF4444; color: white; }
     .btn-settle { background-color: #D1FAE5; color: #065F46; border: 1px solid #6EE7B7; padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 12px; cursor: pointer; }
     .btn-settle:hover { background-color: #10B981; color: white; }
-    .btn-icon { background: none; border: none; cursor: pointer; font-size: 14px; padding: 4px 8px; border-radius: 4px; color: var(--text-muted); }
+    .btn-icon { background: none; border: none; cursor: pointer; font-size: 14px; padding: 4px 8px; border-radius: 4px; color: var(--text-muted); transition: 0.2s; }
     .btn-icon:hover { background: #E2E8F0; color: var(--primary); }
 
     /* CONTROLE DE ABAS */
@@ -119,18 +122,27 @@
     </div>
   </div>
 
+  <!-- FILTRO DE DATA GLOBAL -->
+  <div class="global-date-filter">
+    <span style="font-size: 13px; font-weight: 800; color: var(--primary);">📅 PERÍODO DE ANÁLISE:</span>
+    <input type="date" id="globalStartDate" class="form-input" style="width: auto; padding: 6px 12px; font-weight: 600;" onchange="refreshAll()">
+    <span style="font-size: 13px; font-weight: 700; color: var(--text-muted);">até</span>
+    <input type="date" id="globalEndDate" class="form-input" style="width: auto; padding: 6px 12px; font-weight: 600;" onchange="refreshAll()">
+    <button class="btn-outline" style="padding: 6px 12px; font-size: 12px;" onclick="clearDateFilters()">Todas as Datas</button>
+  </div>
+
   <!-- PESTAÑA 1: DASHBOARD -->
   <div id="viewDash" class="tab-content active">
     <!-- CARDS KPIS -->
     <div class="kpi-grid">
       <div class="kpi-card" style="border-top: 4px solid var(--focus-blue);">
-        <div class="label">💰 Saldo do Mês</div>
+        <div class="label">💰 Saldo do Período</div>
         <div class="num" id="kpiSaldo">R$ 0,00</div>
         <div class="sub" id="kpiReceitaDespesa">Receitas: R$ 0 | Gastos: R$ 0</div>
       </div>
 
       <div class="kpi-card" style="border-top: 4px solid var(--success);">
-        <div class="label">📅 Teto Diário de Hoje</div>
+        <div class="label">📅 Teto Diário Calculado</div>
         <div class="num" id="kpiTetoDiario" style="color: var(--success);">R$ 0,00 /dia</div>
         <div class="sub" id="kpiDiasRestantes">Calculado para 0 dias restantes</div>
       </div>
@@ -144,11 +156,11 @@
       <div class="kpi-card" style="border-top: 4px solid var(--danger);">
         <div class="label">📉 Total em Dívidas</div>
         <div class="num" id="kpiTotalDividas" style="color: var(--danger);">R$ 0,00</div>
-        <div class="sub" id="kpiDividasStatus">0 dívidas registradas</div>
+        <div class="sub" id="kpiDividasStatus">0 pendências em aberto</div>
       </div>
 
       <div class="kpi-card" style="border-top: 4px solid var(--warning);">
-        <div class="label">🤝 Acerto do Apê</div>
+        <div class="label">🤝 Acerto do Apê (Período)</div>
         <div class="num" id="kpiApeSaldo">R$ 0,00</div>
         <div class="sub" id="kpiApeStatus">Tudo quitado</div>
       </div>
@@ -158,7 +170,7 @@
     <div class="charts-grid">
       <div class="white-box">
         <div class="box-header">
-          <div class="box-title">📈 Evolução Histórica (Todas as Saídas)</div>
+          <div class="box-title">📈 Evolução Histórica (No Período)</div>
           <div style="display: flex; gap: 8px; flex-wrap: wrap;">
             <select id="chartCategoryFilter" class="form-input" style="width: auto; padding: 4px 8px; font-weight: 600;" onchange="onCategoryFilterChange()">
               <option value="ALL">Todas as Saídas (Geral)</option>
@@ -175,7 +187,7 @@
 
       <div class="white-box">
         <div class="box-header">
-          <div class="box-title">🍕 Gastos do Mês Atual por Categoria</div>
+          <div class="box-title">🍕 Gastos por Categoria (No Período)</div>
         </div>
         <div class="chart-container">
           <canvas id="categoryChart"></canvas>
@@ -186,7 +198,7 @@
     <!-- ÚLTIMOS LANÇAMENTOS DIRETO NO DASHBOARD -->
     <div class="white-box">
       <div class="box-header">
-        <div class="box-title">📋 Lançamentos Recentes</div>
+        <div class="box-title">📋 Lançamentos do Período</div>
         <button class="btn-outline" onclick="switchTab('lancamentos')">Ver Todos ➔</button>
       </div>
       <div style="overflow-x: auto;">
@@ -209,7 +221,7 @@
     <!-- RESUMO ESTATÍSTICO DE QUITAÇÕES -->
     <div class="white-box">
       <div class="box-header">
-        <div class="box-title">🏆 Resumo de Dívidas e Contas Saldadas</div>
+        <div class="box-title">🏆 Resumo de Dívidas Saldadas Totalmente</div>
       </div>
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;" id="settlementStatsSummary"></div>
     </div>
@@ -219,7 +231,7 @@
   <div id="viewLancamentos" class="tab-content">
     <div class="white-box">
       <div class="box-header">
-        <div class="box-title">💸 Todos os Lançamentos</div>
+        <div class="box-title">💸 Lançamentos do Período</div>
         <button class="btn-add" onclick="openModal('modalLancamento')">➕ Novo Lançamento</button>
       </div>
 
@@ -261,7 +273,7 @@
   <div id="viewDividas" class="tab-content">
     <div class="white-box">
       <div class="box-header">
-        <div class="box-title">🎯 Monitoramento de Dívidas</div>
+        <div class="box-title">🎯 Monitoramento de Dívidas (Geral)</div>
         <button class="btn-add" onclick="openModal('modalDivida')">➕ Nova Dívida</button>
       </div>
 
@@ -293,13 +305,10 @@
     <div class="white-box">
       <div class="box-header">
         <div>
-          <div class="box-title">🏠 Contas Compartilhadas do Apê</div>
+          <div class="box-title">🏠 Contas Compartilhadas do Apê (No Período)</div>
           <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;" id="apeSettlementSummary">Calculando acerto de contas...</p>
         </div>
-        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-          <button class="btn-settle" onclick="settleApeBalance()">✅ Saldar / Zerar Acerto do Apê</button>
-          <button class="btn-add" onclick="openModal('modalApe')">➕ Nova Despesa Compartilhada</button>
-        </div>
+        <button class="btn-add" onclick="openModal('modalApe')">➕ Nova Despesa Compartilhada</button>
       </div>
 
       <div style="overflow-x: auto;">
@@ -510,8 +519,34 @@
     document.getElementById('lData').value = today;
     document.getElementById('aData').value = today;
 
+    initDateFilters();
     refreshAll();
   };
+
+  function initDateFilters() {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const lastDay = new Date(y, now.getMonth() + 1, 0).getDate();
+    
+    document.getElementById('globalStartDate').value = `${y}-${m}-01`;
+    document.getElementById('globalEndDate').value = `${y}-${m}-${String(lastDay).padStart(2, '0')}`;
+  }
+
+  function clearDateFilters() {
+    document.getElementById('globalStartDate').value = '';
+    document.getElementById('globalEndDate').value = '';
+    refreshAll();
+  }
+
+  function isDateInRange(dateStr) {
+    if (!dateStr) return true;
+    const start = document.getElementById('globalStartDate').value;
+    const end = document.getElementById('globalEndDate').value;
+    if (start && dateStr < start) return false;
+    if (end && dateStr > end) return false;
+    return true;
+  }
 
   function updateCurrency(val) {
     financeData.currency = val;
@@ -560,31 +595,33 @@
 
   // --- KPIS E CÁLCULOS ---
   function renderKPIs() {
-    const now = new Date();
-    const currentMonth = now.getMonth();
-    const currentYear = now.getFullYear();
-
     let monthIncome = 0;
     let monthExpense = 0;
 
-    financeData.transactions.forEach(t => {
-      const d = new Date(t.date);
-      if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
-        if (t.type === 'INCOME') monthIncome += parseFloat(t.amount);
-        else monthExpense += parseFloat(t.amount);
-      }
+    financeData.transactions.filter(t => isDateInRange(t.date)).forEach(t => {
+      if (t.type === 'INCOME') monthIncome += parseFloat(t.amount);
+      else monthExpense += parseFloat(t.amount);
     });
 
     const netMonth = monthIncome - monthExpense;
     document.getElementById('kpiSaldo').textContent = formatCurr(netMonth);
     document.getElementById('kpiReceitaDespesa').textContent = `Entradas: ${formatCurr(monthIncome)} | Gastos: ${formatCurr(monthExpense)}`;
 
-    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-    const remainingDays = daysInMonth - now.getDate() + 1;
-    const dailyLimit = netMonth > 0 ? (netMonth / remainingDays) : 0;
+    const endStr = document.getElementById('globalEndDate').value;
+    let remainingDays = 1;
+    if (endStr) {
+      const endD = new Date(endStr + 'T23:59:59');
+      const diff = Math.ceil((endD - new Date()) / (1000 * 60 * 60 * 24));
+      remainingDays = diff > 0 ? diff : 1;
+    } else {
+      const now = new Date();
+      const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+      remainingDays = daysInMonth - now.getDate() + 1;
+    }
 
+    const dailyLimit = netMonth > 0 ? (netMonth / remainingDays) : 0;
     document.getElementById('kpiTetoDiario').textContent = `${formatCurr(dailyLimit)} /dia`;
-    document.getElementById('kpiDiasRestantes').textContent = `Para os próximos ${remainingDays} dias do mês`;
+    document.getElementById('kpiDiasRestantes').textContent = `Para os próximos ${remainingDays} dias do período`;
 
     let totalPoupado = 0;
     (financeData.savings || []).forEach(s => {
@@ -608,7 +645,7 @@
     document.getElementById('kpiDividasStatus').textContent = `${pendenciasAtivas} pendências em aberto`;
 
     let apeNetBalance = 0;
-    financeData.apeExpenses.forEach(a => {
+    financeData.apeExpenses.filter(a => isDateInRange(a.date)).forEach(a => {
       if (a.settled) return;
       const val = parseFloat(a.amount);
       const count = parseInt(a.peopleCount) || 2;
@@ -625,63 +662,17 @@
       document.getElementById('kpiApeSaldo').textContent = `+ ${formatCurr(apeNetBalance)}`;
       document.getElementById('kpiApeSaldo').style.color = "var(--success)";
       document.getElementById('kpiApeStatus').textContent = "Outros devem te pagar este valor";
-      document.getElementById('apeSettlementSummary').textContent = `Outras pessoas devem te pagar ${formatCurr(apeNetBalance)} no total para zerar as contas.`;
+      document.getElementById('apeSettlementSummary').textContent = `Neste período, outros devem te pagar ${formatCurr(apeNetBalance)} para zerar as contas.`;
     } else if (apeNetBalance < 0) {
       document.getElementById('kpiApeSaldo').textContent = formatCurr(apeNetBalance);
       document.getElementById('kpiApeSaldo').style.color = "var(--danger)";
       document.getElementById('kpiApeStatus').textContent = "Você deve pagar este valor no total";
-      document.getElementById('apeSettlementSummary').textContent = `Você deve pagar ${formatCurr(Math.abs(apeNetBalance))} para zerar o grupo das contas.`;
+      document.getElementById('apeSettlementSummary').textContent = `Neste período, você deve pagar ${formatCurr(Math.abs(apeNetBalance))} para zerar o grupo das contas.`;
     } else {
       document.getElementById('kpiApeSaldo').textContent = formatCurr(0);
       document.getElementById('kpiApeSaldo').style.color = "var(--primary)";
       document.getElementById('kpiApeStatus').textContent = "Tudo quitado em partes iguais";
-      document.getElementById('apeSettlementSummary').textContent = `Todas as contas estão perfeitamente equilibradas.`;
-    }
-  }
-
-  // --- QUITAÇÃO DO APÊ ---
-  function settleApeBalance() {
-    let apeNetBalance = 0;
-    const activeExpenses = financeData.apeExpenses.filter(a => !a.settled);
-
-    if (activeExpenses.length === 0) {
-      alert("Não há contas pendentes para saldar no Apê.");
-      return;
-    }
-
-    activeExpenses.forEach(a => {
-      const val = parseFloat(a.amount);
-      const count = parseInt(a.peopleCount) || 2;
-      const yourShare = val / count;
-      if (a.paidBy === 'VOCE') apeNetBalance += (val - yourShare);
-      else apeNetBalance -= yourShare;
-    });
-
-    if (apeNetBalance === 0) {
-      alert("O saldo do Apê já está perfeitamente zerado!");
-      return;
-    }
-
-    const actionMsg = apeNetBalance > 0
-      ? `Você receberá ${formatCurr(apeNetBalance)}. Isso será registrado como uma ENTRADA (Receita) nos Lançamentos.`
-      : `Você pagará ${formatCurr(Math.abs(apeNetBalance))}. Isso será registrado como um GASTO (Despesa) nos Lançamentos.`;
-
-    if (confirm(`Confirmar o acerto total das contas do Apê?\n\n${actionMsg}`)) {
-      const today = new Date().toISOString().split('T')[0];
-
-      activeExpenses.forEach(a => a.settled = true);
-
-      financeData.transactions.push({
-        id: 'trans_' + new Date().getTime(),
-        desc: 'Acerto de Contas do Apê',
-        amount: Math.abs(apeNetBalance),
-        type: apeNetBalance > 0 ? 'INCOME' : 'EXPENSE',
-        category: 'Contas do Apê',
-        subcategory: 'Acerto / Quitação',
-        date: today
-      });
-
-      saveData();
+      document.getElementById('apeSettlementSummary').textContent = `Todas as contas deste período estão equilibradas.`;
     }
   }
 
@@ -712,12 +703,12 @@
       <div style="background: #F8FAFC; border: 1px solid var(--border-color); border-radius: 12px; padding: 16px;">
         <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted);">Dívidas Liquidadas</div>
         <div style="font-size: 24px; font-weight: 800; color: var(--success); margin-top: 4px;">${totalQuitadasCount} dívidas</div>
-        <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Totalmente saldadas</div>
+        <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Totalmente saldadas (Global)</div>
       </div>
       <div style="background: #F8FAFC; border: 1px solid var(--border-color); border-radius: 12px; padding: 16px;">
         <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted);">Montante Quitado</div>
         <div style="font-size: 24px; font-weight: 800; color: var(--focus-blue); margin-top: 4px;">${formatCurr(totalSaldado)}</div>
-        <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Valor total eliminado</div>
+        <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Valor total eliminado (Global)</div>
       </div>
       <div style="background: #F8FAFC; border: 1px solid var(--border-color); border-radius: 12px; padding: 16px;">
         <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted);">Última Quitação</div>
@@ -732,10 +723,10 @@
     const tbody = document.getElementById('tableLancamentos');
     tbody.innerHTML = '';
 
-    const sorted = [...financeData.transactions].sort((a,b) => new Date(b.date) - new Date(a.date));
+    const sorted = financeData.transactions.filter(t => isDateInRange(t.date)).sort((a,b) => new Date(b.date) - new Date(a.date));
 
     if (sorted.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 20px; color: var(--text-muted);">Nenhum lançamento registrado.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 20px; color: var(--text-muted);">Nenhum lançamento no período selecionado.</td></tr>';
       return;
     }
 
@@ -763,10 +754,10 @@
     if (!tbody) return;
     tbody.innerHTML = '';
 
-    const sorted = [...financeData.transactions].sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
+    const sorted = financeData.transactions.filter(t => isDateInRange(t.date)).sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
 
     if (sorted.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px; color: var(--text-muted);">Nenhum lançamento recente.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px; color: var(--text-muted);">Nenhum lançamento recente neste período.</td></tr>';
       return;
     }
 
@@ -965,10 +956,10 @@
     const tbody = document.getElementById('tableApe');
     tbody.innerHTML = '';
 
-    const sorted = [...financeData.apeExpenses].sort((a,b) => new Date(b.date) - new Date(a.date));
+    const sorted = financeData.apeExpenses.filter(a => isDateInRange(a.date)).sort((a,b) => new Date(b.date) - new Date(a.date));
 
     if (sorted.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 20px; color: var(--text-muted);">Nenhuma conta compartilhada registrada.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 20px; color: var(--text-muted);">Nenhuma conta compartilhada no período selecionado.</td></tr>';
       return;
     }
 
@@ -987,15 +978,74 @@
         <td><span class="task-mini-tag">1 / ${count} pessoas</span></td>
         <td style="font-weight: 700;">${formatCurr(val)}</td>
         <td style="color: var(--text-dark); font-weight: 600;">${formatCurr(myShare)}</td>
-        <td style="text-align: center;">
-          ${isSettled ? '<span class="badge-income">✅ QUITADO</span>' : `
-            <button class="btn-icon" title="Editar" onclick="editApe('${a.id}')">✏️</button>
-            <button class="btn-danger" title="Excluir" onclick="deleteApe('${a.id}')">X</button>
+        <td style="text-align: center; vertical-align: middle;">
+          ${isSettled ? `
+            <span class="badge-income" style="display:block; margin-bottom:6px;">✅ QUITADO</span>
+            <button class="btn-outline" style="padding: 4px 8px; font-size: 10px;" title="Desfazer Quitação" onclick="undoSettleApe('${a.id}')">↩️ Desfazer</button>
+          ` : `
+            <div style="display:flex; gap:4px; justify-content:center;">
+              <button class="btn-icon" style="color:var(--success);" title="Saldar este gasto" onclick="settleApeSingle('${a.id}')">✅</button>
+              <button class="btn-icon" title="Editar" onclick="editApe('${a.id}')">✏️</button>
+              <button class="btn-danger" title="Excluir" onclick="deleteApe('${a.id}')">X</button>
+            </div>
           `}
         </td>
       `;
       tbody.appendChild(tr);
     });
+  }
+
+  // --- ACERTO DO APÊ (INDIVIDUAL E DESFAZER) ---
+  function settleApeSingle(id) {
+    const a = financeData.apeExpenses.find(x => x.id === id);
+    if (!a) return;
+
+    const val = parseFloat(a.amount);
+    const count = parseInt(a.peopleCount) || 2;
+    const myShare = val / count;
+    const othersShare = val - myShare;
+
+    let transType, transAmount, descPrefix;
+    if (a.paidBy === 'VOCE') {
+        transType = 'INCOME';
+        transAmount = othersShare;
+        descPrefix = 'Recebimento Acerto Apê:';
+    } else {
+        transType = 'EXPENSE';
+        transAmount = myShare;
+        descPrefix = 'Pagamento Acerto Apê:';
+    }
+
+    if (confirm(`Saldar individualmente esta conta?\n\nIsso gerará automaticamente um lançamento de ${formatCurr(transAmount)} (sua parte do acerto).`)) {
+        const transId = 'trans_' + new Date().getTime();
+        financeData.transactions.push({
+            id: transId,
+            desc: `${descPrefix} ${a.desc}`,
+            amount: transAmount,
+            type: transType,
+            category: 'Contas do Apê',
+            subcategory: 'Acerto Individual',
+            date: new Date().toISOString().split('T')[0]
+        });
+        
+        a.settled = true;
+        a.settlementTransId = transId;
+        saveData();
+    }
+  }
+
+  function undoSettleApe(id) {
+    const a = financeData.apeExpenses.find(x => x.id === id);
+    if (!a) return;
+
+    if (confirm("Desfazer a quitação desta conta do Apê?\nIsso removerá o lançamento gerado automaticamente no acerto.")) {
+        a.settled = false;
+        if (a.settlementTransId) {
+            financeData.transactions = financeData.transactions.filter(t => t.id !== a.settlementTransId);
+            delete a.settlementTransId;
+        }
+        saveData();
+    }
   }
 
   // --- FILTROS ENCADEADOS (CATEGORIA E SUBCATEGORIA) ---
@@ -1101,7 +1151,7 @@
     const monthlyData = {};
 
     if (selectedCat !== 'CONTAS_APE' && selectedCat !== 'DIVIDAS' && selectedCat !== 'POUPANCA') {
-      financeData.transactions.forEach(t => {
+      financeData.transactions.filter(t => isDateInRange(t.date)).forEach(t => {
         if (t.type !== 'EXPENSE') return;
         
         const cat = (t.category || '').toUpperCase().trim();
@@ -1119,7 +1169,7 @@
     }
 
     if (selectedCat === 'ALL' || selectedCat === 'CONTAS_APE') {
-      financeData.apeExpenses.forEach(a => {
+      financeData.apeExpenses.filter(a => isDateInRange(a.date)).forEach(a => {
         const sub = (a.desc || '').toUpperCase().trim();
         if (selectedSub !== 'ALL' && sub !== selectedSub) return;
 
@@ -1140,6 +1190,8 @@
         if (selectedSub !== 'ALL' && sub !== selectedSub) return;
 
         const dateStr = d.settledDate || new Date().toISOString().split('T')[0];
+        if (!isDateInRange(dateStr)) return;
+
         const dateObj = new Date(dateStr);
         const monthKey = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
 
@@ -1150,8 +1202,11 @@
 
     if (selectedCat === 'ALL' || selectedCat === 'POUPANCA') {
       financeData.savings.forEach(s => {
-        const dateObj = new Date();
+        const dateObj = new Date(); // Para a poupança estamos registrando o total acumulado como do momento atual
         const monthKey = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
+        
+        // Pula se o mês atual não está no filtro (aproximado)
+        if (!isDateInRange(dateObj.toISOString().split('T')[0])) return;
 
         if (s.areas && s.areas.length > 0) {
           s.areas.forEach(ar => {
@@ -1205,30 +1260,20 @@
 
   function updateCategoryChart() {
     const ctx = document.getElementById('categoryChart').getContext('2d');
-    const now = new Date();
-    const currentMonth = now.getMonth();
-    const currentYear = now.getFullYear();
-
     const catSums = {};
 
-    financeData.transactions.forEach(t => {
+    financeData.transactions.filter(t => isDateInRange(t.date)).forEach(t => {
       if (t.type !== 'EXPENSE') return;
-      const d = new Date(t.date);
-      if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
-        const cat = (t.category || 'Outros').toUpperCase().trim();
-        if (!catSums[cat]) catSums[cat] = 0;
-        catSums[cat] += parseFloat(t.amount);
-      }
+      const cat = (t.category || 'Outros').toUpperCase().trim();
+      if (!catSums[cat]) catSums[cat] = 0;
+      catSums[cat] += parseFloat(t.amount);
     });
 
-    financeData.apeExpenses.forEach(a => {
-      const d = new Date(a.date);
-      if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
-        const cat = 'CONTAS DO APÊ';
-        if (!catSums[cat]) catSums[cat] = 0;
-        const count = parseInt(a.peopleCount) || 2;
-        catSums[cat] += parseFloat(a.amount) / count;
-      }
+    financeData.apeExpenses.filter(a => isDateInRange(a.date)).forEach(a => {
+      const cat = 'CONTAS DO APÊ';
+      if (!catSums[cat]) catSums[cat] = 0;
+      const count = parseInt(a.peopleCount) || 2;
+      catSums[cat] += parseFloat(a.amount) / count;
     });
 
     const labels = Object.keys(catSums);
@@ -1239,7 +1284,7 @@
     categoryChartInstance = new Chart(ctx, {
       type: 'doughnut',
       data: {
-        labels: labels.length > 0 ? labels : ['Sem lançamentos'],
+        labels: labels.length > 0 ? labels : ['Sem lançamentos no período'],
         datasets: [{
           data: values.length > 0 ? values : [1],
           backgroundColor: ['#2F5FD0', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#64748B']
