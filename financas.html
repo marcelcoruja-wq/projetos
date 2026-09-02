@@ -43,6 +43,10 @@
     .btn-outline:hover { background-color: #F1F5F9; color: var(--primary); }
     .btn-danger { background-color: #FEE2E2; color: #DC2626; border: 1px solid #FCA5A5; padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 12px; cursor: pointer; }
     .btn-danger:hover { background-color: #EF4444; color: white; }
+    .btn-settle { background-color: #D1FAE5; color: #065F46; border: 1px solid #6EE7B7; padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 12px; cursor: pointer; }
+    .btn-settle:hover { background-color: #10B981; color: white; }
+    .btn-icon { background: none; border: none; cursor: pointer; font-size: 14px; padding: 4px 8px; border-radius: 4px; color: var(--text-muted); }
+    .btn-icon:hover { background: #E2E8F0; color: var(--primary); }
 
     /* CONTROLE DE ABAS */
     .tab-content { display: none !important; }
@@ -151,11 +155,11 @@
     <div class="charts-grid">
       <div class="white-box">
         <div class="box-header">
-          <div class="box-title">📈 Evolução Histórica de Gastos</div>
+          <div class="box-title">📈 Evolução Histórica (Todas as Saídas)</div>
           <!-- FILTROS DUPLOS: CATEGORIA E SUBCATEGORIA -->
           <div style="display: flex; gap: 8px; flex-wrap: wrap;">
             <select id="chartCategoryFilter" class="form-input" style="width: auto; padding: 4px 8px; font-weight: 600;" onchange="onCategoryFilterChange()">
-              <option value="ALL">Todas as Categorias</option>
+              <option value="ALL">Todas as Saídas (Geral)</option>
             </select>
             <select id="chartSubCategoryFilter" class="form-input" style="width: auto; padding: 4px 8px; font-weight: 600;" onchange="updateHistoryChart()">
               <option value="ALL">Todas as Subcategorias</option>
@@ -175,6 +179,14 @@
           <canvas id="categoryChart"></canvas>
         </div>
       </div>
+    </div>
+
+    <!-- RESUMO ESTATÍSTICO DE QUITAÇÕES NO DASHBOARD -->
+    <div class="white-box">
+      <div class="box-header">
+        <div class="box-title">🏆 Resumo de Dívidas e Contas Saldadas</div>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;" id="settlementStatsSummary"></div>
     </div>
   </div>
 
@@ -230,6 +242,26 @@
 
       <div id="dividasCardsList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px;"></div>
     </div>
+
+    <!-- HISTÓRICO DE QUITAÇÕES DE DÍVIDAS -->
+    <div class="white-box">
+      <div class="box-header">
+        <div class="box-title">📜 Histórico de Dívidas Totalmente Quitadas</div>
+      </div>
+      <div style="overflow-x: auto;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Dívida / Credor</th>
+              <th>Valor Total Saldado</th>
+              <th>Data da Quitação</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="tableDividasQuitadas"></tbody>
+        </table>
+      </div>
+    </div>
   </div>
 
   <!-- PESTAÑA 5: CONTAS DO APÊ -->
@@ -266,8 +298,9 @@
 <!-- MODAL LANÇAMENTO -->
 <div id="modalLancamento" class="modal-overlay">
   <div class="modal-box">
-    <div class="box-title" style="margin-bottom: 16px;">NOVO LANÇAMENTO</div>
+    <div class="box-title" style="margin-bottom: 16px;" id="modalLancamentoTitle">NOVO LANÇAMENTO</div>
     <form onsubmit="saveLancamento(event)">
+      <input type="hidden" id="lEditId">
       <div class="form-group">
         <label>Descrição</label>
         <input type="text" id="lDesc" class="form-input" placeholder="Ex: Mercado mensal, Salário..." required>
@@ -312,8 +345,9 @@
 <!-- MODAL POUPANÇA -->
 <div id="modalPoupanca" class="modal-overlay">
   <div class="modal-box">
-    <div class="box-title" style="margin-bottom: 16px;">NOVA META DE POUPANÇA</div>
+    <div class="box-title" style="margin-bottom: 16px;" id="modalPoupancaTitle">NOVA META DE POUPANÇA</div>
     <form onsubmit="savePoupanca(event)">
+      <input type="hidden" id="pEditId">
       <div class="form-group">
         <label>Nome do Objetivo / Meta</label>
         <input type="text" id="pNome" class="form-input" placeholder="Ex: Viagem de Férias, Carro, Reserva..." required>
@@ -323,12 +357,12 @@
         <input type="number" step="0.01" id="pValorMeta" class="form-input" placeholder="0.00" required>
       </div>
       <div class="form-group">
-        <label>Valor Inicial Já Guardado</label>
+        <label>Valor Guardado Atualmente</label>
         <input type="number" step="0.01" id="pValorAtual" class="form-input" placeholder="0.00" value="0">
       </div>
       <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
         <button type="button" class="btn-outline" onclick="closeModal('modalPoupanca')">Cancelar</button>
-        <button type="submit" class="btn-add">Criar Meta</button>
+        <button type="submit" class="btn-add">Salvar Meta</button>
       </div>
     </form>
   </div>
@@ -337,8 +371,9 @@
 <!-- MODAL DÍVIDA -->
 <div id="modalDivida" class="modal-overlay">
   <div class="modal-box">
-    <div class="box-title" style="margin-bottom: 16px;">NOVA DÍVIDA / PENDÊNCIA</div>
+    <div class="box-title" style="margin-bottom: 16px;" id="modalDividaTitle">NOVA DÍVIDA / PENDÊNCIA</div>
     <form onsubmit="saveDivida(event)">
+      <input type="hidden" id="dEditId">
       <div class="form-group">
         <label>Credor / Nome da Dívida</label>
         <input type="text" id="dNome" class="form-input" placeholder="Ex: Empréstimo, Cartão de Crédito..." required>
@@ -362,8 +397,9 @@
 <!-- MODAL APÊ -->
 <div id="modalApe" class="modal-overlay">
   <div class="modal-box">
-    <div class="modal-title box-title" style="margin-bottom: 16px;">NOVA DESPESA COMPARTILHADA</div>
+    <div class="modal-title box-title" style="margin-bottom: 16px;" id="modalApeTitle">NOVA DESPESA COMPARTILHADA</div>
     <form onsubmit="saveApe(event)">
+      <input type="hidden" id="aEditId">
       <div class="form-group">
         <label>Descrição / Subcategoria (Ex: Luz, Internet)</label>
         <input type="text" id="aDesc" class="form-input" placeholder="Ex: Luz, Internet, Aluguel..." required>
@@ -410,7 +446,7 @@
   window.onload = function() {
     const saved = localStorage.getItem('personalFinanceData');
     if (saved) {
-      try { financeData = Object.assign({ currency: "R$", savings: [] }, JSON.parse(saved)); } catch(e) { console.error("Error loading finance data", e); }
+      try { financeData = Object.assign({ currency: "R$", savings: [], debts: [], apeExpenses: [] }, JSON.parse(saved)); } catch(e) { console.error("Error loading finance data", e); }
     }
     
     document.getElementById('currencySelect').value = financeData.currency || "R$";
@@ -437,7 +473,9 @@
     renderTransactionsTable();
     renderSavingsList();
     renderDebtsList();
+    renderDividasQuitadasTable();
     renderApeTable();
+    renderSettlementStatsSummary();
     populateCategoryFilters();
     initOrUpdateCharts();
   }
@@ -500,11 +538,14 @@
     document.getElementById('kpiMetasStatus').textContent = `${(financeData.savings || []).length} metas ativas`;
 
     let totalDividaPendente = 0;
+    let pendenciasAtivas = 0;
     financeData.debts.forEach(d => {
-      totalDividaPendente += Math.max(0, parseFloat(d.totalAmount) - parseFloat(d.paidAmount));
+      const rem = Math.max(0, parseFloat(d.totalAmount) - parseFloat(d.paidAmount));
+      if (rem > 0) pendenciasAtivas++;
+      totalDividaPendente += rem;
     });
     document.getElementById('kpiTotalDividas').textContent = formatCurr(totalDividaPendente);
-    document.getElementById('kpiDividasStatus').textContent = `${financeData.debts.length} pendências ativas`;
+    document.getElementById('kpiDividasStatus').textContent = `${pendenciasAtivas} pendências em aberto`;
 
     let apeNetBalance = 0;
     financeData.apeExpenses.forEach(a => {
@@ -537,6 +578,48 @@
     }
   }
 
+  // --- ESTATÍSTICAS DE QUITAÇÃO ---
+  function renderSettlementStatsSummary() {
+    const container = document.getElementById('settlementStatsSummary');
+    if (!container) return;
+
+    let totalSaldado = 0;
+    let totalQuitadasCount = 0;
+    let lastDate = null;
+
+    financeData.debts.forEach(d => {
+      const total = parseFloat(d.totalAmount);
+      const paid = parseFloat(d.paidAmount);
+      if (paid >= total && total > 0) {
+        totalQuitadasCount++;
+        totalSaldado += total;
+        if (d.settledDate) {
+          if (!lastDate || new Date(d.settledDate) > new Date(lastDate)) {
+            lastDate = d.settledDate;
+          }
+        }
+      }
+    });
+
+    container.innerHTML = `
+      <div style="background: #F8FAFC; border: 1px solid var(--border-color); border-radius: 12px; padding: 16px;">
+        <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted);">Dívidas Liquidadas</div>
+        <div style="font-size: 24px; font-weight: 800; color: var(--success); margin-top: 4px;">${totalQuitadasCount} dívidas</div>
+        <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Totalmente saldadas</div>
+      </div>
+      <div style="background: #F8FAFC; border: 1px solid var(--border-color); border-radius: 12px; padding: 16px;">
+        <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted);">Montante Quitado</div>
+        <div style="font-size: 24px; font-weight: 800; color: var(--focus-blue); margin-top: 4px;">${formatCurr(totalSaldado)}</div>
+        <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Valor total eliminado</div>
+      </div>
+      <div style="background: #F8FAFC; border: 1px solid var(--border-color); border-radius: 12px; padding: 16px;">
+        <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted);">Última Quitação</div>
+        <div style="font-size: 24px; font-weight: 800; color: var(--primary); margin-top: 4px;">${lastDate ? lastDate : '-'}</div>
+        <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Data da última pendência zerada</div>
+      </div>
+    `;
+  }
+
   // --- TABELAS E LISTAS ---
   function renderTransactionsTable() {
     const tbody = document.getElementById('tableLancamentos');
@@ -560,7 +643,8 @@
         <td><span class="${isInc ? 'badge-income' : 'badge-expense'}">${isInc ? 'ENTRADA' : 'GASTO'}</span></td>
         <td style="font-weight: 700; color: ${isInc ? 'var(--success)' : 'var(--danger)'}">${isInc ? '+' : '-'} ${formatCurr(t.amount)}</td>
         <td style="text-align: center;">
-          <button class="btn-danger" onclick="deleteLancamento('${t.id}')">X</button>
+          <button class="btn-icon" title="Editar" onclick="editLancamento('${t.id}')">✏️</button>
+          <button class="btn-danger" title="Excluir" onclick="deleteLancamento('${t.id}')">X</button>
         </td>
       `;
       tbody.appendChild(tr);
@@ -589,7 +673,10 @@
         <div>
           <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 8px;">
             <h4 style="font-weight: 800; font-size: 16px; color: var(--primary);">${isConcluido ? '🎉 ' : '🎯 '}${s.name}</h4>
-            <button class="btn-danger" onclick="deletePoupanca('${s.id}')">Excluir</button>
+            <div>
+              <button class="btn-icon" title="Editar" onclick="editPoupanca('${s.id}')">✏️</button>
+              <button class="btn-danger" onclick="deletePoupanca('${s.id}')">Excluir</button>
+            </div>
           </div>
           
           <div style="font-size: 12px; color: var(--text-muted);">Meta Final: <strong>${formatCurr(meta)}</strong></div>
@@ -618,12 +705,14 @@
     const container = document.getElementById('dividasCardsList');
     container.innerHTML = '';
 
-    if (financeData.debts.length === 0) {
-      container.innerHTML = '<p style="color: var(--text-muted); grid-column: 1/-1;">Nenhuma dívida cadastrada.</p>';
+    const pendentes = financeData.debts.filter(d => (parseFloat(d.totalAmount) - parseFloat(d.paidAmount)) > 0);
+
+    if (pendentes.length === 0) {
+      container.innerHTML = '<p style="color: var(--text-muted); grid-column: 1/-1;">Nenhuma dívida pendente em aberto no momento. 🎉</p>';
       return;
     }
 
-    financeData.debts.forEach(d => {
+    pendentes.forEach(d => {
       const total = parseFloat(d.totalAmount);
       const paid = parseFloat(d.paidAmount);
       const remaining = Math.max(0, total - paid);
@@ -634,7 +723,10 @@
       card.innerHTML = `
         <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 8px;">
           <h4 style="font-weight: 800; font-size: 15px;">${d.name}</h4>
-          <button class="btn-danger" onclick="deleteDivida('${d.id}')">Excluir</button>
+          <div>
+            <button class="btn-icon" title="Editar" onclick="editDivida('${d.id}')">✏️</button>
+            <button class="btn-danger" onclick="deleteDivida('${d.id}')">Excluir</button>
+          </div>
         </div>
         <div style="font-size: 12px; color: var(--text-muted);">Total Dívida: ${formatCurr(total)}</div>
         <div style="font-size: 14px; font-weight: 700; color: var(--danger); margin-top: 4px;">Falta Pagar: ${formatCurr(remaining)}</div>
@@ -646,8 +738,36 @@
           <span>Pago: ${formatCurr(paid)} (${pct}%)</span>
           <button class="btn-outline" style="padding: 2px 6px; font-size: 10px;" onclick="addPaymentToDivida('${d.id}')">+ Amortizar</button>
         </div>
+
+        <div style="margin-top: 12px; border-top: 1px dashed #CBD5E1; padding-top: 10px; text-align: right;">
+          <button class="btn-settle" onclick="settleDividaDirect('${d.id}')">✅ Saldar Dívida Totalmente</button>
+        </div>
       `;
       container.appendChild(card);
+    });
+  }
+
+  function renderDividasQuitadasTable() {
+    const tbody = document.getElementById('tableDividasQuitadas');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    const quitadas = financeData.debts.filter(d => (parseFloat(d.paidAmount) >= parseFloat(d.totalAmount)) && parseFloat(d.totalAmount) > 0);
+
+    if (quitadas.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 20px; color: var(--text-muted);">Nenhuma dívida quitada ainda.</td></tr>';
+      return;
+    }
+
+    quitadas.forEach(d => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td style="font-weight: 600;">${d.name}</td>
+        <td style="font-weight: 700; color: var(--success);">${formatCurr(d.totalAmount)}</td>
+        <td>${d.settledDate || 'Informativo'}</td>
+        <td><span class="badge-income">✅ SALDADA</span></td>
+      `;
+      tbody.appendChild(tr);
     });
   }
 
@@ -677,7 +797,8 @@
         <td style="font-weight: 700;">${formatCurr(val)}</td>
         <td style="color: var(--text-dark); font-weight: 600;">${formatCurr(myShare)}</td>
         <td style="text-align: center;">
-          <button class="btn-danger" onclick="deleteApe('${a.id}')">X</button>
+          <button class="btn-icon" title="Editar" onclick="editApe('${a.id}')">✏️</button>
+          <button class="btn-danger" title="Excluir" onclick="deleteApe('${a.id}')">X</button>
         </td>
       `;
       tbody.appendChild(tr);
@@ -689,8 +810,10 @@
     const catSelect = document.getElementById('chartCategoryFilter');
     const currCat = catSelect.value;
 
-    catSelect.innerHTML = '<option value="ALL">Todas as Categorias</option>';
+    catSelect.innerHTML = '<option value="ALL">Todas as Saídas (Geral)</option>';
     catSelect.innerHTML += '<option value="CONTAS_APE">🏠 Contas do Apê</option>';
+    catSelect.innerHTML += '<option value="DIVIDAS">🎯 Dívidas & Amortizações</option>';
+    catSelect.innerHTML += '<option value="POUPANCA">🐷 Poupança & Aportes</option>';
 
     const cats = new Set();
     financeData.transactions.forEach(t => {
@@ -698,7 +821,7 @@
     });
 
     Array.from(cats).sort().forEach(cat => {
-      if (cat !== 'CONTAS_APE') {
+      if (!['CONTAS_APE', 'DIVIDAS', 'POUPANCA'].includes(cat)) {
         const opt = document.createElement('option');
         opt.value = cat;
         opt.textContent = cat;
@@ -731,9 +854,23 @@
       financeData.apeExpenses.forEach(a => {
         if (a.desc) subCats.add(a.desc.toUpperCase().trim());
       });
+      financeData.debts.forEach(d => {
+        if (d.name) subCats.add(d.name.toUpperCase().trim());
+      });
+      financeData.savings.forEach(s => {
+        if (s.name) subCats.add(s.name.toUpperCase().trim());
+      });
     } else if (catVal === 'CONTAS_APE') {
       financeData.apeExpenses.forEach(a => {
         if (a.desc) subCats.add(a.desc.toUpperCase().trim());
+      });
+    } else if (catVal === 'DIVIDAS') {
+      financeData.debts.forEach(d => {
+        if (d.name) subCats.add(d.name.toUpperCase().trim());
+      });
+    } else if (catVal === 'POUPANCA') {
+      financeData.savings.forEach(s => {
+        if (s.name) subCats.add(s.name.toUpperCase().trim());
       });
     } else {
       financeData.transactions.forEach(t => {
@@ -766,8 +903,8 @@
 
     const monthlyData = {};
 
-    // 1. Processa Transações
-    if (selectedCat !== 'CONTAS_APE') {
+    // 1. Lançamentos / Despesas
+    if (selectedCat !== 'CONTAS_APE' && selectedCat !== 'DIVIDAS' && selectedCat !== 'POUPANCA') {
       financeData.transactions.forEach(t => {
         if (t.type !== 'EXPENSE') return;
         
@@ -785,7 +922,7 @@
       });
     }
 
-    // 2. Processa Contas do Apê
+    // 2. Contas do Apê (fração individual)
     if (selectedCat === 'ALL' || selectedCat === 'CONTAS_APE') {
       financeData.apeExpenses.forEach(a => {
         const sub = (a.desc || '').toUpperCase().trim();
@@ -802,12 +939,41 @@
       });
     }
 
+    // 3. Dívidas / Amortizações
+    if (selectedCat === 'ALL' || selectedCat === 'DIVIDAS') {
+      financeData.debts.forEach(d => {
+        const sub = (d.name || '').toUpperCase().trim();
+        if (selectedSub !== 'ALL' && sub !== selectedSub) return;
+
+        const dateStr = d.settledDate || new Date().toISOString().split('T')[0];
+        const dateObj = new Date(dateStr);
+        const monthKey = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
+
+        if (!monthlyData[monthKey]) monthlyData[monthKey] = 0;
+        monthlyData[monthKey] += parseFloat(d.paidAmount || 0);
+      });
+    }
+
+    // 4. Poupança / Aportes
+    if (selectedCat === 'ALL' || selectedCat === 'POUPANCA') {
+      financeData.savings.forEach(s => {
+        const sub = (s.name || '').toUpperCase().trim();
+        if (selectedSub !== 'ALL' && sub !== selectedSub) return;
+
+        const dateObj = new Date();
+        const monthKey = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
+
+        if (!monthlyData[monthKey]) monthlyData[monthKey] = 0;
+        monthlyData[monthKey] += parseFloat(s.currentAmount || 0);
+      });
+    }
+
     const labels = Object.keys(monthlyData).sort();
     const values = labels.map(k => monthlyData[k]);
 
     if (historyChartInstance) historyChartInstance.destroy();
 
-    let chartLabel = `Gastos (${financeData.currency || 'R$'})`;
+    let chartLabel = `Todas as Saídas de Dinheiro (${financeData.currency || 'R$'})`;
     if (selectedCat !== 'ALL') chartLabel = `${selectedCat}`;
     if (selectedSub !== 'ALL') chartLabel += ` > ${selectedSub}`;
 
@@ -884,9 +1050,10 @@
     });
   }
 
-  // --- OPERAÇÕES SALVAR / EXCLUIR ---
+  // --- OPERAÇÕES SALVAR / EDITAR / EXCLUIR ---
   function saveLancamento(e) {
     e.preventDefault();
+    const editId = document.getElementById('lEditId').value;
     const desc = document.getElementById('lDesc').value.trim();
     const valor = parseFloat(document.getElementById('lValor').value);
     const tipo = document.getElementById('lTipo').value;
@@ -894,14 +1061,36 @@
     const subcat = document.getElementById('lSubCat').value.trim();
     const data = document.getElementById('lData').value;
 
-    financeData.transactions.push({
-      id: 'trans_' + new Date().getTime(),
-      desc, amount: valor, type: tipo, category: cat, subcategory: subcat, date: data
-    });
+    if (editId) {
+      const item = financeData.transactions.find(t => t.id === editId);
+      if (item) {
+        item.desc = desc; item.amount = valor; item.type = tipo;
+        item.category = cat; item.subcategory = subcat; item.date = data;
+      }
+    } else {
+      financeData.transactions.push({
+        id: 'trans_' + new Date().getTime(),
+        desc, amount: valor, type: tipo, category: cat, subcategory: subcat, date: data
+      });
+    }
 
     saveData();
     closeModal('modalLancamento');
     e.target.reset();
+  }
+
+  function editLancamento(id) {
+    const item = financeData.transactions.find(t => t.id === id);
+    if (!item) return;
+    document.getElementById('lEditId').value = item.id;
+    document.getElementById('lDesc').value = item.desc || '';
+    document.getElementById('lValor').value = item.amount || '';
+    document.getElementById('lTipo').value = item.type || 'EXPENSE';
+    document.getElementById('lCat').value = item.category || '';
+    document.getElementById('lSubCat').value = item.subcategory || '';
+    document.getElementById('lData').value = item.date || '';
+    document.getElementById('modalLancamentoTitle').textContent = "EDITAR LANÇAMENTO";
+    openModal('modalLancamento');
   }
 
   function deleteLancamento(id) {
@@ -911,20 +1100,37 @@
 
   function savePoupanca(e) {
     e.preventDefault();
+    const editId = document.getElementById('pEditId').value;
     const nome = document.getElementById('pNome').value.trim();
     const meta = parseFloat(document.getElementById('pValorMeta').value);
     const atual = parseFloat(document.getElementById('pValorAtual').value) || 0;
 
     if (!financeData.savings) financeData.savings = [];
 
-    financeData.savings.push({
-      id: 'sav_' + new Date().getTime(),
-      name: nome, targetAmount: meta, currentAmount: atual
-    });
+    if (editId) {
+      const item = financeData.savings.find(s => s.id === editId);
+      if (item) { item.name = nome; item.targetAmount = meta; item.currentAmount = atual; }
+    } else {
+      financeData.savings.push({
+        id: 'sav_' + new Date().getTime(),
+        name: nome, targetAmount: meta, currentAmount: atual
+      });
+    }
 
     saveData();
     closeModal('modalPoupanca');
     e.target.reset();
+  }
+
+  function editPoupanca(id) {
+    const item = financeData.savings.find(s => s.id === id);
+    if (!item) return;
+    document.getElementById('pEditId').value = item.id;
+    document.getElementById('pNome').value = item.name || '';
+    document.getElementById('pValorMeta').value = item.targetAmount || '';
+    document.getElementById('pValorAtual').value = item.currentAmount || 0;
+    document.getElementById('modalPoupancaTitle').textContent = "EDITAR META DE POUPANÇA";
+    openModal('modalPoupanca');
   }
 
   function addDepositToPoupanca(id) {
@@ -958,18 +1164,46 @@
 
   function saveDivida(e) {
     e.preventDefault();
+    const editId = document.getElementById('dEditId').value;
     const nome = document.getElementById('dNome').value.trim();
     const total = parseFloat(document.getElementById('dValorTotal').value);
     const pago = parseFloat(document.getElementById('dValorPago').value) || 0;
 
-    financeData.debts.push({
-      id: 'debt_' + new Date().getTime(),
-      name: nome, totalAmount: total, paidAmount: pago
-    });
+    if (editId) {
+      const item = financeData.debts.find(d => d.id === editId);
+      if (item) { item.name = nome; item.totalAmount = total; item.paidAmount = pago; }
+    } else {
+      financeData.debts.push({
+        id: 'debt_' + new Date().getTime(),
+        name: nome, totalAmount: total, paidAmount: pago, settledDate: null
+      });
+    }
 
     saveData();
     closeModal('modalDivida');
     e.target.reset();
+  }
+
+  function editDivida(id) {
+    const item = financeData.debts.find(d => d.id === id);
+    if (!item) return;
+    document.getElementById('dEditId').value = item.id;
+    document.getElementById('dNome').value = item.name || '';
+    document.getElementById('dValorTotal').value = item.totalAmount || '';
+    document.getElementById('dValorPago').value = item.paidAmount || 0;
+    document.getElementById('modalDividaTitle').textContent = "EDITAR DÍVIDA";
+    openModal('modalDivida');
+  }
+
+  function settleDividaDirect(id) {
+    const debt = financeData.debts.find(d => d.id === id);
+    if (debt) {
+      if (confirm(`Confirmar a quitação total da dívida "${debt.name}" no valor de ${formatCurr(debt.totalAmount)}?`)) {
+        debt.paidAmount = debt.totalAmount;
+        debt.settledDate = new Date().toISOString().split('T')[0];
+        saveData();
+      }
+    }
   }
 
   function addPaymentToDivida(id) {
@@ -978,6 +1212,9 @@
       const debt = financeData.debts.find(d => d.id === id);
       if (debt) {
         debt.paidAmount = parseFloat(debt.paidAmount) + parseFloat(val);
+        if (parseFloat(debt.paidAmount) >= parseFloat(debt.totalAmount)) {
+          debt.settledDate = new Date().toISOString().split('T')[0];
+        }
         saveData();
       }
     }
@@ -992,20 +1229,39 @@
 
   function saveApe(e) {
     e.preventDefault();
+    const editId = document.getElementById('aEditId').value;
     const desc = document.getElementById('aDesc').value.trim();
     const valor = parseFloat(document.getElementById('aValor').value);
     const quem = document.getElementById('aQuem').value;
     const pessoas = parseInt(document.getElementById('aPessoas').value) || 2;
     const data = document.getElementById('aData').value;
 
-    financeData.apeExpenses.push({
-      id: 'ape_' + new Date().getTime(),
-      desc, amount: valor, paidBy: quem, peopleCount: pessoas, date: data
-    });
+    if (editId) {
+      const item = financeData.apeExpenses.find(a => a.id === editId);
+      if (item) { item.desc = desc; item.amount = valor; item.paidBy = quem; item.peopleCount = pessoas; item.date = data; }
+    } else {
+      financeData.apeExpenses.push({
+        id: 'ape_' + new Date().getTime(),
+        desc, amount: valor, paidBy: quem, peopleCount: pessoas, date: data
+      });
+    }
 
     saveData();
     closeModal('modalApe');
     e.target.reset();
+  }
+
+  function editApe(id) {
+    const item = financeData.apeExpenses.find(a => a.id === id);
+    if (!item) return;
+    document.getElementById('aEditId').value = item.id;
+    document.getElementById('aDesc').value = item.desc || '';
+    document.getElementById('aValor').value = item.amount || '';
+    document.getElementById('aQuem').value = item.paidBy || 'VOCE';
+    document.getElementById('aPessoas').value = item.peopleCount || 2;
+    document.getElementById('aData').value = item.date || '';
+    document.getElementById('modalApeTitle').textContent = "EDITAR CONTA COMPARTILHADA";
+    openModal('modalApe');
   }
 
   function deleteApe(id) {
@@ -1020,6 +1276,9 @@
 
   function closeModal(modalId) {
     document.getElementById(modalId).classList.remove('active');
+    // Reseta hidden edit IDs
+    const hiddenInputs = document.querySelectorAll('input[type="hidden"]');
+    hiddenInputs.forEach(i => i.value = '');
   }
 
   function formatCurr(val) {
