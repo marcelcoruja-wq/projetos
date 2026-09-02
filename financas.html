@@ -337,7 +337,7 @@
       <div class="box-header">
         <div>
           <div class="box-title">📌 Gastos Fixos Mensais</div>
-          <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Lançamentos marcados com a etiqueta "Gasto Fixo" aparecem automaticamente nesta aba.</p>
+          <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Lançamentos e contas do Apê marcados como "Gasto Fixo" aparecem automaticamente nesta aba.</p>
         </div>
         <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
           <span style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Estimativa Média Mensal:</span>
@@ -352,8 +352,8 @@
               <th>Data</th>
               <th>Descrição</th>
               <th>Categoria</th>
-              <th>Subcategoria</th>
-              <th>Valor</th>
+              <th>Subcategoria / Divisão</th>
+              <th>Sua Parte</th>
               <th style="text-align: center;">Ações</th>
             </tr>
           </thead>
@@ -473,7 +473,7 @@
   </div>
 </div>
 
-<!-- MODAL LANÇAMENTO COM CAIXA DE SELEÇÃO DE GASTO FIXO -->
+<!-- MODAL LANÇAMENTO -->
 <div id="modalLancamento" class="modal-overlay">
   <div class="modal-box">
     <div class="modal-header">
@@ -621,7 +621,7 @@
   </div>
 </div>
 
-<!-- MODAL CONTAS DO APÊ -->
+<!-- MODAL CONTAS DO APÊ COM CAIXA DE SELEÇÃO DE GASTO FIXO -->
 <div id="modalApe" class="modal-overlay">
   <div class="modal-box">
     <div class="modal-header">
@@ -652,6 +652,10 @@
       <div class="form-group">
         <label>Data</label>
         <input type="date" id="aData" class="form-input" required>
+      </div>
+      <div class="form-group" style="display: flex; align-items: center; gap: 8px; margin-top: 12px; background: #F8FAFC; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+        <input type="checkbox" id="aIsFixed" style="width: 18px; height: 18px; cursor: pointer;">
+        <label for="aIsFixed" style="margin-bottom: 0; cursor: pointer; text-transform: none; font-size: 12px; font-weight: 700; color: var(--primary);">📌 Marcar como Gasto Fixo Mensal</label>
       </div>
       <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
         <button type="button" class="btn-outline" onclick="closeModal('modalApe')">Cancelar</button>
@@ -936,10 +940,14 @@
     document.getElementById('kpiTotalPoupado').textContent = formatCurr(totalPoupado);
     document.getElementById('kpiMetasStatus').textContent = `${(financeData.savings || []).length} metas ativas`;
 
-    // 📌 Gastos Fixos
+    // 📌 Gastos Fixos (Inclui Lançamentos Fixos + Contas do Apê Fixas)
     let totalFixos = 0;
     (financeData.transactions || []).filter(t => t.type === 'EXPENSE' && t.isFixed && isDateInRange(t.date)).forEach(t => {
       totalFixos += parseFloat(t.amount || 0);
+    });
+    (financeData.apeExpenses || []).filter(a => a.isFixed && isDateInRange(a.date)).forEach(a => {
+      const count = parseInt(a.peopleCount) || 2;
+      totalFixos += parseFloat(a.amount || 0) / count;
     });
 
     const estVal = parseFloat(financeData.fixedEstimate || 0);
@@ -1088,26 +1096,57 @@
     if (!tbody) return;
     tbody.innerHTML = '';
 
-    const sorted = (financeData.transactions || [])
+    const fixedTrans = (financeData.transactions || [])
       .filter(t => t.type === 'EXPENSE' && t.isFixed && isDateInRange(t.date))
-      .sort((a,b) => new Date(b.date) - new Date(a.date));
+      .map(t => ({
+        id: t.id,
+        date: t.date,
+        desc: t.desc,
+        category: t.category,
+        subcategory: t.subcategory || '-',
+        amount: parseFloat(t.amount || 0),
+        origin: 'TRANS'
+      }));
 
-    if (sorted.length === 0) {
+    const fixedApe = (financeData.apeExpenses || [])
+      .filter(a => a.isFixed && isDateInRange(a.date))
+      .map(a => {
+        const count = parseInt(a.peopleCount) || 2;
+        const myShare = parseFloat(a.amount || 0) / count;
+        return {
+          id: a.id,
+          date: a.date,
+          desc: a.desc,
+          category: 'Contas do Apê',
+          subcategory: `1 / ${count} pessoas`,
+          amount: myShare,
+          origin: 'APE'
+        };
+      });
+
+    const combined = [...fixedTrans, ...fixedApe].sort((a,b) => new Date(b.date) - new Date(a.date));
+
+    if (combined.length === 0) {
       tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px; color: var(--text-muted);">Nenhum gasto fixo registrado no período.</td></tr>';
       return;
     }
 
-    sorted.forEach(t => {
+    combined.forEach(item => {
       const tr = document.createElement('tr');
+      const isApe = item.origin === 'APE';
       tr.innerHTML = `
-        <td>${t.date}</td>
-        <td style="font-weight: 600;">${t.desc}</td>
-        <td><span class="task-mini-tag">${t.category}</span></td>
-        <td><span class="task-mini-tag" style="background:#F1F5F9; color:#334155;">${t.subcategory || '-'}</span></td>
-        <td style="font-weight: 700; color: var(--danger);">- ${formatCurr(t.amount)}</td>
+        <td>${item.date}</td>
+        <td style="font-weight: 600;">${item.desc} ${isApe ? '<span class="task-mini-tag" style="background:#FEF3C7; color:#D97706;">🏢 APÊ</span>' : ''}</td>
+        <td><span class="task-mini-tag">${item.category}</span></td>
+        <td><span class="task-mini-tag" style="background:#F1F5F9; color:#334155;">${item.subcategory}</span></td>
+        <td style="font-weight: 700; color: var(--danger);">- ${formatCurr(item.amount)}</td>
         <td style="text-align: center;">
-          <button class="btn-icon" title="Editar" onclick="editLancamento('${t.id}')">✏️</button>
-          <button class="btn-danger" title="Excluir" onclick="deleteLancamento('${t.id}')">X</button>
+          ${isApe ? 
+            `<button class="btn-icon" title="Editar no Apê" onclick="switchTab('ape'); editApe('${item.id}')">✏️</button>
+             <button class="btn-danger" title="Excluir" onclick="deleteApe('${item.id}')">X</button>` :
+            `<button class="btn-icon" title="Editar Lançamento" onclick="editLancamento('${item.id}')">✏️</button>
+             <button class="btn-danger" title="Excluir" onclick="deleteLancamento('${item.id}')">X</button>`
+          }
         </td>
       `;
       tbody.appendChild(tr);
@@ -1350,7 +1389,7 @@
 
       tr.innerHTML = `
         <td>${a.date}</td>
-        <td style="font-weight: 600;">${a.desc}</td>
+        <td style="font-weight: 600;">${a.desc} ${a.isFixed ? '<span class="task-mini-tag" style="background:#DBEAFE; color:#1E40AF;">📌 FIXO</span>' : ''}</td>
         <td><span class="task-mini-tag" style="background:${isVoce ? '#EFF6FF' : '#FEF3C7'}; color:${isVoce ? '#2563EB' : '#D97706'}">${isVoce ? '🙋‍♂️ Você' : '🧑‍🤝‍🧑 Colega'}</span></td>
         <td><span class="task-mini-tag">1 / ${count} pessoas</span></td>
         <td style="font-weight: 700;">${formatCurr(val)}</td>
@@ -1414,6 +1453,51 @@
   }
 
   // --- CONTAS DO APÊ ---
+  function saveApe(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    try {
+      if (!financeData.apeExpenses) financeData.apeExpenses = [];
+
+      const editId = document.getElementById('aEditId').value;
+      const desc = document.getElementById('aDesc').value.trim();
+      const valor = parseFloat(document.getElementById('aValor').value) || 0;
+      const quem = document.getElementById('aQuem').value;
+      const pessoas = parseInt(document.getElementById('aPessoas').value) || 2;
+      const data = document.getElementById('aData').value || new Date().toISOString().split('T')[0];
+      const isFixed = document.getElementById('aIsFixed').checked;
+
+      if (editId) {
+        const item = financeData.apeExpenses.find(a => a.id === editId);
+        if (item) { item.desc = desc; item.amount = valor; item.paidBy = quem; item.peopleCount = pessoas; item.date = data; item.isFixed = isFixed; }
+      } else {
+        financeData.apeExpenses.push({
+          id: 'ape_' + new Date().getTime(),
+          desc, amount: valor, paidBy: quem, peopleCount: pessoas, date: data, settled: false, isFixed: isFixed
+        });
+      }
+
+      saveData();
+      closeModal('modalApe');
+      if (e && e.target && typeof e.target.reset === 'function') e.target.reset();
+    } catch(err) {
+      alert("Erro ao salvar conta do apê: " + err.message);
+    }
+  }
+
+  function editApe(id) {
+    const item = (financeData.apeExpenses || []).find(a => a.id === id);
+    if (!item) return;
+    document.getElementById('aEditId').value = item.id;
+    document.getElementById('aDesc').value = item.desc || '';
+    document.getElementById('aValor').value = item.amount || '';
+    document.getElementById('aQuem').value = item.paidBy || 'VOCE';
+    document.getElementById('aPessoas').value = item.peopleCount || 2;
+    document.getElementById('aData').value = item.date || '';
+    document.getElementById('aIsFixed').checked = !!item.isFixed;
+    document.getElementById('modalApeTitle').textContent = "EDITAR CONTA DO APÊ";
+    openModal('modalApe');
+  }
+
   function settleApeSingle(id) {
     const a = financeData.apeExpenses.find(x => x.id === id);
     if (!a) return;
@@ -1465,6 +1549,13 @@
             delete a.settlementTransId;
         }
         saveData();
+    }
+  }
+
+  function deleteApe(id) {
+    if (confirm("Deseja realmente excluir esta conta do apê?")) {
+      financeData.apeExpenses = (financeData.apeExpenses || []).filter(a => a.id !== id);
+      saveData();
     }
   }
 
@@ -2249,14 +2340,15 @@
       const quem = document.getElementById('aQuem').value;
       const pessoas = parseInt(document.getElementById('aPessoas').value) || 2;
       const data = document.getElementById('aData').value || new Date().toISOString().split('T')[0];
+      const isFixed = document.getElementById('aIsFixed').checked;
 
       if (editId) {
         const item = financeData.apeExpenses.find(a => a.id === editId);
-        if (item) { item.desc = desc; item.amount = valor; item.paidBy = quem; item.peopleCount = pessoas; item.date = data; }
+        if (item) { item.desc = desc; item.amount = valor; item.paidBy = quem; item.peopleCount = pessoas; item.date = data; item.isFixed = isFixed; }
       } else {
         financeData.apeExpenses.push({
           id: 'ape_' + new Date().getTime(),
-          desc, amount: valor, paidBy: quem, peopleCount: pessoas, date: data, settled: false
+          desc, amount: valor, paidBy: quem, peopleCount: pessoas, date: data, settled: false, isFixed: isFixed
         });
       }
 
@@ -2277,6 +2369,7 @@
     document.getElementById('aQuem').value = item.paidBy || 'VOCE';
     document.getElementById('aPessoas').value = item.peopleCount || 2;
     document.getElementById('aData').value = item.date || '';
+    document.getElementById('aIsFixed').checked = !!item.isFixed;
     document.getElementById('modalApeTitle').textContent = "EDITAR CONTA DO APÊ";
     openModal('modalApe');
   }
@@ -2302,6 +2395,9 @@
 
     const checkFixed = document.getElementById('lIsFixed');
     if (checkFixed) checkFixed.checked = false;
+
+    const checkApeFixed = document.getElementById('aIsFixed');
+    if (checkApeFixed) checkApeFixed.checked = false;
     
     const pValorMeta = document.getElementById('pValorMeta');
     const pValorAtual = document.getElementById('pValorAtual');
