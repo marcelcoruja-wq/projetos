@@ -183,7 +183,7 @@
 
       <div class="kpi-card" style="border-top: 4px solid var(--success);">
         <div class="label">📅 Teto Diário</div>
-        <div class="num" id="kpiTetoDiario" style="color: var(--success);">€ 0,00 /dia</div>
+        <div class="num" id="kpiTetoDiario" style="color: var(--success);">€ 0,00</div>
         <div class="sub" id="kpiDiasRestantes">Calculado para 0 dias restantes</div>
       </div>
 
@@ -854,8 +854,8 @@
     }
 
     const dailyLimit = netMonth > 0 ? (netMonth / remainingDays) : 0;
-    document.getElementById('kpiTetoDiario').textContent = `${formatCurr(dailyLimit)} /dia`;
-    document.getElementById('kpiDiasRestantes').textContent = `Para os próximos ${remainingDays} dias do período`;
+    document.getElementById('kpiTetoDiario').textContent = formatCurr(dailyLimit);
+    document.getElementById('kpiDiasRestantes').textContent = `Calculado para ${remainingDays} dias restantes`;
 
     let totalPoupado = 0;
     (financeData.savings || []).forEach(s => {
