@@ -29,8 +29,8 @@
 
     /* BARRA SUPERIOR DE NAVEGAÇÃO */
     .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 16px; }
-    .nav-tabs { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-    .tab-btn { padding: 10px 18px; background: var(--card-bg); border: 1px solid var(--border-color); font-weight: 600; font-size: 13px; cursor: pointer; border-radius: 8px; color: var(--text-muted); transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.03); display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
+    .nav-tabs { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .tab-btn { padding: 10px 16px; background: var(--card-bg); border: 1px solid var(--border-color); font-weight: 600; font-size: 13px; cursor: pointer; border-radius: 8px; color: var(--text-muted); transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.03); display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
     .tab-btn.active { background: var(--primary); color: #FFFFFF; border-color: var(--primary); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
     .tab-btn:hover:not(.active) { background: #E2E8F0; }
     .btn-home { background-color: #E2E8F0; color: var(--primary); font-weight: 700; padding: 10px 14px; font-size: 16px; }
@@ -56,10 +56,10 @@
     .tab-content.active { display: block !important; }
 
     /* CARDS KPIS */
-    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
     .kpi-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
     .kpi-card .label { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
-    .kpi-card .num { font-size: 26px; font-weight: 800; line-height: 1.2; }
+    .kpi-card .num { font-size: 24px; font-weight: 800; line-height: 1.2; }
     .kpi-card .sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
 
     /* CONTAINER BRANCO */
@@ -105,12 +105,13 @@
       <button class="tab-btn active" id="btnTabDash" onclick="switchTab('dash')">📊 Dashboard</button>
       <button class="tab-btn" id="btnTabLancamentos" onclick="switchTab('lancamentos')">💸 Lançamentos</button>
       <button class="tab-btn" id="btnTabPoupanca" onclick="switchTab('poupanca')">🐷 Poupança & Metas</button>
-      <button class="tab-btn" id="btnTabDividas" onclick="switchTab('dividas')">🏦 Empréstimos Bancários</button>
-      <button class="tab-btn" id="btnTabApe" onclick="switchTab('ape')">🤝 Contas Compartilhadas & Favores</button>
+      <button class="tab-btn" id="btnTabDividas" onclick="switchTab('dividas')">🤝 Empréstimos</button>
+      <button class="tab-btn" id="btnTabApe" onclick="switchTab('ape')">🏢 Contas do Apê</button>
+      <button class="tab-btn" id="btnTabFavores" onclick="switchTab('favores')">🎁 Favores</button>
     </div>
 
-    <!-- SELETOR DE MOEDA E BOTÃO ZERAR TUDO -->
-    <div style="display: flex; align-items: center; gap: 10px;">
+    <!-- SELETOR DE MOEDA EXCLUSIVO À EXTREMA DIREITA -->
+    <div style="margin-left: auto; display: flex; align-items: center; gap: 8px;">
       <span style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Moeda:</span>
       <select id="currencySelect" class="form-input" style="width: auto; padding: 6px 12px; font-weight: 700; cursor: pointer;" onchange="updateCurrency(this.value)">
         <option value="€">€ (EUR)</option>
@@ -118,7 +119,6 @@
         <option value="$">$ (USD)</option>
         <option value="£">£ (GBP)</option>
       </select>
-      <button class="btn-danger" style="padding: 6px 12px;" title="Apagar todos os registros e reiniciar limpo" onclick="resetAllData()">🗑️ Zerar Tudo</button>
     </div>
   </div>
 
@@ -154,15 +154,21 @@
       </div>
 
       <div class="kpi-card" style="border-top: 4px solid var(--danger);">
-        <div class="label">🏦 Dívida Bancária / Crédito</div>
+        <div class="label">🤝 Empréstimos Ativos</div>
         <div class="num" id="kpiDividaBancaria" style="color: var(--danger);">€ 0,00</div>
-        <div class="sub" id="kpiDividasBancariaStatus">0 contratos ativos</div>
+        <div class="sub" id="kpiDividasBancariaStatus">0 empréstimos em aberto</div>
       </div>
 
       <div class="kpi-card" style="border-top: 4px solid var(--warning);">
-        <div class="label">🤝 Acerto de Contas & Favores</div>
+        <div class="label">🏢 Contas do Apê</div>
         <div class="num" id="kpiApeSaldo" style="color: var(--primary);">€ 0,00</div>
         <div class="sub" id="kpiApeStatus">Tudo quitado</div>
+      </div>
+
+      <div class="kpi-card" style="border-top: 4px solid #EC4899;">
+        <div class="label">🎁 Favores (Balanço)</div>
+        <div class="num" id="kpiFavoresSaldo" style="color: var(--primary);">€ 0,00</div>
+        <div class="sub" id="kpiFavoresStatus">A receber: € 0 | A pagar: € 0</div>
       </div>
     </div>
 
@@ -269,15 +275,15 @@
     </div>
   </div>
 
-  <!-- PESTAÑA 4: EMPRÉSTIMOS BANCÁRIOS -->
+  <!-- PESTAÑA 4: EMPRÉSTIMOS -->
   <div id="viewDividas" class="tab-content">
     <div class="white-box">
       <div class="box-header">
         <div>
-          <div class="box-title">🏦 Empréstimos e Crédito Bancário</div>
-          <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Acompanhe o saldo devedor e amortização de contratos com instituições financeiras e bancos.</p>
+          <div class="box-title">🤝 Empréstimos</div>
+          <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Acompanhe contratos de empréstimos e financiamentos.</p>
         </div>
-        <button class="btn-add" onclick="openModal('modalDivida')">➕ Novo Empréstimo Bancário</button>
+        <button class="btn-add" onclick="openModal('modalDivida')">➕ Novo Empréstimo</button>
       </div>
 
       <div id="dividasCardsList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;"></div>
@@ -285,13 +291,13 @@
 
     <div class="white-box">
       <div class="box-header">
-        <div class="box-title">📜 Histórico de Empréstimos Bancários Quitados</div>
+        <div class="box-title">📜 Histórico de Empréstimos Quitados</div>
       </div>
       <div style="overflow-x: auto;">
         <table class="data-table">
           <thead>
             <tr>
-              <th>Instituição / Banco</th>
+              <th>Instituição / Origem</th>
               <th>Valor Total Saldado</th>
               <th>Data da Quitação</th>
               <th>Status</th>
@@ -303,18 +309,15 @@
     </div>
   </div>
 
-  <!-- PESTAÑA 5: CONTAS COMPARTILHADAS & FAVORES -->
+  <!-- PESTAÑA 5: CONTAS DO APÊ -->
   <div id="viewApe" class="tab-content">
     <div class="white-box">
       <div class="box-header">
         <div>
-          <div class="box-title">🤝 Contas Compartilhadas & Favores (No Período)</div>
+          <div class="box-title">🏢 Contas do Apê (No Período)</div>
           <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;" id="apeSettlementSummary">Calculando acerto de contas...</p>
         </div>
-        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-          <button class="btn-settle" onclick="openModal('modalReceberApe')">💰 Registrar Pix / Recebimento / Pagamento</button>
-          <button class="btn-add" onclick="openModal('modalApe')">➕ Nova Despesa ou Favor Compartilhado</button>
-        </div>
+        <button class="btn-add" onclick="openModal('modalApe')">➕ Nova Despesa do Apê</button>
       </div>
 
       <div style="overflow-x: auto;">
@@ -322,7 +325,7 @@
           <thead>
             <tr>
               <th>Data</th>
-              <th>Descrição / Item</th>
+              <th>Descrição / Conta</th>
               <th>Quem Pagou</th>
               <th>Divisão</th>
               <th>Valor Total</th>
@@ -331,6 +334,35 @@
             </tr>
           </thead>
           <tbody id="tableApe"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- PESTAÑA 6: FAVORES -->
+  <div id="viewFavores" class="tab-content">
+    <div class="white-box">
+      <div class="box-header">
+        <div>
+          <div class="box-title">🎁 Favores & Pequenas Gentilezas</div>
+          <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Controle de pequenos favores entre amigos (cerveja, carona, paguei um lanche, etc.).</p>
+        </div>
+        <button class="btn-add" onclick="openModal('modalFavor')">➕ Novo Favor</button>
+      </div>
+
+      <div style="overflow-x: auto;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Descrição / Favor</th>
+              <th>Pessoa / Amigo</th>
+              <th>Tipo</th>
+              <th>Valor</th>
+              <th style="text-align: center;">Status / Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tableFavores"></tbody>
         </table>
       </div>
     </div>
@@ -438,15 +470,15 @@
   </div>
 </div>
 
-<!-- MODAL EMPRÉSTIMO BANCÁRIO -->
+<!-- MODAL EMPRÉSTIMO -->
 <div id="modalDivida" class="modal-overlay">
   <div class="modal-box">
-    <div class="box-title" style="margin-bottom: 16px;" id="modalDividaTitle">NOVO EMPRÉSTIMO BANCÁRIO</div>
+    <div class="box-title" style="margin-bottom: 16px;" id="modalDividaTitle">NOVO EMPRÉSTIMO</div>
     <form onsubmit="saveDivida(event)">
       <input type="hidden" id="dEditId">
       <div class="form-group">
-        <label>Banco / Instituição Financeira</label>
-        <input type="text" id="dNome" class="form-input" placeholder="Ex: Banco Nubank, Itaú, Santander..." required>
+        <label>Instituição / Origem</label>
+        <input type="text" id="dNome" class="form-input" placeholder="Ex: Banco Nubank, Itaú, Financiamento..." required>
       </div>
       <div class="form-group">
         <label>Valor Total do Empréstimo</label>
@@ -464,31 +496,30 @@
   </div>
 </div>
 
-<!-- MODAL CONTAS COMPARTILHADAS (DESPESA OU FAVOR) -->
+<!-- MODAL CONTAS DO APÊ -->
 <div id="modalApe" class="modal-overlay">
   <div class="modal-box">
-    <div class="modal-title box-title" style="margin-bottom: 16px;" id="modalApeTitle">NOVA DESPESA OU FAVOR COMPARTILHADO</div>
+    <div class="modal-title box-title" style="margin-bottom: 16px;" id="modalApeTitle">NOVA DESPESA DO APÊ</div>
     <form onsubmit="saveApe(event)">
       <input type="hidden" id="aEditId">
       <div class="form-group">
-        <label>Descrição / Item (Ex: Cerveja, Luz, Aluguel Parcial)</label>
-        <input type="text" id="aDesc" class="form-input" placeholder="Ex: Cerveja no bar, Luz, Carona, Aluguel..." required>
+        <label>Descrição / Conta (Ex: Luz, Internet, Aluguel)</label>
+        <input type="text" id="aDesc" class="form-input" placeholder="Ex: Luz, Internet, Água, Aluguel..." required>
       </div>
       <div class="form-group">
-        <label>Valor Total do Item/Conta</label>
+        <label>Valor Total da Conta</label>
         <input type="number" step="0.01" id="aValor" class="form-input" placeholder="0.00" required>
       </div>
       <div class="form-group">
         <label>Quem Pagou Total?</label>
         <select id="aQuem" class="form-input" required>
-          <option value="VOCE">🙋‍♂️ Eu paguei total (Outros me devem)</option>
-          <option value="COLEGA">🧑‍🤝‍🧑 Amigo / Outro pagou total (Eu devo a ele)</option>
+          <option value="VOCE">🙋‍♂️ Eu paguei total</option>
+          <option value="COLEGA">🧑‍🤝‍🧑 Colega pagou total</option>
         </select>
       </div>
       <div class="form-group">
-        <label>Pessoas na Divisão (2 = Você + 1 amigo; 1 = Favor 100%)</label>
-        <input type="number" min="1" max="50" id="aPessoas" class="form-input" value="2" required>
-        <small style="font-size: 10px; color: var(--text-muted); display: block; margin-top: 4px;">Digite 1 se o valor integral for para a outra pessoa (ex: você pagou a cerveja dele inteira).</small>
+        <label>Pessoas a Dividir (Ex: 2 = Você + 1 colega)</label>
+        <input type="number" min="2" max="50" id="aPessoas" class="form-input" value="2" required>
       </div>
       <div class="form-group">
         <label>Data</label>
@@ -502,33 +533,38 @@
   </div>
 </div>
 
-<!-- MODAL REGISTRAR RECEBIMENTO OU PAGAMENTO DE ACERTO -->
-<div id="modalReceberApe" class="modal-overlay">
+<!-- MODAL FAVOR -->
+<div id="modalFavor" class="modal-overlay">
   <div class="modal-box">
-    <div class="box-title" style="margin-bottom: 16px;">REGISTRAR RECEBIMENTO / PAGAMENTO DE ACERTO</div>
-    <form onsubmit="saveReceberApe(event)">
+    <div class="box-title" style="margin-bottom: 16px;" id="modalFavorTitle">NOVO FAVOR / GENTILEZA</div>
+    <form onsubmit="saveFavor(event)">
+      <input type="hidden" id="fEditId">
       <div class="form-group">
-        <label>Operação</label>
-        <select id="rTipo" class="form-input" required>
-          <option value="RECEBI">🟢 Recebi dinheiro de alguém (Ex: Pix que me enviaram)</option>
-          <option value="PAGUEI">🔴 Paguei dinheiro a alguém (Ex: Pix que enviei)</option>
+        <label>Descrição / Item (Ex: Cerveja no bar, Carona, Lanche)</label>
+        <input type="text" id="fDesc" class="form-input" placeholder="Ex: Cerveja, Carona, Uber, Lanche..." required>
+      </div>
+      <div class="form-group">
+        <label>Pessoa / Amigo</label>
+        <input type="text" id="fPessoa" class="form-input" placeholder="Ex: João, Maria, Fulano..." required>
+      </div>
+      <div class="form-group">
+        <label>Tipo do Favor</label>
+        <select id="fTipo" class="form-input" required>
+          <option value="CONCEDIDO">🟢 Eu paguei por ele (A PESSOA ME DEVE)</option>
+          <option value="TOMADO">🔴 Ele pagou por mim (EU DEVO À PESSOA)</option>
         </select>
       </div>
       <div class="form-group">
-        <label>Valor do Acerto</label>
-        <input type="number" step="0.01" id="rValor" class="form-input" placeholder="0.00" required>
-      </div>
-      <div class="form-group">
-        <label>Descrição / Observação</label>
-        <input type="text" id="rDesc" class="form-input" placeholder="Ex: Pix da cerveja / acerto aluguel">
+        <label>Valor do Favor</label>
+        <input type="number" step="0.01" id="fValor" class="form-input" placeholder="0.00" required>
       </div>
       <div class="form-group">
         <label>Data</label>
-        <input type="date" id="rData" class="form-input" required>
+        <input type="date" id="fData" class="form-input" required>
       </div>
       <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
-        <button type="button" class="btn-outline" onclick="closeModal('modalReceberApe')">Cancelar</button>
-        <button type="submit" class="btn-add">Salvar Acerto</button>
+        <button type="button" class="btn-outline" onclick="closeModal('modalFavor')">Cancelar</button>
+        <button type="submit" class="btn-add">Salvar Favor</button>
       </div>
     </form>
   </div>
@@ -540,7 +576,8 @@
     transactions: [],
     savings: [],
     debts: [],
-    apeExpenses: []
+    apeExpenses: [],
+    favors: []
   };
 
   let historyChartInstance = null;
@@ -556,7 +593,8 @@
           transactions: Array.isArray(parsed.transactions) ? parsed.transactions : [],
           savings: Array.isArray(parsed.savings) ? parsed.savings : [],
           debts: Array.isArray(parsed.debts) ? parsed.debts : [],
-          apeExpenses: Array.isArray(parsed.apeExpenses) ? parsed.apeExpenses : []
+          apeExpenses: Array.isArray(parsed.apeExpenses) ? parsed.apeExpenses : [],
+          favors: Array.isArray(parsed.favors) ? parsed.favors : []
         };
       } catch(e) { 
         console.error("Error loading finance data", e); 
@@ -568,7 +606,7 @@
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('lData').value = today;
     document.getElementById('aData').value = today;
-    document.getElementById('rData').value = today;
+    document.getElementById('fData').value = today;
 
     initDateFilters();
     refreshAll();
@@ -608,20 +646,6 @@
     refreshAll();
   }
 
-  function resetAllData() {
-    if (confirm("Tem certeza que deseja APAGAR TODOS OS DADOS do aplicativo? Esta ação deixará todas as telas em 0,00 e não pode ser desfeita.")) {
-      localStorage.removeItem('personalFinanceData');
-      financeData = {
-        currency: financeData.currency || "€",
-        transactions: [],
-        savings: [],
-        debts: [],
-        apeExpenses: []
-      };
-      refreshAll();
-    }
-  }
-
   function refreshAll() {
     try {
       renderKPIs();
@@ -631,6 +655,7 @@
       renderDebtsList();
       renderDividasQuitadasTable();
       renderApeTable();
+      renderFavoresTable();
       renderSettlementStatsSummary();
       populateCategoryFilters();
       initOrUpdateCharts();
@@ -658,6 +683,9 @@
     } else if(tabKey === 'ape') {
       document.getElementById('viewApe').classList.add('active');
       document.getElementById('btnTabApe').classList.add('active');
+    } else if(tabKey === 'favores') {
+      document.getElementById('viewFavores').classList.add('active');
+      document.getElementById('btnTabFavores').classList.add('active');
     }
   }
 
@@ -715,26 +743,17 @@
     });
 
     document.getElementById('kpiDividaBancaria').textContent = formatCurr(dividaBancariaPendente);
-    document.getElementById('kpiDividasBancariaStatus').textContent = `${contratosBancariosAtivos} contrato(s) bancário(s) ativo(s)`;
+    document.getElementById('kpiDividasBancariaStatus').textContent = `${contratosBancariosAtivos} empréstimo(s) ativo(s)`;
 
-    // 🤝 Contas Compartilhadas & Favores Pessoais
+    // 🏢 Contas do Apê
     let apeNetBalance = 0;
     (financeData.apeExpenses || []).filter(a => isDateInRange(a.date)).forEach(a => {
-      if (a.settled && !a.isReimbursement) return;
+      if (a.settled) return;
       const val = parseFloat(a.amount || 0);
-
-      if (a.isReimbursement) {
-        if (a.paidBy === 'COLEGA_REEMBOLSO') apeNetBalance -= val;
-        else if (a.paidBy === 'VOCE_REEMBOLSO') apeNetBalance += val;
-      } else {
-        const count = parseInt(a.peopleCount) || 2;
-        const yourShare = val / count;
-        if (a.paidBy === 'VOCE') {
-          apeNetBalance += (val - yourShare);
-        } else {
-          apeNetBalance -= yourShare;
-        }
-      }
+      const count = parseInt(a.peopleCount) || 2;
+      const yourShare = val / count;
+      if (a.paidBy === 'VOCE') apeNetBalance += (val - yourShare);
+      else apeNetBalance -= yourShare;
     });
 
     const kpiApeEl = document.getElementById('kpiApeSaldo');
@@ -742,18 +761,34 @@
       kpiApeEl.textContent = `+ ${formatCurr(apeNetBalance)}`;
       kpiApeEl.style.color = "var(--success)";
       document.getElementById('kpiApeStatus').textContent = "Outros devem te pagar este valor";
-      document.getElementById('apeSettlementSummary').textContent = `Neste período, pessoas devem te pagar ${formatCurr(apeNetBalance)} no total.`;
     } else if (apeNetBalance < 0) {
       kpiApeEl.textContent = formatCurr(apeNetBalance);
       kpiApeEl.style.color = "var(--danger)";
       document.getElementById('kpiApeStatus').textContent = "Você deve pagar este valor no total";
-      document.getElementById('apeSettlementSummary').textContent = `Neste período, você deve pagar ${formatCurr(Math.abs(apeNetBalance))} a terceiros.`;
     } else {
       kpiApeEl.textContent = formatCurr(0);
       kpiApeEl.style.color = "var(--primary)";
-      document.getElementById('kpiApeStatus').textContent = "Tudo quitado e equilibrado";
-      document.getElementById('apeSettlementSummary').textContent = `Todas as contas e favores deste período estão equilibrados.`;
+      document.getElementById('kpiApeStatus').textContent = "Tudo quitado no apê";
     }
+
+    // 🎁 Favores Pessoais
+    let favoresAReceber = 0;
+    let favoresAPagar = 0;
+
+    (financeData.favors || []).filter(f => !f.settled && isDateInRange(f.date)).forEach(f => {
+      const val = parseFloat(f.amount || 0);
+      if (f.type === 'CONCEDIDO') favoresAReceber += val;
+      else favoresAPagar += val;
+    });
+
+    const netFavores = favoresAReceber - favoresAPagar;
+    const kpiFavoresEl = document.getElementById('kpiFavoresSaldo');
+    kpiFavoresEl.textContent = formatCurr(netFavores);
+    if (netFavores > 0) kpiFavoresEl.style.color = "var(--success)";
+    else if (netFavores < 0) kpiFavoresEl.style.color = "var(--danger)";
+    else kpiFavoresEl.style.color = "var(--primary)";
+
+    document.getElementById('kpiFavoresStatus').textContent = `A receber: ${formatCurr(favoresAReceber)} | A pagar: ${formatCurr(favoresAPagar)}`;
   }
 
   // --- ESTATÍSTICAS DE QUITAÇÃO ---
@@ -783,12 +818,12 @@
       <div style="background: #F8FAFC; border: 1px solid var(--border-color); border-radius: 12px; padding: 16px;">
         <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted);">Empréstimos Quitados</div>
         <div style="font-size: 24px; font-weight: 800; color: var(--success); margin-top: 4px;">${totalQuitadasCount} concluídos</div>
-        <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Totalmente saldados (Global)</div>
+        <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Totalmente saldados</div>
       </div>
       <div style="background: #F8FAFC; border: 1px solid var(--border-color); border-radius: 12px; padding: 16px;">
         <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted);">Montante Quitado</div>
         <div style="font-size: 24px; font-weight: 800; color: var(--focus-blue); margin-top: 4px;">${formatCurr(totalSaldado)}</div>
-        <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Valor total amortizado (Global)</div>
+        <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Valor total amortizado</div>
       </div>
       <div style="background: #F8FAFC; border: 1px solid var(--border-color); border-radius: 12px; padding: 16px;">
         <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted);">Última Quitação</div>
@@ -986,7 +1021,7 @@
         <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 8px;">
           <div>
             <span class="task-mini-tag" style="background:#FEF2F2; color:#991B1B; margin-bottom:4px;">
-              🏦 CRÉDITO BANCÁRIO
+              🏦 BANCÁRIO / FORMAL
             </span>
             <h4 style="font-weight: 800; font-size: 16px; margin-top:2px;">${d.name}</h4>
           </div>
@@ -1048,24 +1083,23 @@
     const sorted = (financeData.apeExpenses || []).filter(a => isDateInRange(a.date)).sort((a,b) => new Date(b.date) - new Date(a.date));
 
     if (sorted.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 20px; color: var(--text-muted);">Nenhuma conta ou favor compartilhado no período.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 20px; color: var(--text-muted);">Nenhuma conta do apê no período.</td></tr>';
       return;
     }
 
     sorted.forEach(a => {
       const tr = document.createElement('tr');
       const val = parseFloat(a.amount || 0);
-      const isReimb = a.isReimbursement;
-      const count = parseInt(a.peopleCount) || 1;
-      const myShare = isReimb ? val : (count === 1 ? (a.paidBy === 'VOCE' ? 0 : val) : val / count);
-      const isVoce = a.paidBy === 'VOCE' || a.paidBy === 'VOCE_REEMBOLSO';
+      const count = parseInt(a.peopleCount) || 2;
+      const myShare = val / count;
+      const isVoce = a.paidBy === 'VOCE';
       const isSettled = a.settled;
 
       tr.innerHTML = `
         <td>${a.date}</td>
-        <td style="font-weight: 600;">${isReimb ? '💸 ' : ''}${a.desc}</td>
-        <td><span class="task-mini-tag" style="background:${isVoce ? '#EFF6FF' : '#FEF3C7'}; color:${isVoce ? '#2563EB' : '#D97706'}">${isVoce ? '🙋‍♂️ Você' : '🧑‍🤝‍🧑 Outro'}</span></td>
-        <td><span class="task-mini-tag">${isReimb ? 'Acerto Direto' : (count === 1 ? '100% Favor' : `1 / ${count} pessoas`)}</span></td>
+        <td style="font-weight: 600;">${a.desc}</td>
+        <td><span class="task-mini-tag" style="background:${isVoce ? '#EFF6FF' : '#FEF3C7'}; color:${isVoce ? '#2563EB' : '#D97706'}">${isVoce ? '🙋‍♂️ Você' : '🧑‍🤝‍🧑 Colega'}</span></td>
+        <td><span class="task-mini-tag">1 / ${count} pessoas</span></td>
         <td style="font-weight: 700;">${formatCurr(val)}</td>
         <td style="color: var(--text-dark); font-weight: 600;">${formatCurr(myShare)}</td>
         <td style="text-align: center; vertical-align: middle;">
@@ -1085,53 +1119,48 @@
     });
   }
 
-  // --- ACERTO COMPARTILHADO ---
-  function saveReceberApe(e) {
-    if (e && e.preventDefault) e.preventDefault();
-    try {
-      if (!financeData.transactions) financeData.transactions = [];
-      if (!financeData.apeExpenses) financeData.apeExpenses = [];
+  function renderFavoresTable() {
+    const tbody = document.getElementById('tableFavores');
+    if (!tbody) return;
+    tbody.innerHTML = '';
 
-      const tipo = document.getElementById('rTipo').value;
-      const valor = parseFloat(document.getElementById('rValor').value) || 0;
-      const descInput = document.getElementById('rDesc').value.trim();
-      const data = document.getElementById('rData').value || new Date().toISOString().split('T')[0];
-      const isInc = (tipo === 'RECEBI');
+    const sorted = (financeData.favors || []).filter(f => isDateInRange(f.date)).sort((a,b) => new Date(b.date) - new Date(a.date));
 
-      const defaultDesc = isInc ? 'Recebimento de Acerto / Favor' : 'Pagamento de Acerto / Favor';
-      const finalDesc = descInput || defaultDesc;
-
-      const transId = 'trans_' + new Date().getTime();
-      financeData.transactions.push({
-        id: transId,
-        desc: finalDesc,
-        amount: valor,
-        type: isInc ? 'INCOME' : 'EXPENSE',
-        category: 'Contas Compartilhadas',
-        subcategory: 'Acerto Direto',
-        date: data
-      });
-
-      financeData.apeExpenses.push({
-        id: 'ape_' + new Date().getTime(),
-        desc: finalDesc,
-        amount: valor,
-        paidBy: isInc ? 'COLEGA_REEMBOLSO' : 'VOCE_REEMBOLSO',
-        peopleCount: 1,
-        date: data,
-        settled: true,
-        isReimbursement: true,
-        settlementTransId: transId
-      });
-
-      saveData();
-      closeModal('modalReceberApe');
-      if (e && e.target && typeof e.target.reset === 'function') e.target.reset();
-    } catch(err) {
-      alert("Erro ao registrar acerto: " + err.message);
+    if (sorted.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px; color: var(--text-muted);">Nenhum favor registrado.</td></tr>';
+      return;
     }
+
+    sorted.forEach(f => {
+      const tr = document.createElement('tr');
+      const val = parseFloat(f.amount || 0);
+      const isConcedido = (f.type === 'CONCEDIDO');
+      const isSettled = f.settled;
+
+      tr.innerHTML = `
+        <td>${f.date}</td>
+        <td style="font-weight: 600;">${f.desc}</td>
+        <td><span class="task-mini-tag">${f.pessoa || 'Amigo'}</span></td>
+        <td><span class="task-mini-tag" style="background:${isConcedido ? '#D1FAE5' : '#FEF2F2'}; color:${isConcedido ? '#065F46' : '#991B1B'};">${isConcedido ? '🟢 A Receber' : '🔴 A Pagar'}</span></td>
+        <td style="font-weight: 700; color: ${isConcedido ? 'var(--success)' : 'var(--danger)'};">${formatCurr(val)}</td>
+        <td style="text-align: center; vertical-align: middle;">
+          ${isSettled ? `
+            <span class="badge-income" style="display:block; margin-bottom:6px;">✅ QUITADO</span>
+            <button class="btn-outline" style="padding: 4px 8px; font-size: 10px;" onclick="undoSettleFavor('${f.id}')">↩️ Desfazer</button>
+          ` : `
+            <div style="display:flex; gap:4px; justify-content:center;">
+              <button class="btn-icon" style="color:var(--success);" title="Saldar favor" onclick="settleFavor('${f.id}')">✅</button>
+              <button class="btn-icon" title="Editar" onclick="editFavor('${f.id}')">✏️</button>
+              <button class="btn-danger" title="Excluir" onclick="deleteFavor('${f.id}')">X</button>
+            </div>
+          `}
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
   }
 
+  // --- CONTAS DO APÊ ---
   function settleApeSingle(id) {
     const a = financeData.apeExpenses.find(x => x.id === id);
     if (!a) return;
@@ -1139,29 +1168,29 @@
     if (!financeData.transactions) financeData.transactions = [];
 
     const val = parseFloat(a.amount || 0);
-    const count = parseInt(a.peopleCount) || 1;
-    const myShare = count === 1 ? (a.paidBy === 'VOCE' ? 0 : val) : val / count;
+    const count = parseInt(a.peopleCount) || 2;
+    const myShare = val / count;
     const othersShare = val - myShare;
 
     let transType, transAmount, descPrefix;
     if (a.paidBy === 'VOCE') {
         transType = 'INCOME';
-        transAmount = count === 1 ? val : othersShare;
-        descPrefix = 'Recebimento Acerto:';
+        transAmount = othersShare;
+        descPrefix = 'Recebimento Acerto Apê:';
     } else {
         transType = 'EXPENSE';
         transAmount = myShare;
-        descPrefix = 'Pagamento Acerto:';
+        descPrefix = 'Pagamento Acerto Apê:';
     }
 
-    if (confirm(`Saldar individualmente esta conta/favor?\n\nIsso gerará automaticamente um lançamento de ${formatCurr(transAmount)}.`)) {
+    if (confirm(`Saldar esta conta do Apê?\n\nIsso gerará automaticamente um lançamento de ${formatCurr(transAmount)}.`)) {
         const transId = 'trans_' + new Date().getTime();
         financeData.transactions.push({
             id: transId,
             desc: `${descPrefix} ${a.desc}`,
             amount: transAmount,
             type: transType,
-            category: 'Contas Compartilhadas',
+            category: 'Contas do Apê',
             subcategory: 'Acerto Individual',
             date: new Date().toISOString().split('T')[0]
         });
@@ -1176,7 +1205,7 @@
     const a = financeData.apeExpenses.find(x => x.id === id);
     if (!a) return;
 
-    if (confirm(`Desfazer a quitação deste item?\n\nIsso removerá o lançamento gerado automaticamente.`)) {
+    if (confirm(`Desfazer a quitação desta conta do Apê?\n\nIsso removerá o lançamento gerado automaticamente.`)) {
         a.settled = false;
         if (a.settlementTransId) {
             financeData.transactions = (financeData.transactions || []).filter(t => t.id !== a.settlementTransId);
@@ -1186,14 +1215,106 @@
     }
   }
 
+  // --- OPERAÇÕES FAVORES ---
+  function saveFavor(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    try {
+      if (!financeData.favors) financeData.favors = [];
+
+      const editId = document.getElementById('fEditId').value;
+      const desc = document.getElementById('fDesc').value.trim();
+      const pessoa = document.getElementById('fPessoa').value.trim();
+      const tipo = document.getElementById('fTipo').value;
+      const valor = parseFloat(document.getElementById('fValor').value) || 0;
+      const data = document.getElementById('fData').value || new Date().toISOString().split('T')[0];
+
+      if (editId) {
+        const item = financeData.favors.find(f => f.id === editId);
+        if (item) { item.desc = desc; item.pessoa = pessoa; item.type = tipo; item.amount = valor; item.date = data; }
+      } else {
+        financeData.favors.push({
+          id: 'fav_' + new Date().getTime(),
+          desc, pessoa, type: tipo, amount: valor, date: data, settled: false
+        });
+      }
+
+      saveData();
+      closeModal('modalFavor');
+      if (e && e.target && typeof e.target.reset === 'function') e.target.reset();
+    } catch(err) {
+      alert("Erro ao salvar favor: " + err.message);
+    }
+  }
+
+  function editFavor(id) {
+    const item = (financeData.favors || []).find(f => f.id === id);
+    if (!item) return;
+    document.getElementById('fEditId').value = item.id;
+    document.getElementById('fDesc').value = item.desc || '';
+    document.getElementById('fPessoa').value = item.pessoa || '';
+    document.getElementById('fTipo').value = item.type || 'CONCEDIDO';
+    document.getElementById('fValor').value = item.amount || '';
+    document.getElementById('fData').value = item.date || '';
+    document.getElementById('modalFavorTitle').textContent = "EDITAR FAVOR";
+    openModal('modalFavor');
+  }
+
+  function settleFavor(id) {
+    const f = (financeData.favors || []).find(x => x.id === id);
+    if (!f) return;
+
+    const isConcedido = (f.type === 'CONCEDIDO');
+    const transType = isConcedido ? 'INCOME' : 'EXPENSE';
+    const actionText = isConcedido ? 'recebido' : 'pago';
+
+    if (confirm(`Marcar o favor "${f.desc}" como ${actionText} (${formatCurr(f.amount)})?`)) {
+      const transId = 'trans_' + new Date().getTime();
+      if (!financeData.transactions) financeData.transactions = [];
+      financeData.transactions.push({
+        id: transId,
+        desc: `Favor Quitado: ${f.desc} (${f.pessoa})`,
+        amount: parseFloat(f.amount || 0),
+        type: transType,
+        category: 'Favores',
+        subcategory: f.pessoa,
+        date: new Date().toISOString().split('T')[0]
+      });
+
+      f.settled = true;
+      f.settlementTransId = transId;
+      saveData();
+    }
+  }
+
+  function undoSettleFavor(id) {
+    const f = (financeData.favors || []).find(x => x.id === id);
+    if (!f) return;
+
+    if (confirm("Desfazer quitação do favor?")) {
+      f.settled = false;
+      if (f.settlementTransId) {
+        financeData.transactions = (financeData.transactions || []).filter(t => t.id !== f.settlementTransId);
+        delete f.settlementTransId;
+      }
+      saveData();
+    }
+  }
+
+  function deleteFavor(id) {
+    if (confirm("Deseja realmente excluir este favor?")) {
+      financeData.favors = (financeData.favors || []).filter(f => f.id !== id);
+      saveData();
+    }
+  }
+
   // --- FILTROS ENCADEADOS (CATEGORIA E SUBCATEGORIA) ---
   function populateCategoryFilters() {
     const catSelect = document.getElementById('chartCategoryFilter');
     const currCat = catSelect.value;
 
     catSelect.innerHTML = '<option value="ALL">Todas as Saídas (Geral)</option>';
-    catSelect.innerHTML += '<option value="CONTAS_APE">🤝 Contas Compartilhadas</option>';
-    catSelect.innerHTML += '<option value="DIVIDAS">🏦 Empréstimos Bancários</option>';
+    catSelect.innerHTML += '<option value="CONTAS_APE">🏢 Contas do Apê</option>';
+    catSelect.innerHTML += '<option value="DIVIDAS">🤝 Empréstimos</option>';
     catSelect.innerHTML += '<option value="POUPANCA">🐷 Poupança & Aportes</option>';
 
     const cats = new Set();
@@ -1314,7 +1435,6 @@
 
     if (selectedCat === 'ALL' || selectedCat === 'CONTAS_APE') {
       (financeData.apeExpenses || []).filter(a => isDateInRange(a.date)).forEach(a => {
-        if (a.isReimbursement) return;
         const sub = (a.desc || '').toUpperCase().trim();
         if (selectedSub !== 'ALL' && sub !== selectedSub) return;
 
@@ -1414,8 +1534,8 @@
       catSums[cat] += parseFloat(t.amount || 0);
     });
 
-    (financeData.apeExpenses || []).filter(a => isDateInRange(a.date) && !a.isReimbursement).forEach(a => {
-      const cat = 'CONTAS COMPARTILHADAS';
+    (financeData.apeExpenses || []).filter(a => isDateInRange(a.date)).forEach(a => {
+      const cat = 'CONTAS DO APÊ';
       if (!catSums[cat]) catSums[cat] = 0;
       const count = parseInt(a.peopleCount) || 2;
       catSums[cat] += parseFloat(a.amount || 0) / count;
@@ -1762,7 +1882,7 @@
     }
   }
 
-  // --- OPERAÇÕES CONTAS COMPARTILHADAS ---
+  // --- OPERAÇÕES CONTAS DO APÊ ---
   function saveApe(e) {
     if (e && e.preventDefault) e.preventDefault();
     try {
@@ -1789,7 +1909,7 @@
       closeModal('modalApe');
       if (e && e.target && typeof e.target.reset === 'function') e.target.reset();
     } catch(err) {
-      alert("Erro ao salvar conta compartilhada: " + err.message);
+      alert("Erro ao salvar conta do apê: " + err.message);
     }
   }
 
@@ -1802,12 +1922,12 @@
     document.getElementById('aQuem').value = item.paidBy || 'VOCE';
     document.getElementById('aPessoas').value = item.peopleCount || 2;
     document.getElementById('aData').value = item.date || '';
-    document.getElementById('modalApeTitle').textContent = "EDITAR CONTA COMPARTILHADA";
+    document.getElementById('modalApeTitle').textContent = "EDITAR CONTA DO APÊ";
     openModal('modalApe');
   }
 
   function deleteApe(id) {
-    if (confirm("Deseja realmente excluir esta conta compartilhada?")) {
+    if (confirm("Deseja realmente excluir esta conta do apê?")) {
       financeData.apeExpenses = (financeData.apeExpenses || []).filter(a => a.id !== id);
       saveData();
     }
