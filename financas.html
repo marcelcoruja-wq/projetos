@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculador de Finanças Pessoais</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg-main: #F8FAFC; 
+      --card-bg: #FFFFFF; 
+      --text-dark: #1E293B; 
+      --text-muted: #64748B;
+      --border-color: #E2E8F0; 
+      --primary: #1E293B; 
+      --focus-blue: #2F5FD0;
+      --success: #10B981; 
+      --warning: #F59E0B; 
+      --danger: #EF4444; 
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, sans-serif; }
+    body { background-color: var(--bg-main); color: var(--text-dark); line-height: 1.5; padding: 16px; }
+    .main-wrapper { max-width: 1200px; margin: 0 auto; }
+
+    /* BARRA SUPERIOR DE NAVEGAÇÃO */
+    .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }
+    .nav-tabs { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .tab-btn { padding: 10px 18px; background: var(--card-bg); border: 1px solid var(--border-color); font-weight: 600; font-size: 13px; cursor: pointer; border-radius: 8px; color: var(--text-muted); transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.03); display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
+    .tab-btn.active { background: var(--primary); color: #FFFFFF; border-color: var(--primary); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+    .tab-btn:hover:not(.active) { background: #E2E8F0; }
+    .btn-home { background-color: #E2E8F0; color: var(--primary); font-weight: 700; }
+    .btn-home:hover { background-color: #CBD5E1; }
+
+    /* BOTÕES GENERALES */
+    .btn-add { background-color: var(--focus-blue); color: white; border: none; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 4px rgba(47, 95, 208, 0.2); }
+    .btn-add:hover { background-color: #1e3a8a; }
+    .btn-outline { background-color: transparent; border: 1px solid var(--border-color); color: var(--text-muted); padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer; transition: 0.2s; }
+    .btn-outline:hover { background-color: #F1F5F9; color: var(--primary); }
+    .btn-danger { background-color: #FEE2E2; color: #DC2626; border: 1px solid #FCA5A5; padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 12px; cursor: pointer; }
+    .btn-danger:hover { background-color: #EF4444; color: white; }
+
+    /* CONTROLE DE ABAS */
+    .tab-content { display: none !important; }
+    .tab-content.active { display: block !important; }
+
+    /* CARDS KPIS */
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .kpi-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+    .kpi-card .label { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+    .kpi-card .num { font-size: 28px; font-weight: 800; line-height: 1.2; }
+    .kpi-card .sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+    /* CONTAINER BRANCO */
+    .white-box { background: #FFFFFF; border: 1px solid var(--border-color); border-radius: var(--radius); padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+    .box-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
+    .box-title { font-size: 16px; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* GRÁFICOS GRID */
+    .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; margin-bottom: 24px; }
+    .chart-container { position: relative; height: 280px; width: 100%; }
+
+    /* TABELAS */
+    .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .data-table th { background: #F8FAFC; color: #475569; font-weight: 700; text-transform: uppercase; font-size: 11px; padding: 12px; border-bottom: 2px solid var(--border-color); text-align: left; }
+    .data-table td { padding: 12px; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
+
+    .badge-income { background: #D1FAE5; color: #065F46; padding: 4px 8px; border-radius: 4px; font-weight: 700; font-size: 11px; }
+    .badge-expense { background: #FEF2F2; color: #991B1B; padding: 4px 8px; border-radius: 4px; font-weight: 700; font-size: 11px; }
+
+    /* FORMULÁRIOS & MODAIS */
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); z-index: 1000; justify-content: center; align-items: center; padding: 16px; backdrop-filter: blur(3px); }
+    .modal-overlay.active { display: flex; }
+    .modal-box { background: var(--card-bg); width: 100%; max-width: 500px; border-radius: var(--radius); padding: 28px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+    .form-group { margin-bottom: 14px; }
+    .form-group label { display: block; font-size: 11px; font-weight: 700; color: var(--text-dark); text-transform: uppercase; margin-bottom: 6px; }
+    .form-input { width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; outline: none; background: #FFFFFF; }
+    .form-input:focus { border-color: var(--focus-blue); }
+
+    .progress-bar-track { background-color: #E2E8F0; height: 10px; border-radius: 20px; overflow: hidden; margin-top: 6px; }
+    .progress-bar-fill { height: 100%; background-color: var(--success); width: 0%; transition: width 0.3s; }
+  </style>
+</head>
+<body>
+
+<div class="main-wrapper">
+  <!-- BARRA SUPERIOR DE NAVEGAÇÃO -->
+  <div class="top-bar">
+    <div class="nav-tabs">
+      <a href="index.html" class="tab-btn btn-home">🏠 Voltar ao Index</a>
+      <button class="tab-btn active" id="btnTabDash" onclick="switchTab('dash')">📊 Dashboard</button>
+      <button class="tab-btn" id="btnTabLancamentos" onclick="switchTab('lancamentos')">💸 Lançamentos</button>
+      <button class="tab-btn" id="btnTabDividas" onclick="switchTab('dividas')">🎯 Dívidas</button>
+      <button class="tab-btn" id="btnTabApe" onclick="switchTab('ape')">🏠 Contas do Apê</button>
+    </div>
+  </div>
+
+  <!-- PESTAÑA 1: DASHBOARD -->
+  <div id="viewDash" class="tab-content active">
+    <!-- CARDS KPIS -->
+    <div class="kpi-grid">
+      <div class="kpi-card" style="border-top: 4px solid var(--focus-blue);">
+        <div class="label">💰 Saldo do Mês</div>
+        <div class="num" id="kpiSaldo">R$ 0,00</div>
+        <div class="sub" id="kpiReceitaDespesa">Receitas: R$ 0 | Gastos: R$ 0</div>
+      </div>
+
+      <div class="kpi-card" style="border-top: 4px solid var(--success);">
+        <div class="label">📅 Teto Diário de Hoje</div>
+        <div class="num" id="kpiTetoDiario" style="color: var(--success);">R$ 0,00 /dia</div>
+        <div class="sub" id="kpiDiasRestantes">Calculado para 0 dias restantes</div>
+      </div>
+
+      <div class="kpi-card" style="border-top: 4px solid var(--danger);">
+        <div class="label">📉 Total em Dívidas</div>
+        <div class="num" id="kpiTotalDividas" style="color: var(--danger);">R$ 0,00</div>
+        <div class="sub" id="kpiDividasStatus">0 dívidas registradas</div>
+      </div>
+
+      <div class="kpi-card" style="border-top: 4px solid var(--warning);">
+        <div class="label">🤝 Acerto do Apê (50/50)</div>
+        <div class="num" id="kpiApeSaldo">R$ 0,00</div>
+        <div class="sub" id="kpiApeStatus">Tudo quitado</div>
+      </div>
+    </div>
+
+    <!-- GRÁFICOS -->
+    <div class="charts-grid">
+      <!-- HISTÓRICO POR CATEGORIA -->
+      <div class="white-box">
+        <div class="box-header">
+          <div class="box-title">📈 Evolução Histórica de Gastos</div>
+          <select id="chartCategoryFilter" class="form-input" style="width: auto; padding: 4px 8px;" onchange="updateHistoryChart()">
+            <option value="ALL">Todas as Categorias</option>
+          </select>
+        </div>
+        <div class="chart-container">
+          <canvas id="historyChart"></canvas>
+        </div>
+      </div>
+
+      <!-- DISTRIBUIÇÃO MENSAL -->
+      <div class="white-box">
+        <div class="box-header">
+          <div class="box-title">🍕 Gastos do Mês Atual por Categoria</div>
+        </div>
+        <div class="chart-container">
+          <canvas id="categoryChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PESTAÑA 2: LANÇAMENTOS -->
+  <div id="viewLancamentos" class="tab-content">
+    <div class="white-box">
+      <div class="box-header">
+        <div class="box-title">💸 Todos os Lançamentos</div>
+        <button class="btn-add" onclick="openModal('modalLancamento')">➕ Novo Lançamento</button>
+      </div>
+
+      <div style="overflow-x: auto;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Descrição</th>
+              <th>Categoria</th>
+              <th>Tipo</th>
+              <th>Valor</th>
+              <th style="text-align: center;">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tableLancamentos"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- PESTAÑA 3: DÍVIDAS -->
+  <div id="viewDividas" class="tab-content">
+    <div class="white-box">
+      <div class="box-header">
+        <div class="box-title">🎯 Monitoramento de Dívidas</div>
+        <button class="btn-add" onclick="openModal('modalDivida')">➕ Nova Dívida</button>
+      </div>
+
+      <div id="dividasCardsList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px;"></div>
+    </div>
+  </div>
+
+  <!-- PESTAÑA 4: CONTAS DO APÊ -->
+  <div id="viewApe" class="tab-content">
+    <div class="white-box">
+      <div class="box-header">
+        <div>
+          <div class="box-title">🏠 Contas Compartilhadas do Apê (50/50)</div>
+          <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;" id="apeSettlementSummary">Calculando acerto de contas...</p>
+        </div>
+        <button class="btn-add" onclick="openModal('modalApe')">➕ Nova Despesa do Apê</button>
+      </div>
+
+      <div style="overflow-x: auto;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Descrição</th>
+              <th>Quem Pagou</th>
+              <th>Valor Total</th>
+              <th>Sua Parte (50%)</th>
+              <th style="text-align: center;">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tableApe"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL LANÇAMENTO -->
+<div id="modalLancamento" class="modal-overlay">
+  <div class="modal-box">
+    <div class="box-title" style="margin-bottom: 16px;">NOVO LANÇAMENTO</div>
+    <form onsubmit="saveLancamento(event)">
+      <div class="form-group">
+        <label>Descrição</label>
+        <input type="text" id="lDesc" class="form-input" placeholder="Ex: Supermercado, Salário..." required>
+      </div>
+      <div class="form-group">
+        <label>Valor (R$)</label>
+        <input type="number" step="0.01" id="lValor" class="form-input" placeholder="0.00" required>
+      </div>
+      <div class="form-group">
+        <label>Tipo</label>
+        <select id="lTipo" class="form-input" required>
+          <option value="EXPENSE">🔴 Despesa (Gasto)</option>
+          <option value="INCOME">🟢 Receita (Entrada)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Categoria</label>
+        <input type="text" id="lCat" class="form-input" placeholder="Ex: Luz, Mercado, Lazer..." required list="catList">
+        <datalist id="catList">
+          <option value="Luz"><option value="Água"><option value="Internet"><option value="Mercado"><option value="Lazer"><option value="Transporte">
+        </datalist>
+      </div>
+      <div class="form-group">
+        <label>Data</label>
+        <input type="date" id="lData" class="form-input" required>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+        <button type="button" class="btn-outline" onclick="closeModal('modalLancamento')">Cancelar</button>
+        <button type="submit" class="btn-add">Salvar Lançamento</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL DÍVIDA -->
+<div id="modalDivida" class="modal-overlay">
+  <div class="modal-box">
+    <div class="box-title" style="margin-bottom: 16px;">NOVA DÍVIDA / PENDÊNCIA</div>
+    <form onsubmit="saveDivida(event)">
+      <div class="form-group">
+        <label>Credor / Nome da Dívida</label>
+        <input type="text" id="dNome" class="form-input" placeholder="Ex: Empréstimo, Cartão de Crédito..." required>
+      </div>
+      <div class="form-group">
+        <label>Valor Total da Dívida (R$)</label>
+        <input type="number" step="0.01" id="dValorTotal" class="form-input" placeholder="0.00" required>
+      </div>
+      <div class="form-group">
+        <label>Valor Já Pago (R$)</label>
+        <input type="number" step="0.01" id="dValorPago" class="form-input" placeholder="0.00" value="0">
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+        <button type="button" class="btn-outline" onclick="closeModal('modalDivida')">Cancelar</button>
+        <button type="submit" class="btn-add">Salvar Dívida</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL APÊ -->
+<div id="modalApe" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-title box-title" style="margin-bottom: 16px;">NOVA DESPESA COMPARTILHADA DO APÊ</div>
+    <form onsubmit="saveApe(event)">
+      <div class="form-group">
+        <label>Descrição da Conta</label>
+        <input type="text" id="aDesc" class="form-input" placeholder="Ex: Aluguel, Conta de Luz..." required>
+      </div>
+      <div class="form-group">
+        <label>Valor Total da Conta (R$)</label>
+        <input type="number" step="0.01" id="aValor" class="form-input" placeholder="0.00" required>
+      </div>
+      <div class="form-group">
+        <label>Quem Pagou?</label>
+        <select id="aQuem" class="form-input" required>
+          <option value="VOCE">🙋‍♂️ Eu paguei total</option>
+          <option value="COLEGA">🧑‍🤝‍🧑 Colega de Apê pagou total</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Data</label>
+        <input type="date" id="aData" class="form-input" required>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+        <button type="button" class="btn-outline" onclick="closeModal('modalApe')">Cancelar</button>
+        <button type="submit" class="btn-add">Salvar Conta</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  let financeData = {
+    transactions: [],
+    debts: [],
+    apeExpenses: []
+  };
+
+  let historyChartInstance = null;
+  let categoryChartInstance = null;
+
+  window.onload = function() {
+    const saved = localStorage.getItem('personalFinanceData');
+    if (saved) {
+      try { financeData = JSON.parse(saved); } catch(e) { console.error("Error loading finance data", e); }
+    }
+    
+    // Configura data padrão de hoje nos inputs
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('lData').value = today;
+    document.getElementById('aData').value = today;
+
+    refreshAll();
+  };
+
+  function saveData() {
+    localStorage.setItem('personalFinanceData', JSON.stringify(financeData));
+    refreshAll();
+  }
+
+  function refreshAll() {
+    renderKPIs();
+    renderTransactionsTable();
+    renderDebtsList();
+    renderApeTable();
+    populateCategoryFilter();
+    initOrUpdateCharts();
+  }
+
+  function switchTab(tabKey) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+    if(tabKey === 'dash') {
+      document.getElementById('viewDash').classList.add('active');
+      document.getElementById('btnTabDash').classList.add('active');
+    } else if(tabKey === 'lancamentos') {
+      document.getElementById('viewLancamentos').classList.add('active');
+      document.getElementById('btnTabLancamentos').classList.add('active');
+    } else if(tabKey === 'dividas') {
+      document.getElementById('viewDividas').classList.add('active');
+      document.getElementById('btnTabDividas').classList.add('active');
+    } else if(tabKey === 'ape') {
+      document.getElementById('viewApe').classList.add('active');
+      document.getElementById('btnTabApe').classList.add('active');
+    }
+  }
+
+  // --- KPIS E CÁLCULOS ---
+  function renderKPIs() {
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+
+    // 1. Saldo do Mês
+    let monthIncome = 0;
+    let monthExpense = 0;
+
+    financeData.transactions.forEach(t => {
+      const d = new Date(t.date);
+      if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
+        if (t.type === 'INCOME') monthIncome += parseFloat(t.amount);
+        else monthExpense += parseFloat(t.amount);
+      }
+    });
+
+    const netMonth = monthIncome - monthExpense;
+    document.getElementById('kpiSaldo').textContent = formatBRL(netMonth);
+    document.getElementById('kpiReceitaDespesa').textContent = `Entradas: ${formatBRL(monthIncome)} | Gastos: ${formatBRL(monthExpense)}`;
+
+    // 2. Teto Diário de Hoje
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+    const remainingDays = daysInMonth - now.getDate() + 1; // contando com hoje
+    const dailyLimit = netMonth > 0 ? (netMonth / remainingDays) : 0;
+
+    document.getElementById('kpiTetoDiario').textContent = `${formatBRL(dailyLimit)} /dia`;
+    document.getElementById('kpiDiasRestantes').textContent = `Para os próximos ${remainingDays} dias do mês`;
+
+    // 3. Dívidas
+    let totalDividaPendente = 0;
+    financeData.debts.forEach(d => {
+      totalDividaPendente += Math.max(0, parseFloat(d.totalAmount) - parseFloat(d.paidAmount));
+    });
+    document.getElementById('kpiTotalDividas').textContent = formatBRL(totalDividaPendente);
+    document.getElementById('kpiDividasStatus').textContent = `${financeData.debts.length} pendências ativas`;
+
+    // 4. Balanço do Apê
+    let vocePagou = 0;
+    let colegaPagou = 0;
+    financeData.apeExpenses.forEach(a => {
+      if (a.paidBy === 'VOCE') vocePagou += parseFloat(a.amount);
+      else colegaPagou += parseFloat(a.amount);
+    });
+
+    const saldoApe = (vocePagou - colegaPagou) / 2;
+    if (saldoApe > 0) {
+      document.getElementById('kpiApeSaldo').textContent = `+ ${formatBRL(saldoApe)}`;
+      document.getElementById('kpiApeSaldo').style.color = "var(--success)";
+      document.getElementById('kpiApeStatus').textContent = "Seu colega deve te pagar este valor";
+      document.getElementById('apeSettlementSummary').textContent = `Seu colega deve te pagar ${formatBRL(saldoApe)} para zerar as contas.`;
+    } else if (saldoApe < 0) {
+      document.getElementById('kpiApeSaldo').textContent = formatBRL(saldoApe);
+      document.getElementById('kpiApeSaldo').style.color = "var(--danger)";
+      document.getElementById('kpiApeStatus').textContent = "Você deve pagar este valor ao seu colega";
+      document.getElementById('apeSettlementSummary').textContent = `Você deve pagar ${formatBRL(Math.abs(saldoApe))} ao seu colega para zerar as contas.`;
+    } else {
+      document.getElementById('kpiApeSaldo').textContent = formatBRL(0);
+      document.getElementById('kpiApeSaldo').style.color = "var(--primary)";
+      document.getElementById('kpiApeStatus').textContent = "Tudo quitado em partes iguais (50/50)";
+      document.getElementById('apeSettlementSummary').textContent = `Todas as contas estão perfeitamente equilibradas em 50/50.`;
+    }
+  }
+
+  // --- TAREFAS / TABELAS ---
+  function renderTransactionsTable() {
+    const tbody = document.getElementById('tableLancamentos');
+    tbody.innerHTML = '';
+
+    const sorted = [...financeData.transactions].sort((a,b) => new Date(b.date) - new Date(a.date));
+
+    if (sorted.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px; color: var(--text-muted);">Nenhum lançamento registrado.</td></tr>';
+      return;
+    }
+
+    sorted.forEach(t => {
+      const tr = document.createElement('tr');
+      const isInc = t.type === 'INCOME';
+      tr.innerHTML = `
+        <td>${t.date}</td>
+        <td style="font-weight: 600;">${t.desc}</td>
+        <td><span class="task-mini-tag">${t.category}</span></td>
+        <td><span class="${isInc ? 'badge-income' : 'badge-expense'}">${isInc ? 'ENTRADA' : 'GASTO'}</span></td>
+        <td style="font-weight: 700; color: ${isInc ? 'var(--success)' : 'var(--danger)'}">${isInc ? '+' : '-'} ${formatBRL(t.amount)}</td>
+        <td style="text-align: center;">
+          <button class="btn-danger" onclick="deleteLancamento('${t.id}')">X</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function renderDebtsList() {
+    const container = document.getElementById('dividasCardsList');
+    container.innerHTML = '';
+
+    if (financeData.debts.length === 0) {
+      container.innerHTML = '<p style="color: var(--text-muted); grid-column: 1/-1;">Nenhuma dívida cadastrada.</p>';
+      return;
+    }
+
+    financeData.debts.forEach(d => {
+      const total = parseFloat(d.totalAmount);
+      const paid = parseFloat(d.paidAmount);
+      const remaining = Math.max(0, total - paid);
+      const pct = Math.min(100, Math.round((paid / total) * 100));
+
+      const card = document.createElement('div');
+      card.style.cssText = 'background: #F8FAFC; border: 1px solid var(--border-color); border-radius: 12px; padding: 16px;';
+      card.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 8px;">
+          <h4 style="font-weight: 800; font-size: 15px;">${d.name}</h4>
+          <button class="btn-danger" onclick="deleteDivida('${d.id}')">Excluir</button>
+        </div>
+        <div style="font-size: 12px; color: var(--text-muted);">Total Dívida: ${formatBRL(total)}</div>
+        <div style="font-size: 14px; font-weight: 700; color: var(--danger); margin-top: 4px;">Falta Pagar: ${formatBRL(remaining)}</div>
+        
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill" style="width: ${pct}%;"></div>
+        </div>
+        <div style="display:flex; justify-content:space-between; font-size: 11px; color: var(--text-muted); margin-top: 6px;">
+          <span>Pago: ${formatBRL(paid)} (${pct}%)</span>
+          <button class="btn-outline" style="padding: 2px 6px; font-size: 10px;" onclick="addPaymentToDivida('${d.id}')">+ Amortizar</button>
+        </div>
+      `;
+      container.appendChild(card);
+    });
+  }
+
+  function renderApeTable() {
+    const tbody = document.getElementById('tableApe');
+    tbody.innerHTML = '';
+
+    const sorted = [...financeData.apeExpenses].sort((a,b) => new Date(b.date) - new Date(a.date));
+
+    if (sorted.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px; color: var(--text-muted);">Nenhuma conta do apê registrada.</td></tr>';
+      return;
+    }
+
+    sorted.forEach(a => {
+      const tr = document.createElement('tr');
+      const val = parseFloat(a.amount);
+      const half = val / 2;
+      const isVoce = a.paidBy === 'VOCE';
+
+      tr.innerHTML = `
+        <td>${a.date}</td>
+        <td style="font-weight: 600;">${a.desc}</td>
+        <td><span class="task-mini-tag" style="background:${isVoce ? '#EFF6FF' : '#FEF3C7'}; color:${isVoce ? '#2563EB' : '#D97706'}">${isVoce ? '🙋‍♂️ Você' : '🧑‍🤝‍🧑 Colega'}</span></td>
+        <td style="font-weight: 700;">${formatBRL(val)}</td>
+        <td style="color: var(--text-muted);">${formatBRL(half)}</td>
+        <td style="text-align: center;">
+          <button class="btn-danger" onclick="deleteApe('${a.id}')">X</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  // --- FILTRO DE CATEGORIAS DO GRÁFICO ---
+  function populateCategoryFilter() {
+    const select = document.getElementById('chartCategoryFilter');
+    const currVal = select.value;
+    select.innerHTML = '<option value="ALL">Todas as Categorias</option>';
+
+    const cats = new Set();
+    financeData.transactions.forEach(t => {
+      if (t.type === 'EXPENSE' && t.category) cats.add(t.category.toUpperCase().trim());
+    });
+
+    Array.from(cats).sort().forEach(cat => {
+      const opt = document.createElement('option');
+      opt.value = cat;
+      opt.textContent = cat;
+      if (cat === currVal) opt.selected = true;
+      select.appendChild(opt);
+    });
+  }
+
+  // --- GRÁFICOS (CHART.JS) ---
+  function initOrUpdateCharts() {
+    updateHistoryChart();
+    updateCategoryChart();
+  }
+
+  function updateHistoryChart() {
+    const ctx = document.getElementById('historyChart').getContext('2d');
+    const selectedCat = document.getElementById('chartCategoryFilter').value;
+
+    const monthlyData = {};
+    financeData.transactions.forEach(t => {
+      if (t.type !== 'EXPENSE') return;
+      
+      const cat = (t.category || '').toUpperCase().trim();
+      if (selectedCat !== 'ALL' && cat !== selectedCat) return;
+
+      const dateObj = new Date(t.date);
+      const monthKey = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
+
+      if (!monthlyData[monthKey]) monthlyData[monthKey] = 0;
+      monthlyData[monthKey] += parseFloat(t.amount);
+    });
+
+    const labels = Object.keys(monthlyData).sort();
+    const values = labels.map(k => monthlyData[k]);
+
+    if (historyChartInstance) historyChartInstance.destroy();
+
+    historyChartInstance = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: selectedCat === 'ALL' ? 'Gastos Totais (R$)' : `Gastos em ${selectedCat} (R$)`,
+          data: values,
+          borderColor: '#2F5FD0',
+          backgroundColor: 'rgba(47, 95, 208, 0.1)',
+          fill: true,
+          tension: 0.3,
+          borderWidth: 3
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: true } },
+        scales: { y: { beginAtZero: true } }
+      }
+    });
+  }
+
+  function updateCategoryChart() {
+    const ctx = document.getElementById('categoryChart').getContext('2d');
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+
+    const catSums = {};
+    financeData.transactions.forEach(t => {
+      if (t.type !== 'EXPENSE') return;
+      const d = new Date(t.date);
+      if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
+        const cat = (t.category || 'Outros').toUpperCase().trim();
+        if (!catSums[cat]) catSums[cat] = 0;
+        catSums[cat] += parseFloat(t.amount);
+      }
+    });
+
+    const labels = Object.keys(catSums);
+    const values = labels.map(k => catSums[k]);
+
+    if (categoryChartInstance) categoryChartInstance.destroy();
+
+    categoryChartInstance = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: labels.length > 0 ? labels : ['Sem lançamentos'],
+        datasets: [{
+          data: values.length > 0 ? values : [1],
+          backgroundColor: ['#2F5FD0', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#64748B']
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'right' } }
+      }
+    });
+  }
+
+  // --- OPERAÇÕES SALVAR / EXCLUIR ---
+  function saveLancamento(e) {
+    e.preventDefault();
+    const desc = document.getElementById('lDesc').value.trim();
+    const valor = parseFloat(document.getElementById('lValor').value);
+    const tipo = document.getElementById('lTipo').value;
+    const cat = document.getElementById('lCat').value.trim();
+    const data = document.getElementById('lData').value;
+
+    financeData.transactions.push({
+      id: 'trans_' + new Date().getTime(),
+      desc, amount: valor, type: tipo, category: cat, date: data
+    });
+
+    saveData();
+    closeModal('modalLancamento');
+    e.target.reset();
+  }
+
+  function deleteLancamento(id) {
+    financeData.transactions = financeData.transactions.filter(t => t.id !== id);
+    saveData();
+  }
+
+  function saveDivida(e) {
+    e.preventDefault();
+    const nome = document.getElementById('dNome').value.trim();
+    const total = parseFloat(document.getElementById('dValorTotal').value);
+    const pago = parseFloat(document.getElementById('dValorPago').value) || 0;
+
+    financeData.debts.push({
+      id: 'debt_' + new Date().getTime(),
+      name: nome, totalAmount: total, paidAmount: pago
+    });
+
+    saveData();
+    closeModal('modalDivida');
+    e.target.reset();
+  }
+
+  function addPaymentToDivida(id) {
+    const val = prompt("Digite o valor que deseja amortizar nesta dívida (R$):");
+    if (val && !isNaN(parseFloat(val))) {
+      const debt = financeData.debts.find(d => d.id === id);
+      if (debt) {
+        debt.paidAmount = parseFloat(debt.paidAmount) + parseFloat(val);
+        saveData();
+      }
+    }
+  }
+
+  function deleteDivida(id) {
+    if (confirm("Deseja realmente remover esta dívida?")) {
+      financeData.debts = financeData.debts.filter(d => d.id !== id);
+      saveData();
+    }
+  }
+
+  function saveApe(e) {
+    e.preventDefault();
+    const desc = document.getElementById('aDesc').value.trim();
+    const valor = parseFloat(document.getElementById('aValor').value);
+    const quem = document.getElementById('aQuem').value;
+    const data = document.getElementById('aData').value;
+
+    financeData.apeExpenses.push({
+      id: 'ape_' + new Date().getTime(),
+      desc, amount: valor, paidBy: quem, date: data
+    });
+
+    saveData();
+    closeModal('modalApe');
+    e.target.reset();
+  }
+
+  function deleteApe(id) {
+    financeData.apeExpenses = financeData.apeExpenses.filter(a => a.id !== id);
+    saveData();
+  }
+
+  // --- AUXILIARES ---
+  function openModal(modalId) {
+    document.getElementById(modalId).classList.add('active');
+  }
+
+  function closeModal(modalId) {
+    document.getElementById(modalId).classList.remove('active');
+  }
+
+  function formatBRL(val) {
+    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val || 0);
+  }
+</script>
+
+</body>
+</html>
