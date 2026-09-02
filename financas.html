@@ -616,7 +616,11 @@
   }
 
   function saveData() {
-    localStorage.setItem('personalFinanceData', JSON.stringify(financeData));
+    try {
+      localStorage.setItem('personalFinanceData', JSON.stringify(financeData));
+    } catch(err) {
+      alert("Erro ao gravar dados no navegador: " + err.message);
+    }
     refreshAll();
   }
 
@@ -635,16 +639,20 @@
   }
 
   function refreshAll() {
-    renderKPIs();
-    renderTransactionsTable();
-    renderDashRecentLancamentos();
-    renderSavingsList();
-    renderDebtsList();
-    renderDividasQuitadasTable();
-    renderApeTable();
-    renderSettlementStatsSummary();
-    populateCategoryFilters();
-    initOrUpdateCharts();
+    try {
+      renderKPIs();
+      renderTransactionsTable();
+      renderDashRecentLancamentos();
+      renderSavingsList();
+      renderDebtsList();
+      renderDividasQuitadasTable();
+      renderApeTable();
+      renderSettlementStatsSummary();
+      populateCategoryFilters();
+      initOrUpdateCharts();
+    } catch(err) {
+      console.error("Erro na atualização da interface:", err);
+    }
   }
 
   function switchTab(tabKey) {
@@ -1123,45 +1131,49 @@
 
   // --- ACERTO COMPARTILHADO ---
   function saveReceberApe(e) {
-    e.preventDefault();
-    if (!financeData.transactions) financeData.transactions = [];
-    if (!financeData.apeExpenses) financeData.apeExpenses = [];
+    if (e && e.preventDefault) e.preventDefault();
+    try {
+      if (!financeData.transactions) financeData.transactions = [];
+      if (!financeData.apeExpenses) financeData.apeExpenses = [];
 
-    const tipo = document.getElementById('rTipo').value;
-    const valor = parseFloat(document.getElementById('rValor').value) || 0;
-    const descInput = document.getElementById('rDesc').value.trim();
-    const data = document.getElementById('rData').value || new Date().toISOString().split('T')[0];
-    const isInc = (tipo === 'RECEBI');
+      const tipo = document.getElementById('rTipo').value;
+      const valor = parseFloat(document.getElementById('rValor').value) || 0;
+      const descInput = document.getElementById('rDesc').value.trim();
+      const data = document.getElementById('rData').value || new Date().toISOString().split('T')[0];
+      const isInc = (tipo === 'RECEBI');
 
-    const defaultDesc = isInc ? 'Recebimento de Acerto Compartilhado' : 'Pagamento de Acerto Compartilhado';
-    const finalDesc = descInput || defaultDesc;
+      const defaultDesc = isInc ? 'Recebimento de Acerto Compartilhado' : 'Pagamento de Acerto Compartilhado';
+      const finalDesc = descInput || defaultDesc;
 
-    const transId = 'trans_' + new Date().getTime();
-    financeData.transactions.push({
-      id: transId,
-      desc: finalDesc,
-      amount: valor,
-      type: isInc ? 'INCOME' : 'EXPENSE',
-      category: 'Contas Compartilhadas',
-      subcategory: 'Acerto Direto',
-      date: data
-    });
+      const transId = 'trans_' + new Date().getTime();
+      financeData.transactions.push({
+        id: transId,
+        desc: finalDesc,
+        amount: valor,
+        type: isInc ? 'INCOME' : 'EXPENSE',
+        category: 'Contas Compartilhadas',
+        subcategory: 'Acerto Direto',
+        date: data
+      });
 
-    financeData.apeExpenses.push({
-      id: 'ape_' + new Date().getTime(),
-      desc: finalDesc,
-      amount: valor,
-      paidBy: isInc ? 'COLEGA_REEMBOLSO' : 'VOCE_REEMBOLSO',
-      peopleCount: 1,
-      date: data,
-      settled: true,
-      isReimbursement: true,
-      settlementTransId: transId
-    });
+      financeData.apeExpenses.push({
+        id: 'ape_' + new Date().getTime(),
+        desc: finalDesc,
+        amount: valor,
+        paidBy: isInc ? 'COLEGA_REEMBOLSO' : 'VOCE_REEMBOLSO',
+        peopleCount: 1,
+        date: data,
+        settled: true,
+        isReimbursement: true,
+        settlementTransId: transId
+      });
 
-    saveData();
-    closeModal('modalReceberApe');
-    if (e && e.target && typeof e.target.reset === 'function') e.target.reset();
+      saveData();
+      closeModal('modalReceberApe');
+      if (e && e.target && typeof e.target.reset === 'function') e.target.reset();
+    } catch(err) {
+      alert("Erro ao registrar acerto: " + err.message);
+    }
   }
 
   function settleApeSingle(id) {
@@ -1186,9 +1198,7 @@
         descPrefix = 'Pagamento Acerto:';
     }
 
-    if (confirm(`Saldar individualmente esta conta compartilhada?
-
-Isso gerará automaticamente um lançamento de ${formatCurr(transAmount)} (sua parte do acerto).`)) {
+    if (confirm(`Saldar individualmente esta conta compartilhada?\n\nIsso gerará automaticamente um lançamento de ${formatCurr(transAmount)} (sua parte do acerto).`)) {
         const transId = 'trans_' + new Date().getTime();
         financeData.transactions.push({
             id: transId,
@@ -1210,9 +1220,7 @@ Isso gerará automaticamente um lançamento de ${formatCurr(transAmount)} (sua p
     const a = financeData.apeExpenses.find(x => x.id === id);
     if (!a) return;
 
-    if (confirm(`Desfazer a quitação desta conta compartilhada?
-
-Isso removerá o lançamento gerado automaticamente no acerto.`)) {
+    if (confirm(`Desfazer a quitação desta conta compartilhada?\n\nIsso removerá o lançamento gerado automaticamente no acerto.`)) {
         a.settled = false;
         if (a.settlementTransId) {
             financeData.transactions = (financeData.transactions || []).filter(t => t.id !== a.settlementTransId);
@@ -1311,13 +1319,22 @@ Isso removerá o lançamento gerado automaticamente no acerto.`)) {
     });
   }
 
-  // --- GRÁFICOS ---
+  // --- GRÁFICOS PROTEGIDOS CONTRA FALHAS DE CDN ---
   function initOrUpdateCharts() {
-    updateHistoryChart();
-    updateCategoryChart();
+    if (typeof Chart === 'undefined') {
+      console.warn("Chart.js não está carregado. Gráficos desativados.");
+      return;
+    }
+    try {
+      updateHistoryChart();
+      updateCategoryChart();
+    } catch(err) {
+      console.error("Erro nos gráficos:", err);
+    }
   }
 
   function updateHistoryChart() {
+    if (typeof Chart === 'undefined') return;
     const ctx = document.getElementById('historyChart').getContext('2d');
     const selectedCat = document.getElementById('chartCategoryFilter').value;
     const selectedSub = document.getElementById('chartSubCategoryFilter').value;
@@ -1433,6 +1450,7 @@ Isso removerá o lançamento gerado automaticamente no acerto.`)) {
   }
 
   function updateCategoryChart() {
+    if (typeof Chart === 'undefined') return;
     const ctx = document.getElementById('categoryChart').getContext('2d');
     const catSums = {};
 
@@ -1475,32 +1493,36 @@ Isso removerá o lançamento gerado automaticamente no acerto.`)) {
   // --- OPERAÇÕES LANÇAMENTOS ---
   function saveLancamento(e) {
     if (e && e.preventDefault) e.preventDefault();
-    if (!financeData.transactions) financeData.transactions = [];
+    try {
+      if (!financeData.transactions) financeData.transactions = [];
 
-    const editId = document.getElementById('lEditId').value;
-    const desc = document.getElementById('lDesc').value.trim();
-    const valor = parseFloat(document.getElementById('lValor').value) || 0;
-    const tipo = document.getElementById('lTipo').value || 'EXPENSE';
-    const cat = document.getElementById('lCat').value.trim() || 'Geral';
-    const subcat = document.getElementById('lSubCat').value.trim() || '';
-    const data = document.getElementById('lData').value || new Date().toISOString().split('T')[0];
+      const editId = document.getElementById('lEditId').value;
+      const desc = document.getElementById('lDesc').value.trim();
+      const valor = parseFloat(document.getElementById('lValor').value) || 0;
+      const tipo = document.getElementById('lTipo').value || 'EXPENSE';
+      const cat = document.getElementById('lCat').value.trim() || 'Geral';
+      const subcat = document.getElementById('lSubCat').value.trim() || '';
+      const data = document.getElementById('lData').value || new Date().toISOString().split('T')[0];
 
-    if (editId) {
-      const item = financeData.transactions.find(t => t.id === editId);
-      if (item) {
-        item.desc = desc; item.amount = valor; item.type = tipo;
-        item.category = cat; item.subcategory = subcat; item.date = data;
+      if (editId) {
+        const item = financeData.transactions.find(t => t.id === editId);
+        if (item) {
+          item.desc = desc; item.amount = valor; item.type = tipo;
+          item.category = cat; item.subcategory = subcat; item.date = data;
+        }
+      } else {
+        financeData.transactions.push({
+          id: 'trans_' + new Date().getTime(),
+          desc, amount: valor, type: tipo, category: cat, subcategory: subcat, date: data
+        });
       }
-    } else {
-      financeData.transactions.push({
-        id: 'trans_' + new Date().getTime(),
-        desc, amount: valor, type: tipo, category: cat, subcategory: subcat, date: data
-      });
-    }
 
-    saveData();
-    closeModal('modalLancamento');
-    if (e && e.target && typeof e.target.reset === 'function') e.target.reset();
+      saveData();
+      closeModal('modalLancamento');
+      if (e && e.target && typeof e.target.reset === 'function') e.target.reset();
+    } catch(err) {
+      alert("Erro ao salvar lançamento: " + err.message);
+    }
   }
 
   function editLancamento(id) {
@@ -1527,32 +1549,36 @@ Isso removerá o lançamento gerado automaticamente no acerto.`)) {
   // --- OPERAÇÕES POUPANÇA & METAS ---
   function savePoupanca(e) {
     if (e && e.preventDefault) e.preventDefault();
-    if (!financeData.savings) financeData.savings = [];
+    try {
+      if (!financeData.savings) financeData.savings = [];
 
-    const editId = document.getElementById('pEditId').value;
-    const nome = document.getElementById('pNome').value.trim();
-    const meta = parseFloat(document.getElementById('pValorMeta').value) || 0;
-    const atual = parseFloat(document.getElementById('pValorAtual').value) || 0;
+      const editId = document.getElementById('pEditId').value;
+      const nome = document.getElementById('pNome').value.trim();
+      const meta = parseFloat(document.getElementById('pValorMeta').value) || 0;
+      const atual = parseFloat(document.getElementById('pValorAtual').value) || 0;
 
-    if (editId) {
-      const item = financeData.savings.find(s => s.id === editId);
-      if (item) { 
-        item.name = nome; 
-        if(!item.areas || item.areas.length === 0) {
-          item.targetAmount = meta;
-          item.currentAmount = atual;
+      if (editId) {
+        const item = financeData.savings.find(s => s.id === editId);
+        if (item) { 
+          item.name = nome; 
+          if(!item.areas || item.areas.length === 0) {
+            item.targetAmount = meta;
+            item.currentAmount = atual;
+          }
         }
+      } else {
+        financeData.savings.push({
+          id: 'sav_' + new Date().getTime(),
+          name: nome, targetAmount: meta, currentAmount: atual, areas: []
+        });
       }
-    } else {
-      financeData.savings.push({
-        id: 'sav_' + new Date().getTime(),
-        name: nome, targetAmount: meta, currentAmount: atual, areas: []
-      });
-    }
 
-    saveData();
-    closeModal('modalPoupanca');
-    if (e && e.target && typeof e.target.reset === 'function') e.target.reset();
+      saveData();
+      closeModal('modalPoupanca');
+      if (e && e.target && typeof e.target.reset === 'function') e.target.reset();
+    } catch(err) {
+      alert("Erro ao salvar meta de poupança: " + err.message);
+    }
   }
 
   function editPoupanca(id) {
@@ -1618,29 +1644,33 @@ Isso removerá o lançamento gerado automaticamente no acerto.`)) {
 
   function savePoupancaArea(e) {
     if (e && e.preventDefault) e.preventDefault();
-    const goalId = document.getElementById('paGoalId').value;
-    const areaId = document.getElementById('paAreaId').value;
-    const nome = document.getElementById('paNome').value.trim();
-    const meta = parseFloat(document.getElementById('paValorMeta').value) || 0;
-    const atual = parseFloat(document.getElementById('paValorAtual').value) || 0;
+    try {
+      const goalId = document.getElementById('paGoalId').value;
+      const areaId = document.getElementById('paAreaId').value;
+      const nome = document.getElementById('paNome').value.trim();
+      const meta = parseFloat(document.getElementById('paValorMeta').value) || 0;
+      const atual = parseFloat(document.getElementById('paValorAtual').value) || 0;
 
-    const goal = (financeData.savings || []).find(s => s.id === goalId);
-    if (goal) {
-      if (!goal.areas) goal.areas = [];
-      if (areaId) {
-        const area = goal.areas.find(a => a.id === areaId);
-        if (area) { area.name = nome; area.targetAmount = meta; area.currentAmount = atual; }
-      } else {
-        goal.areas.push({
-          id: 'area_' + new Date().getTime(),
-          name: nome, targetAmount: meta, currentAmount: atual
-        });
+      const goal = (financeData.savings || []).find(s => s.id === goalId);
+      if (goal) {
+        if (!goal.areas) goal.areas = [];
+        if (areaId) {
+          const area = goal.areas.find(a => a.id === areaId);
+          if (area) { area.name = nome; area.targetAmount = meta; area.currentAmount = atual; }
+        } else {
+          goal.areas.push({
+            id: 'area_' + new Date().getTime(),
+            name: nome, targetAmount: meta, currentAmount: atual
+          });
+        }
+        saveData();
       }
-      saveData();
-    }
 
-    closeModal('modalPoupancaArea');
-    if (e && e.target && typeof e.target.reset === 'function') e.target.reset();
+      closeModal('modalPoupancaArea');
+      if (e && e.target && typeof e.target.reset === 'function') e.target.reset();
+    } catch(err) {
+      alert("Erro ao salvar área da meta: " + err.message);
+    }
   }
 
   function addDepositToPoupancaMain(id) {
@@ -1711,28 +1741,32 @@ Isso removerá o lançamento gerado automaticamente no acerto.`)) {
   // --- OPERAÇÕES EMPRÉSTIMOS ---
   function saveDivida(e) {
     if (e && e.preventDefault) e.preventDefault();
-    if (!financeData.debts) financeData.debts = [];
+    try {
+      if (!financeData.debts) financeData.debts = [];
 
-    const editId = document.getElementById('dEditId').value;
-    const category = document.getElementById('dCategory').value;
-    const nome = document.getElementById('dNome').value.trim();
-    const tipo = document.getElementById('dTipo').value;
-    const total = parseFloat(document.getElementById('dValorTotal').value) || 0;
-    const pago = parseFloat(document.getElementById('dValorPago').value) || 0;
+      const editId = document.getElementById('dEditId').value;
+      const category = document.getElementById('dCategory').value;
+      const nome = document.getElementById('dNome').value.trim();
+      const tipo = document.getElementById('dTipo').value;
+      const total = parseFloat(document.getElementById('dValorTotal').value) || 0;
+      const pago = parseFloat(document.getElementById('dValorPago').value) || 0;
 
-    if (editId) {
-      const item = financeData.debts.find(d => d.id === editId);
-      if (item) { item.category = category; item.name = nome; item.type = tipo; item.totalAmount = total; item.paidAmount = pago; }
-    } else {
-      financeData.debts.push({
-        id: 'debt_' + new Date().getTime(),
-        category: category, name: nome, type: tipo, totalAmount: total, paidAmount: pago, settledDate: null
-      });
+      if (editId) {
+        const item = financeData.debts.find(d => d.id === editId);
+        if (item) { item.category = category; item.name = nome; item.type = tipo; item.totalAmount = total; item.paidAmount = pago; }
+      } else {
+        financeData.debts.push({
+          id: 'debt_' + new Date().getTime(),
+          category: category, name: nome, type: tipo, totalAmount: total, paidAmount: pago, settledDate: null
+        });
+      }
+
+      saveData();
+      closeModal('modalDivida');
+      if (e && e.target && typeof e.target.reset === 'function') e.target.reset();
+    } catch(err) {
+      alert("Erro ao salvar empréstimo: " + err.message);
     }
-
-    saveData();
-    closeModal('modalDivida');
-    if (e && e.target && typeof e.target.reset === 'function') e.target.reset();
   }
 
   function editDivida(id) {
@@ -1784,28 +1818,32 @@ Isso removerá o lançamento gerado automaticamente no acerto.`)) {
   // --- OPERAÇÕES CONTAS COMPARTILHADAS ---
   function saveApe(e) {
     if (e && e.preventDefault) e.preventDefault();
-    if (!financeData.apeExpenses) financeData.apeExpenses = [];
+    try {
+      if (!financeData.apeExpenses) financeData.apeExpenses = [];
 
-    const editId = document.getElementById('aEditId').value;
-    const desc = document.getElementById('aDesc').value.trim();
-    const valor = parseFloat(document.getElementById('aValor').value) || 0;
-    const quem = document.getElementById('aQuem').value;
-    const pessoas = parseInt(document.getElementById('aPessoas').value) || 2;
-    const data = document.getElementById('aData').value || new Date().toISOString().split('T')[0];
+      const editId = document.getElementById('aEditId').value;
+      const desc = document.getElementById('aDesc').value.trim();
+      const valor = parseFloat(document.getElementById('aValor').value) || 0;
+      const quem = document.getElementById('aQuem').value;
+      const pessoas = parseInt(document.getElementById('aPessoas').value) || 2;
+      const data = document.getElementById('aData').value || new Date().toISOString().split('T')[0];
 
-    if (editId) {
-      const item = financeData.apeExpenses.find(a => a.id === editId);
-      if (item) { item.desc = desc; item.amount = valor; item.paidBy = quem; item.peopleCount = pessoas; item.date = data; }
-    } else {
-      financeData.apeExpenses.push({
-        id: 'ape_' + new Date().getTime(),
-        desc, amount: valor, paidBy: quem, peopleCount: pessoas, date: data, settled: false
-      });
+      if (editId) {
+        const item = financeData.apeExpenses.find(a => a.id === editId);
+        if (item) { item.desc = desc; item.amount = valor; item.paidBy = quem; item.peopleCount = pessoas; item.date = data; }
+      } else {
+        financeData.apeExpenses.push({
+          id: 'ape_' + new Date().getTime(),
+          desc, amount: valor, paidBy: quem, peopleCount: pessoas, date: data, settled: false
+        });
+      }
+
+      saveData();
+      closeModal('modalApe');
+      if (e && e.target && typeof e.target.reset === 'function') e.target.reset();
+    } catch(err) {
+      alert("Erro ao salvar conta compartilhada: " + err.message);
     }
-
-    saveData();
-    closeModal('modalApe');
-    if (e && e.target && typeof e.target.reset === 'function') e.target.reset();
   }
 
   function editApe(id) {
