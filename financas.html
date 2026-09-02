@@ -565,7 +565,18 @@
   window.onload = function() {
     const saved = localStorage.getItem('personalFinanceData');
     if (saved) {
-      try { financeData = Object.assign({ currency: "€", savings: [], debts: [], apeExpenses: [] }, JSON.parse(saved)); } catch(e) { console.error("Error loading finance data", e); }
+      try { 
+        const parsed = JSON.parse(saved);
+        financeData = {
+          currency: parsed.currency || "€",
+          transactions: Array.isArray(parsed.transactions) ? parsed.transactions : [],
+          savings: Array.isArray(parsed.savings) ? parsed.savings : [],
+          debts: Array.isArray(parsed.debts) ? parsed.debts : [],
+          apeExpenses: Array.isArray(parsed.apeExpenses) ? parsed.apeExpenses : []
+        };
+      } catch(e) { 
+        console.error("Error loading finance data", e); 
+      }
     }
     
     document.getElementById('currencySelect').value = financeData.currency || "€";
@@ -663,9 +674,9 @@
     let monthIncome = 0;
     let monthExpense = 0;
 
-    financeData.transactions.filter(t => isDateInRange(t.date)).forEach(t => {
-      if (t.type === 'INCOME') monthIncome += parseFloat(t.amount);
-      else monthExpense += parseFloat(t.amount);
+    (financeData.transactions || []).filter(t => isDateInRange(t.date)).forEach(t => {
+      if (t.type === 'INCOME') monthIncome += parseFloat(t.amount || 0);
+      else monthExpense += parseFloat(t.amount || 0);
     });
 
     const netMonth = monthIncome - monthExpense;
@@ -705,8 +716,8 @@
     let totalMeDevemPessoas = 0;
     let totalEuDevoPessoas = 0;
 
-    financeData.debts.forEach(d => {
-      const rem = Math.max(0, parseFloat(d.totalAmount) - parseFloat(d.paidAmount));
+    (financeData.debts || []).forEach(d => {
+      const rem = Math.max(0, parseFloat(d.totalAmount || 0) - parseFloat(d.paidAmount || 0));
       if (rem > 0) {
         const category = d.category || 'PESSOAL';
         if (category === 'BANCARIO') {
@@ -732,9 +743,9 @@
     document.getElementById('kpiAjustesPessoasStatus').textContent = `A receber: ${formatCurr(totalMeDevemPessoas)} | A pagar: ${formatCurr(totalEuDevoPessoas)}`;
 
     let apeNetBalance = 0;
-    financeData.apeExpenses.filter(a => isDateInRange(a.date)).forEach(a => {
+    (financeData.apeExpenses || []).filter(a => isDateInRange(a.date)).forEach(a => {
       if (a.settled && !a.isReimbursement) return;
-      const val = parseFloat(a.amount);
+      const val = parseFloat(a.amount || 0);
 
       if (a.isReimbursement) {
         if (a.paidBy === 'COLEGA_REEMBOLSO') apeNetBalance -= val;
@@ -777,9 +788,9 @@
     let totalQuitadasCount = 0;
     let lastDate = null;
 
-    financeData.debts.forEach(d => {
-      const total = parseFloat(d.totalAmount);
-      const paid = parseFloat(d.paidAmount);
+    (financeData.debts || []).forEach(d => {
+      const total = parseFloat(d.totalAmount || 0);
+      const paid = parseFloat(d.paidAmount || 0);
       if (paid >= total && total > 0) {
         totalQuitadasCount++;
         totalSaldado += total;
@@ -815,7 +826,7 @@
     const tbody = document.getElementById('tableLancamentos');
     tbody.innerHTML = '';
 
-    const sorted = financeData.transactions.filter(t => isDateInRange(t.date)).sort((a,b) => new Date(b.date) - new Date(a.date));
+    const sorted = (financeData.transactions || []).filter(t => isDateInRange(t.date)).sort((a,b) => new Date(b.date) - new Date(a.date));
 
     if (sorted.length === 0) {
       tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 20px; color: var(--text-muted);">Nenhum lançamento registrado.</td></tr>';
@@ -846,7 +857,7 @@
     if (!tbody) return;
     tbody.innerHTML = '';
 
-    const sorted = financeData.transactions.filter(t => isDateInRange(t.date)).sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
+    const sorted = (financeData.transactions || []).filter(t => isDateInRange(t.date)).sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
 
     if (sorted.length === 0) {
       tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px; color: var(--text-muted);">Nenhum lançamento recente.</td></tr>';
@@ -978,7 +989,7 @@
     const container = document.getElementById('dividasCardsList');
     container.innerHTML = '';
 
-    const pendentes = financeData.debts.filter(d => (parseFloat(d.totalAmount) - parseFloat(d.paidAmount)) > 0);
+    const pendentes = (financeData.debts || []).filter(d => (parseFloat(d.totalAmount || 0) - parseFloat(d.paidAmount || 0)) > 0);
 
     if (pendentes.length === 0) {
       container.innerHTML = '<p style="color: var(--text-muted); grid-column: 1/-1;">Nenhum registro de empréstimo ou crédito pendente em aberto no momento. 🎉</p>';
@@ -986,8 +997,8 @@
     }
 
     pendentes.forEach(d => {
-      const total = parseFloat(d.totalAmount);
-      const paid = parseFloat(d.paidAmount);
+      const total = parseFloat(d.totalAmount || 0);
+      const paid = parseFloat(d.paidAmount || 0);
       const remaining = Math.max(0, total - paid);
       const pct = Math.min(100, Math.round((paid / total) * 100));
       const isConcedido = (d.type === 'CONCEDIDO');
@@ -1043,7 +1054,7 @@
     if (!tbody) return;
     tbody.innerHTML = '';
 
-    const quitadas = financeData.debts.filter(d => (parseFloat(d.paidAmount) >= parseFloat(d.totalAmount)) && parseFloat(d.totalAmount) > 0);
+    const quitadas = (financeData.debts || []).filter(d => (parseFloat(d.paidAmount || 0) >= parseFloat(d.totalAmount || 0)) && parseFloat(d.totalAmount || 0) > 0);
 
     if (quitadas.length === 0) {
       tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px; color: var(--text-muted);">Nenhum empréstimo ou crédito quitado ainda.</td></tr>';
@@ -1070,7 +1081,7 @@
     const tbody = document.getElementById('tableApe');
     tbody.innerHTML = '';
 
-    const sorted = financeData.apeExpenses.filter(a => isDateInRange(a.date)).sort((a,b) => new Date(b.date) - new Date(a.date));
+    const sorted = (financeData.apeExpenses || []).filter(a => isDateInRange(a.date)).sort((a,b) => new Date(b.date) - new Date(a.date));
 
     if (sorted.length === 0) {
       tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 20px; color: var(--text-muted);">Nenhuma conta compartilhada no período selecionado.</td></tr>';
@@ -1079,7 +1090,7 @@
 
     sorted.forEach(a => {
       const tr = document.createElement('tr');
-      const val = parseFloat(a.amount);
+      const val = parseFloat(a.amount || 0);
       const isReimb = a.isReimbursement;
       const count = parseInt(a.peopleCount) || 2;
       const myShare = isReimb ? val : val / count;
@@ -1110,13 +1121,16 @@
     });
   }
 
-  // --- ACERTO COMPARTILHADO (NOVO RECEBIMENTO E QUITAÇÕES) ---
+  // --- ACERTO COMPARTILHADO ---
   function saveReceberApe(e) {
     e.preventDefault();
+    if (!financeData.transactions) financeData.transactions = [];
+    if (!financeData.apeExpenses) financeData.apeExpenses = [];
+
     const tipo = document.getElementById('rTipo').value;
-    const valor = parseFloat(document.getElementById('rValor').value);
+    const valor = parseFloat(document.getElementById('rValor').value) || 0;
     const descInput = document.getElementById('rDesc').value.trim();
-    const data = document.getElementById('rData').value;
+    const data = document.getElementById('rData').value || new Date().toISOString().split('T')[0];
     const isInc = (tipo === 'RECEBI');
 
     const defaultDesc = isInc ? 'Recebimento de Acerto Compartilhado' : 'Pagamento de Acerto Compartilhado';
@@ -1147,14 +1161,16 @@
 
     saveData();
     closeModal('modalReceberApe');
-    e.target.reset();
+    if (e && e.target && typeof e.target.reset === 'function') e.target.reset();
   }
 
   function settleApeSingle(id) {
     const a = financeData.apeExpenses.find(x => x.id === id);
     if (!a) return;
 
-    const val = parseFloat(a.amount);
+    if (!financeData.transactions) financeData.transactions = [];
+
+    const val = parseFloat(a.amount || 0);
     const count = parseInt(a.peopleCount) || 2;
     const myShare = val / count;
     const othersShare = val - myShare;
@@ -1170,7 +1186,9 @@
         descPrefix = 'Pagamento Acerto:';
     }
 
-    if (confirm(`Saldar individualmente esta conta compartilhada?\n\nIsso gerará automaticamente um lançamento de ${formatCurr(transAmount)} (sua parte do acerto).`)) {
+    if (confirm(`Saldar individualmente esta conta compartilhada?
+
+Isso gerará automaticamente um lançamento de ${formatCurr(transAmount)} (sua parte do acerto).`)) {
         const transId = 'trans_' + new Date().getTime();
         financeData.transactions.push({
             id: transId,
@@ -1192,10 +1210,12 @@
     const a = financeData.apeExpenses.find(x => x.id === id);
     if (!a) return;
 
-    if (confirm(`Desfazer a quitação desta conta compartilhada?\n\nIsso removerá o lançamento gerado automaticamente no acerto.`)) {
+    if (confirm(`Desfazer a quitação desta conta compartilhada?
+
+Isso removerá o lançamento gerado automaticamente no acerto.`)) {
         a.settled = false;
         if (a.settlementTransId) {
-            financeData.transactions = financeData.transactions.filter(t => t.id !== a.settlementTransId);
+            financeData.transactions = (financeData.transactions || []).filter(t => t.id !== a.settlementTransId);
             delete a.settlementTransId;
         }
         saveData();
@@ -1213,7 +1233,7 @@
     catSelect.innerHTML += '<option value="POUPANCA">🐷 Poupança & Aportes</option>';
 
     const cats = new Set();
-    financeData.transactions.forEach(t => {
+    (financeData.transactions || []).forEach(t => {
       if (t.type === 'EXPENSE' && t.category) cats.add(t.category.toUpperCase().trim());
     });
 
@@ -1245,36 +1265,36 @@
     const subCats = new Set();
 
     if (catVal === 'ALL') {
-      financeData.transactions.forEach(t => {
+      (financeData.transactions || []).forEach(t => {
         if (t.type === 'EXPENSE' && t.subcategory) subCats.add(t.subcategory.toUpperCase().trim());
       });
-      financeData.apeExpenses.forEach(a => {
+      (financeData.apeExpenses || []).forEach(a => {
         if (a.desc) subCats.add(a.desc.toUpperCase().trim());
       });
-      financeData.debts.forEach(d => {
+      (financeData.debts || []).forEach(d => {
         if (d.name) subCats.add(d.name.toUpperCase().trim());
       });
-      financeData.savings.forEach(s => {
+      (financeData.savings || []).forEach(s => {
         if (s.areas && s.areas.length > 0) {
           s.areas.forEach(ar => subCats.add(ar.name.toUpperCase().trim()));
         } else if (s.name) subCats.add(s.name.toUpperCase().trim());
       });
     } else if (catVal === 'CONTAS_APE') {
-      financeData.apeExpenses.forEach(a => {
+      (financeData.apeExpenses || []).forEach(a => {
         if (a.desc) subCats.add(a.desc.toUpperCase().trim());
       });
     } else if (catVal === 'DIVIDAS') {
-      financeData.debts.forEach(d => {
+      (financeData.debts || []).forEach(d => {
         if (d.name) subCats.add(d.name.toUpperCase().trim());
       });
     } else if (catVal === 'POUPANCA') {
-      financeData.savings.forEach(s => {
+      (financeData.savings || []).forEach(s => {
         if (s.areas && s.areas.length > 0) {
           s.areas.forEach(ar => subCats.add(ar.name.toUpperCase().trim()));
         } else if (s.name) subCats.add(s.name.toUpperCase().trim());
       });
     } else {
-      financeData.transactions.forEach(t => {
+      (financeData.transactions || []).forEach(t => {
         if (t.type === 'EXPENSE' && t.category && t.category.toUpperCase().trim() === catVal) {
           if (t.subcategory) subCats.add(t.subcategory.toUpperCase().trim());
           else if (t.desc) subCats.add(t.desc.toUpperCase().trim());
@@ -1305,7 +1325,7 @@
     const monthlyData = {};
 
     if (selectedCat !== 'CONTAS_APE' && selectedCat !== 'DIVIDAS' && selectedCat !== 'POUPANCA') {
-      financeData.transactions.filter(t => isDateInRange(t.date)).forEach(t => {
+      (financeData.transactions || []).filter(t => isDateInRange(t.date)).forEach(t => {
         if (t.type !== 'EXPENSE') return;
         
         const cat = (t.category || '').toUpperCase().trim();
@@ -1318,12 +1338,12 @@
         const monthKey = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
 
         if (!monthlyData[monthKey]) monthlyData[monthKey] = 0;
-        monthlyData[monthKey] += parseFloat(t.amount);
+        monthlyData[monthKey] += parseFloat(t.amount || 0);
       });
     }
 
     if (selectedCat === 'ALL' || selectedCat === 'CONTAS_APE') {
-      financeData.apeExpenses.filter(a => isDateInRange(a.date)).forEach(a => {
+      (financeData.apeExpenses || []).filter(a => isDateInRange(a.date)).forEach(a => {
         if (a.isReimbursement) return;
         const sub = (a.desc || '').toUpperCase().trim();
         if (selectedSub !== 'ALL' && sub !== selectedSub) return;
@@ -1334,13 +1354,13 @@
         if (!monthlyData[monthKey]) monthlyData[monthKey] = 0;
         
         const count = parseInt(a.peopleCount) || 2;
-        const myShare = parseFloat(a.amount) / count;
+        const myShare = parseFloat(a.amount || 0) / count;
         monthlyData[monthKey] += myShare;
       });
     }
 
     if (selectedCat === 'ALL' || selectedCat === 'DIVIDAS') {
-      financeData.debts.forEach(d => {
+      (financeData.debts || []).forEach(d => {
         const sub = (d.name || '').toUpperCase().trim();
         if (selectedSub !== 'ALL' && sub !== selectedSub) return;
 
@@ -1356,7 +1376,7 @@
     }
 
     if (selectedCat === 'ALL' || selectedCat === 'POUPANCA') {
-      financeData.savings.forEach(s => {
+      (financeData.savings || []).forEach(s => {
         const dateObj = new Date();
         const monthKey = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
         
@@ -1416,18 +1436,18 @@
     const ctx = document.getElementById('categoryChart').getContext('2d');
     const catSums = {};
 
-    financeData.transactions.filter(t => isDateInRange(t.date)).forEach(t => {
+    (financeData.transactions || []).filter(t => isDateInRange(t.date)).forEach(t => {
       if (t.type !== 'EXPENSE') return;
       const cat = (t.category || 'Outros').toUpperCase().trim();
       if (!catSums[cat]) catSums[cat] = 0;
-      catSums[cat] += parseFloat(t.amount);
+      catSums[cat] += parseFloat(t.amount || 0);
     });
 
-    financeData.apeExpenses.filter(a => isDateInRange(a.date) && !a.isReimbursement).forEach(a => {
+    (financeData.apeExpenses || []).filter(a => isDateInRange(a.date) && !a.isReimbursement).forEach(a => {
       const cat = 'CONTAS COMPARTILHADAS';
       if (!catSums[cat]) catSums[cat] = 0;
       const count = parseInt(a.peopleCount) || 2;
-      catSums[cat] += parseFloat(a.amount) / count;
+      catSums[cat] += parseFloat(a.amount || 0) / count;
     });
 
     const labels = Object.keys(catSums);
@@ -1454,14 +1474,16 @@
 
   // --- OPERAÇÕES LANÇAMENTOS ---
   function saveLancamento(e) {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
+    if (!financeData.transactions) financeData.transactions = [];
+
     const editId = document.getElementById('lEditId').value;
     const desc = document.getElementById('lDesc').value.trim();
-    const valor = parseFloat(document.getElementById('lValor').value);
-    const tipo = document.getElementById('lTipo').value;
-    const cat = document.getElementById('lCat').value.trim();
-    const subcat = document.getElementById('lSubCat').value.trim();
-    const data = document.getElementById('lData').value;
+    const valor = parseFloat(document.getElementById('lValor').value) || 0;
+    const tipo = document.getElementById('lTipo').value || 'EXPENSE';
+    const cat = document.getElementById('lCat').value.trim() || 'Geral';
+    const subcat = document.getElementById('lSubCat').value.trim() || '';
+    const data = document.getElementById('lData').value || new Date().toISOString().split('T')[0];
 
     if (editId) {
       const item = financeData.transactions.find(t => t.id === editId);
@@ -1478,11 +1500,11 @@
 
     saveData();
     closeModal('modalLancamento');
-    e.target.reset();
+    if (e && e.target && typeof e.target.reset === 'function') e.target.reset();
   }
 
   function editLancamento(id) {
-    const item = financeData.transactions.find(t => t.id === id);
+    const item = (financeData.transactions || []).find(t => t.id === id);
     if (!item) return;
     document.getElementById('lEditId').value = item.id;
     document.getElementById('lDesc').value = item.desc || '';
@@ -1497,20 +1519,20 @@
 
   function deleteLancamento(id) {
     if (confirm("Deseja realmente remover este lançamento?")) {
-      financeData.transactions = financeData.transactions.filter(t => t.id !== id);
+      financeData.transactions = (financeData.transactions || []).filter(t => t.id !== id);
       saveData();
     }
   }
 
   // --- OPERAÇÕES POUPANÇA & METAS ---
   function savePoupanca(e) {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
+    if (!financeData.savings) financeData.savings = [];
+
     const editId = document.getElementById('pEditId').value;
     const nome = document.getElementById('pNome').value.trim();
     const meta = parseFloat(document.getElementById('pValorMeta').value) || 0;
     const atual = parseFloat(document.getElementById('pValorAtual').value) || 0;
-
-    if (!financeData.savings) financeData.savings = [];
 
     if (editId) {
       const item = financeData.savings.find(s => s.id === editId);
@@ -1530,11 +1552,11 @@
 
     saveData();
     closeModal('modalPoupanca');
-    e.target.reset();
+    if (e && e.target && typeof e.target.reset === 'function') e.target.reset();
   }
 
   function editPoupanca(id) {
-    const item = financeData.savings.find(s => s.id === id);
+    const item = (financeData.savings || []).find(s => s.id === id);
     if (!item) return;
     document.getElementById('pEditId').value = item.id;
     document.getElementById('pNome').value = item.name || '';
@@ -1550,10 +1572,10 @@
   }
 
   function openAddPoupancaAreaModal(goalId) {
-    const goal = financeData.savings.find(s => s.id === goalId);
+    const goal = (financeData.savings || []).find(s => s.id === goalId);
     if (!goal) return;
 
-    if ((!goal.areas || goal.areas.length === 0) && (parseFloat(goal.targetAmount) > 0 || parseFloat(goal.currentAmount) > 0)) {
+    if ((!goal.areas || goal.areas.length === 0) && (parseFloat(goal.targetAmount || 0) > 0 || parseFloat(goal.currentAmount || 0) > 0)) {
       if (confirm("Ao adicionar uma subárea, o saldo atual da sua meta se transformará em uma área chamada 'Geral' para não perder os valores depositados. Continuar?")) {
         if (!goal.areas) goal.areas = [];
         goal.areas.push({
@@ -1580,7 +1602,7 @@
   }
 
   function openEditPoupancaAreaModal(goalId, areaId) {
-    const goal = financeData.savings.find(s => s.id === goalId);
+    const goal = (financeData.savings || []).find(s => s.id === goalId);
     if (!goal || !goal.areas) return;
     const area = goal.areas.find(a => a.id === areaId);
     if (!area) return;
@@ -1595,14 +1617,14 @@
   }
 
   function savePoupancaArea(e) {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
     const goalId = document.getElementById('paGoalId').value;
     const areaId = document.getElementById('paAreaId').value;
     const nome = document.getElementById('paNome').value.trim();
-    const meta = parseFloat(document.getElementById('paValorMeta').value);
+    const meta = parseFloat(document.getElementById('paValorMeta').value) || 0;
     const atual = parseFloat(document.getElementById('paValorAtual').value) || 0;
 
-    const goal = financeData.savings.find(s => s.id === goalId);
+    const goal = (financeData.savings || []).find(s => s.id === goalId);
     if (goal) {
       if (!goal.areas) goal.areas = [];
       if (areaId) {
@@ -1618,13 +1640,13 @@
     }
 
     closeModal('modalPoupancaArea');
-    e.target.reset();
+    if (e && e.target && typeof e.target.reset === 'function') e.target.reset();
   }
 
   function addDepositToPoupancaMain(id) {
     const val = prompt(`Digite o valor a aportar nesta meta (${financeData.currency || '€'}):`);
     if (val && !isNaN(parseFloat(val))) {
-      const item = financeData.savings.find(s => s.id === id);
+      const item = (financeData.savings || []).find(s => s.id === id);
       if (item) {
         item.currentAmount = parseFloat(item.currentAmount || 0) + parseFloat(val);
         saveData();
@@ -1635,7 +1657,7 @@
   function withdrawFromPoupancaMain(id) {
     const val = prompt(`Digite o valor a resgatar desta meta (${financeData.currency || '€'}):`);
     if (val && !isNaN(parseFloat(val))) {
-      const item = financeData.savings.find(s => s.id === id);
+      const item = (financeData.savings || []).find(s => s.id === id);
       if (item) {
         item.currentAmount = Math.max(0, parseFloat(item.currentAmount || 0) - parseFloat(val));
         saveData();
@@ -1646,7 +1668,7 @@
   function addDepositToPoupancaArea(goalId, areaId) {
     const val = prompt(`Digite o valor a aportar nesta área (${financeData.currency || '€'}):`);
     if (val && !isNaN(parseFloat(val))) {
-      const goal = financeData.savings.find(s => s.id === goalId);
+      const goal = (financeData.savings || []).find(s => s.id === goalId);
       if (goal && goal.areas) {
         const area = goal.areas.find(a => a.id === areaId);
         if (area) {
@@ -1660,7 +1682,7 @@
   function withdrawFromPoupancaArea(goalId, areaId) {
     const val = prompt(`Digite o valor a resgatar desta área (${financeData.currency || '€'}):`);
     if (val && !isNaN(parseFloat(val))) {
-      const goal = financeData.savings.find(s => s.id === goalId);
+      const goal = (financeData.savings || []).find(s => s.id === goalId);
       if (goal && goal.areas) {
         const area = goal.areas.find(a => a.id === areaId);
         if (area) {
@@ -1672,7 +1694,7 @@
   }
 
   function deletePoupancaArea(goalId, areaId) {
-    const goal = financeData.savings.find(s => s.id === goalId);
+    const goal = (financeData.savings || []).find(s => s.id === goalId);
     if (goal && goal.areas && confirm("Deseja realmente remover esta área do orçamento?")) {
       goal.areas = goal.areas.filter(a => a.id !== areaId);
       saveData();
@@ -1681,19 +1703,21 @@
 
   function deletePoupanca(id) {
     if (confirm("Deseja realmente excluir esta meta completa de poupança?")) {
-      financeData.savings = financeData.savings.filter(s => s.id !== id);
+      financeData.savings = (financeData.savings || []).filter(s => s.id !== id);
       saveData();
     }
   }
 
   // --- OPERAÇÕES EMPRÉSTIMOS ---
   function saveDivida(e) {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
+    if (!financeData.debts) financeData.debts = [];
+
     const editId = document.getElementById('dEditId').value;
     const category = document.getElementById('dCategory').value;
     const nome = document.getElementById('dNome').value.trim();
     const tipo = document.getElementById('dTipo').value;
-    const total = parseFloat(document.getElementById('dValorTotal').value);
+    const total = parseFloat(document.getElementById('dValorTotal').value) || 0;
     const pago = parseFloat(document.getElementById('dValorPago').value) || 0;
 
     if (editId) {
@@ -1708,11 +1732,11 @@
 
     saveData();
     closeModal('modalDivida');
-    e.target.reset();
+    if (e && e.target && typeof e.target.reset === 'function') e.target.reset();
   }
 
   function editDivida(id) {
-    const item = financeData.debts.find(d => d.id === id);
+    const item = (financeData.debts || []).find(d => d.id === id);
     if (!item) return;
     document.getElementById('dEditId').value = item.id;
     document.getElementById('dCategory').value = item.category || 'PESSOAL';
@@ -1725,7 +1749,7 @@
   }
 
   function settleDividaDirect(id) {
-    const debt = financeData.debts.find(d => d.id === id);
+    const debt = (financeData.debts || []).find(d => d.id === id);
     if (debt) {
       const actionStr = (debt.type === 'CONCEDIDO') ? 'recebido integralmente' : 'quitado totalmente';
       if (confirm(`Confirmar que "${debt.name}" foi ${actionStr} (${formatCurr(debt.totalAmount)})?`)) {
@@ -1737,13 +1761,13 @@
   }
 
   function addPaymentToDivida(id) {
-    const debt = financeData.debts.find(d => d.id === id);
+    const debt = (financeData.debts || []).find(d => d.id === id);
     if (!debt) return;
     const promptMsg = (debt.type === 'CONCEDIDO') ? 'Digite o valor recebido de volta:' : 'Digite o valor pago/amortizado:';
     const val = prompt(`${promptMsg} (${financeData.currency || '€'})`);
     if (val && !isNaN(parseFloat(val))) {
-      debt.paidAmount = parseFloat(debt.paidAmount) + parseFloat(val);
-      if (parseFloat(debt.paidAmount) >= parseFloat(debt.totalAmount)) {
+      debt.paidAmount = parseFloat(debt.paidAmount || 0) + parseFloat(val);
+      if (parseFloat(debt.paidAmount) >= parseFloat(debt.totalAmount || 0)) {
         debt.settledDate = new Date().toISOString().split('T')[0];
       }
       saveData();
@@ -1752,20 +1776,22 @@
 
   function deleteDivida(id) {
     if (confirm("Deseja realmente remover este registro?")) {
-      financeData.debts = financeData.debts.filter(d => d.id !== id);
+      financeData.debts = (financeData.debts || []).filter(d => d.id !== id);
       saveData();
     }
   }
 
   // --- OPERAÇÕES CONTAS COMPARTILHADAS ---
   function saveApe(e) {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
+    if (!financeData.apeExpenses) financeData.apeExpenses = [];
+
     const editId = document.getElementById('aEditId').value;
     const desc = document.getElementById('aDesc').value.trim();
-    const valor = parseFloat(document.getElementById('aValor').value);
+    const valor = parseFloat(document.getElementById('aValor').value) || 0;
     const quem = document.getElementById('aQuem').value;
     const pessoas = parseInt(document.getElementById('aPessoas').value) || 2;
-    const data = document.getElementById('aData').value;
+    const data = document.getElementById('aData').value || new Date().toISOString().split('T')[0];
 
     if (editId) {
       const item = financeData.apeExpenses.find(a => a.id === editId);
@@ -1779,11 +1805,11 @@
 
     saveData();
     closeModal('modalApe');
-    e.target.reset();
+    if (e && e.target && typeof e.target.reset === 'function') e.target.reset();
   }
 
   function editApe(id) {
-    const item = financeData.apeExpenses.find(a => a.id === id);
+    const item = (financeData.apeExpenses || []).find(a => a.id === id);
     if (!item) return;
     document.getElementById('aEditId').value = item.id;
     document.getElementById('aDesc').value = item.desc || '';
@@ -1797,7 +1823,7 @@
 
   function deleteApe(id) {
     if (confirm("Deseja realmente excluir esta conta compartilhada?")) {
-      financeData.apeExpenses = financeData.apeExpenses.filter(a => a.id !== id);
+      financeData.apeExpenses = (financeData.apeExpenses || []).filter(a => a.id !== id);
       saveData();
     }
   }
