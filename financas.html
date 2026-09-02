@@ -33,7 +33,7 @@
     .tab-btn { padding: 10px 18px; background: var(--card-bg); border: 1px solid var(--border-color); font-weight: 600; font-size: 13px; cursor: pointer; border-radius: 8px; color: var(--text-muted); transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.03); display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
     .tab-btn.active { background: var(--primary); color: #FFFFFF; border-color: var(--primary); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
     .tab-btn:hover:not(.active) { background: #E2E8F0; }
-    .btn-home { background-color: #E2E8F0; color: var(--primary); font-weight: 700; }
+    .btn-home { background-color: #E2E8F0; color: var(--primary); font-weight: 700; padding: 10px 14px; font-size: 16px; }
     .btn-home:hover { background-color: #CBD5E1; }
 
     /* FILTRO DE DATA GLOBAL */
@@ -46,7 +46,7 @@
     .btn-outline:hover { background-color: #F1F5F9; color: var(--primary); }
     .btn-danger { background-color: #FEE2E2; color: #DC2626; border: 1px solid #FCA5A5; padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 12px; cursor: pointer; }
     .btn-danger:hover { background-color: #EF4444; color: white; }
-    .btn-settle { background-color: #D1FAE5; color: #065F46; border: 1px solid #6EE7B7; padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 12px; cursor: pointer; }
+    .btn-settle { background-color: #D1FAE5; color: #065F46; border: 1px solid #6EE7B7; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; }
     .btn-settle:hover { background-color: #10B981; color: white; }
     .btn-icon { background: none; border: none; cursor: pointer; font-size: 14px; padding: 4px 8px; border-radius: 4px; color: var(--text-muted); transition: 0.2s; }
     .btn-icon:hover { background: #E2E8F0; color: var(--primary); }
@@ -102,7 +102,8 @@
   <!-- BARRA SUPERIOR DE NAVEGAÇÃO -->
   <div class="top-bar">
     <div class="nav-tabs">
-      <a href="index.html" class="tab-btn btn-home">🏠 Voltar ao Index</a>
+      <!-- BOTÃO HOME ENXUTO -->
+      <a href="index.html" class="tab-btn btn-home" title="Voltar ao Index">🏠</a>
       <button class="tab-btn active" id="btnTabDash" onclick="switchTab('dash')">📊 Dashboard</button>
       <button class="tab-btn" id="btnTabLancamentos" onclick="switchTab('lancamentos')">💸 Lançamentos</button>
       <button class="tab-btn" id="btnTabPoupanca" onclick="switchTab('poupanca')">🐷 Poupança & Metas</button>
@@ -308,7 +309,11 @@
           <div class="box-title">🏠 Contas Compartilhadas do Apê (No Período)</div>
           <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;" id="apeSettlementSummary">Calculando acerto de contas...</p>
         </div>
-        <button class="btn-add" onclick="openModal('modalApe')">➕ Nova Despesa Compartilhada</button>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <!-- NOVO BOTÃO DE REGISTRAR RECEBIMENTO / PAGAMENTO DE ACERTO -->
+          <button class="btn-settle" onclick="openModal('modalReceberApe')">💰 Registrar Recebimento / Pagamento</button>
+          <button class="btn-add" onclick="openModal('modalApe')">➕ Nova Despesa Compartilhada</button>
+        </div>
       </div>
 
       <div style="overflow-x: auto;">
@@ -458,7 +463,7 @@
   </div>
 </div>
 
-<!-- MODAL APÊ -->
+<!-- MODAL APÊ (DESPESA) -->
 <div id="modalApe" class="modal-overlay">
   <div class="modal-box">
     <div class="modal-title box-title" style="margin-bottom: 16px;" id="modalApeTitle">NOVA DESPESA COMPARTILHADA</div>
@@ -495,6 +500,38 @@
   </div>
 </div>
 
+<!-- MODAL APÊ (REGISTRAR RECEBIMENTO OU PAGAMENTO DE ACERTO) -->
+<div id="modalReceberApe" class="modal-overlay">
+  <div class="modal-box">
+    <div class="box-title" style="margin-bottom: 16px;">REGISTRAR RECEBIMENTO / PAGAMENTO DE ACERTO</div>
+    <form onsubmit="saveReceberApe(event)">
+      <div class="form-group">
+        <label>Operação</label>
+        <select id="rTipo" class="form-input" required>
+          <option value="RECEBI">🟢 Recebi dinheiro do colega (Ex: Pix do acerto)</option>
+          <option value="PAGUEI">🔴 Paguei dinheiro ao colega (Ex: Envei Pix do acerto)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Valor do Acerto</label>
+        <input type="number" step="0.01" id="rValor" class="form-input" placeholder="0.00" required>
+      </div>
+      <div class="form-group">
+        <label>Descrição / Observação</label>
+        <input type="text" id="rDesc" class="form-input" placeholder="Ex: Acerto Pix de Luz e Internet">
+      </div>
+      <div class="form-group">
+        <label>Data</label>
+        <input type="date" id="rData" class="form-input" required>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+        <button type="button" class="btn-outline" onclick="closeModal('modalReceberApe')">Cancelar</button>
+        <button type="submit" class="btn-add">Salvar Acerto</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <script>
   let financeData = {
     currency: "R$",
@@ -518,6 +555,7 @@
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('lData').value = today;
     document.getElementById('aData').value = today;
+    document.getElementById('rData').value = today;
 
     initDateFilters();
     refreshAll();
@@ -646,15 +684,20 @@
 
     let apeNetBalance = 0;
     financeData.apeExpenses.filter(a => isDateInRange(a.date)).forEach(a => {
-      if (a.settled) return;
+      if (a.settled && !a.isReimbursement) return;
       const val = parseFloat(a.amount);
-      const count = parseInt(a.peopleCount) || 2;
-      const yourShare = val / count;
 
-      if (a.paidBy === 'VOCE') {
-        apeNetBalance += (val - yourShare);
+      if (a.isReimbursement) {
+        if (a.paidBy === 'COLEGA_REEMBOLSO') apeNetBalance -= val;
+        else if (a.paidBy === 'VOCE_REEMBOLSO') apeNetBalance += val;
       } else {
-        apeNetBalance -= yourShare;
+        const count = parseInt(a.peopleCount) || 2;
+        const yourShare = val / count;
+        if (a.paidBy === 'VOCE') {
+          apeNetBalance += (val - yourShare);
+        } else {
+          apeNetBalance -= yourShare;
+        }
       }
     });
 
@@ -966,16 +1009,17 @@
     sorted.forEach(a => {
       const tr = document.createElement('tr');
       const val = parseFloat(a.amount);
+      const isReimb = a.isReimbursement;
       const count = parseInt(a.peopleCount) || 2;
-      const myShare = val / count;
-      const isVoce = a.paidBy === 'VOCE';
+      const myShare = isReimb ? val : val / count;
+      const isVoce = a.paidBy === 'VOCE' || a.paidBy === 'VOCE_REEMBOLSO';
       const isSettled = a.settled;
 
       tr.innerHTML = `
         <td>${a.date}</td>
-        <td style="font-weight: 600;">${a.desc}</td>
+        <td style="font-weight: 600;">${isReimb ? '💸 ' : ''}${a.desc}</td>
         <td><span class="task-mini-tag" style="background:${isVoce ? '#EFF6FF' : '#FEF3C7'}; color:${isVoce ? '#2563EB' : '#D97706'}">${isVoce ? '🙋‍♂️ Você' : '🧑‍🤝‍🧑 Outro'}</span></td>
-        <td><span class="task-mini-tag">1 / ${count} pessoas</span></td>
+        <td><span class="task-mini-tag">${isReimb ? 'Reembolso Acerto' : `1 / ${count} pessoas`}</span></td>
         <td style="font-weight: 700;">${formatCurr(val)}</td>
         <td style="color: var(--text-dark); font-weight: 600;">${formatCurr(myShare)}</td>
         <td style="text-align: center; vertical-align: middle;">
@@ -995,7 +1039,48 @@
     });
   }
 
-  // --- ACERTO DO APÊ (INDIVIDUAL E DESFAZER) ---
+  // --- ACERTO DO APÊ (NOVO RECEBIMENTO E QUITAÇÕES) ---
+  function saveReceberApe(e) {
+    e.preventDefault();
+    const tipo = document.getElementById('rTipo').value;
+    const valor = parseFloat(document.getElementById('rValor').value);
+    const descInput = document.getElementById('rDesc').value.trim();
+    const data = document.getElementById('rData').value;
+    const isInc = (tipo === 'RECEBI');
+
+    const defaultDesc = isInc ? 'Recebimento de Acerto do Apê' : 'Pagamento de Acerto do Apê';
+    const finalDesc = descInput || defaultDesc;
+
+    // 1. Lançamento no caixa real (Teto Diário)
+    const transId = 'trans_' + new Date().getTime();
+    financeData.transactions.push({
+      id: transId,
+      desc: finalDesc,
+      amount: valor,
+      type: isInc ? 'INCOME' : 'EXPENSE',
+      category: 'Contas do Apê',
+      subcategory: 'Acerto Direto',
+      date: data
+    });
+
+    // 2. Registro no histórico do Apê para diminuir o saldo
+    financeData.apeExpenses.push({
+      id: 'ape_' + new Date().getTime(),
+      desc: finalDesc,
+      amount: valor,
+      paidBy: isInc ? 'COLEGA_REEMBOLSO' : 'VOCE_REEMBOLSO',
+      peopleCount: 1,
+      date: data,
+      settled: true,
+      isReimbursement: true,
+      settlementTransId: transId
+    });
+
+    saveData();
+    closeModal('modalReceberApe');
+    e.target.reset();
+  }
+
   function settleApeSingle(id) {
     const a = financeData.apeExpenses.find(x => x.id === id);
     if (!a) return;
@@ -1170,6 +1255,7 @@
 
     if (selectedCat === 'ALL' || selectedCat === 'CONTAS_APE') {
       financeData.apeExpenses.filter(a => isDateInRange(a.date)).forEach(a => {
+        if (a.isReimbursement) return;
         const sub = (a.desc || '').toUpperCase().trim();
         if (selectedSub !== 'ALL' && sub !== selectedSub) return;
 
@@ -1202,10 +1288,9 @@
 
     if (selectedCat === 'ALL' || selectedCat === 'POUPANCA') {
       financeData.savings.forEach(s => {
-        const dateObj = new Date(); // Para a poupança estamos registrando o total acumulado como do momento atual
+        const dateObj = new Date();
         const monthKey = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
         
-        // Pula se o mês atual não está no filtro (aproximado)
         if (!isDateInRange(dateObj.toISOString().split('T')[0])) return;
 
         if (s.areas && s.areas.length > 0) {
@@ -1269,7 +1354,7 @@
       catSums[cat] += parseFloat(t.amount);
     });
 
-    financeData.apeExpenses.filter(a => isDateInRange(a.date)).forEach(a => {
+    financeData.apeExpenses.filter(a => isDateInRange(a.date) && !a.isReimbursement).forEach(a => {
       const cat = 'CONTAS DO APÊ';
       if (!catSums[cat]) catSums[cat] = 0;
       const count = parseInt(a.peopleCount) || 2;
