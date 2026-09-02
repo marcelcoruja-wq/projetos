@@ -147,15 +147,18 @@
       <button class="tab-btn" id="btnTabFavores" onclick="switchTab('favores')">🎁 Favores</button>
     </div>
 
-    <!-- SELETOR DE MOEDA EXCLUSIVO À EXTREMA DIREITA -->
-    <div style="margin-left: auto; display: flex; align-items: center; gap: 8px;">
+    <!-- MOEDA & AÇÕES DE BACKUP -->
+    <div style="margin-left: auto; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
       <span style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Moeda:</span>
-      <select id="currencySelect" class="form-input" style="width: auto; padding: 6px 12px; font-weight: 700; cursor: pointer;" onchange="updateCurrency(this.value)">
+      <select id="currencySelect" class="form-input" style="width: auto; padding: 6px 10px; font-weight: 700; cursor: pointer;" onchange="updateCurrency(this.value)">
         <option value="€">€ (EUR)</option>
         <option value="R$">R$ (BRL)</option>
         <option value="$">$ (USD)</option>
         <option value="£">£ (GBP)</option>
       </select>
+      <button class="btn-outline" style="padding: 6px 10px; font-size: 12px;" onclick="exportBackup()" title="Baixar arquivo JSON com todos os dados">📥 Backup</button>
+      <button class="btn-outline" style="padding: 6px 10px; font-size: 12px;" onclick="document.getElementById('importFileInput').click()" title="Restaurar dados de um arquivo JSON">📤 Carregar</button>
+      <input type="file" id="importFileInput" accept=".json" style="display: none;" onchange="importBackup(event)">
     </div>
   </div>
 
@@ -708,6 +711,52 @@
       alert("Erro ao gravar dados no navegador: " + err.message);
     }
     refreshAll();
+  }
+
+  /* EXPORTAR E IMPORTAR BACKUP EM JSON */
+  function exportBackup() {
+    try {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(financeData, null, 2));
+      const dlAnchorElem = document.createElement('a');
+      dlAnchorElem.setAttribute("href", dataStr);
+      const date = new Date().toISOString().split('T')[0];
+      dlAnchorElem.setAttribute("download", `financas_backup_${date}.json`);
+      document.body.appendChild(dlAnchorElem);
+      dlAnchorElem.click();
+      dlAnchorElem.remove();
+    } catch(err) {
+      alert("Erro ao gerar arquivo de backup: " + err.message);
+    }
+  }
+
+  function importBackup(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        const parsed = JSON.parse(e.target.result);
+        if (parsed && typeof parsed === 'object') {
+          financeData = {
+            currency: parsed.currency || "€",
+            transactions: Array.isArray(parsed.transactions) ? parsed.transactions : [],
+            savings: Array.isArray(parsed.savings) ? parsed.savings : [],
+            debts: Array.isArray(parsed.debts) ? parsed.debts : [],
+            apeExpenses: Array.isArray(parsed.apeExpenses) ? parsed.apeExpenses : [],
+            favors: Array.isArray(parsed.favors) ? parsed.favors : []
+          };
+          saveData();
+          alert("Backup restaurado com sucesso!");
+        } else {
+          alert("Arquivo de backup inválido.");
+        }
+      } catch(err) {
+        alert("Erro ao ler o arquivo de backup: " + err.message);
+      }
+      event.target.value = '';
+    };
+    reader.readAsText(file);
   }
 
   function refreshAll() {
