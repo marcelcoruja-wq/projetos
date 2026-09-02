@@ -178,11 +178,11 @@
       <div class="kpi-card" style="border-top: 4px solid var(--focus-blue);">
         <div class="label">💰 Saldo do Período</div>
         <div class="num" id="kpiSaldo">€ 0,00</div>
-        <div class="sub" id="kpiReceitaDespesa">Receitas: € 0 | Gastos: € 0</div>
+        <div class="sub" id="kpiReceitaDespesa"></div>
       </div>
 
       <div class="kpi-card" style="border-top: 4px solid var(--success);">
-        <div class="label">📅 Teto Diário Calculado</div>
+        <div class="label">📅 Teto Diário</div>
         <div class="num" id="kpiTetoDiario" style="color: var(--success);">€ 0,00 /dia</div>
         <div class="sub" id="kpiDiasRestantes">Calculado para 0 dias restantes</div>
       </div>
@@ -212,20 +212,33 @@
       </div>
     </div>
 
-    <!-- GRÁFICOS -->
+    <!-- GRÁFICOS & ANÁLISE POR CATEGORIA -->
     <div class="charts-grid">
       <div class="white-box">
         <div class="box-header">
-          <div class="box-title">📈 Evolução Histórica (No Período)</div>
+          <div>
+            <div class="box-title">📈 Análise de Gastos por Categoria</div>
+            <p style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">Filtre uma categoria ou subcategoria para somar o total gasto no período.</p>
+          </div>
           <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-            <select id="chartCategoryFilter" class="form-input" style="width: auto; padding: 4px 8px; font-weight: 600;" onchange="onCategoryFilterChange()">
+            <select id="chartCategoryFilter" class="form-input" style="width: auto; padding: 6px 10px; font-weight: 600;" onchange="onCategoryFilterChange()">
               <option value="ALL">Todas as Saídas (Geral)</option>
             </select>
-            <select id="chartSubCategoryFilter" class="form-input" style="width: auto; padding: 4px 8px; font-weight: 600;" onchange="updateHistoryChart()">
+            <select id="chartSubCategoryFilter" class="form-input" style="width: auto; padding: 6px 10px; font-weight: 600;" onchange="updateHistoryChart()">
               <option value="ALL">Todas as Subcategorias</option>
             </select>
           </div>
         </div>
+
+        <!-- PAINEL DE SOMA DA CATEGORIA SELECIONADA -->
+        <div id="categoryStatBadge" style="margin-bottom: 16px; background: #F8FAFC; padding: 12px 16px; border-radius: 12px; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+          <div>
+            <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted);" id="statBadgeLabel">SOMA TOTAL DO FILTRO</span>
+            <div style="font-size: 22px; font-weight: 800; color: var(--primary);" id="statBadgeValue">€ 0</div>
+          </div>
+          <div style="font-size: 12px; font-weight: 600; color: var(--text-muted);" id="statBadgeSub">0 lançamentos</div>
+        </div>
+
         <div class="chart-container">
           <canvas id="historyChart"></canvas>
         </div>
@@ -814,7 +827,13 @@
 
     const netMonth = monthIncome - monthExpense;
     document.getElementById('kpiSaldo').textContent = formatCurr(netMonth);
-    document.getElementById('kpiReceitaDespesa').textContent = `Entradas: ${formatCurr(monthIncome)} | Gastos: ${formatCurr(monthExpense)}`;
+
+    // EXIBIÇÃO DE VALORES INTEIROS COLORIDOS (VERDE / VERMELHO)
+    const curr = financeData.currency || "€";
+    const incInt = Math.round(monthIncome);
+    const expInt = Math.round(monthExpense);
+    document.getElementById('kpiReceitaDespesa').innerHTML = 
+      `<span style="color: var(--success); font-weight: 700;">+ ${curr} ${incInt.toLocaleString('pt-BR')}</span> <span style="color: var(--text-muted); margin: 0 4px;">|</span> <span style="color: var(--danger); font-weight: 700;">- ${curr} ${expInt.toLocaleString('pt-BR')}</span>`;
 
     const endStr = document.getElementById('globalEndDate').value;
     let remainingDays = 1;
@@ -1509,7 +1528,7 @@
     });
   }
 
-  // --- GRÁFICOS PROTEGIDOS ---
+  // --- GRÁFICOS PROTEGIDOS & SOMA DA CATEGORIA SELECIONADA ---
   function initOrUpdateCharts() {
     if (typeof Chart === 'undefined') return;
     try {
@@ -1527,6 +1546,8 @@
     const selectedSub = document.getElementById('chartSubCategoryFilter').value;
 
     const monthlyData = {};
+    let categorySumTotal = 0;
+    let categoryItemsCount = 0;
 
     if (selectedCat !== 'CONTAS_APE' && selectedCat !== 'DIVIDAS' && selectedCat !== 'POUPANCA') {
       (financeData.transactions || []).filter(t => isDateInRange(t.date)).forEach(t => {
@@ -1538,11 +1559,15 @@
         if (selectedCat !== 'ALL' && cat !== selectedCat) return;
         if (selectedSub !== 'ALL' && sub !== selectedSub) return;
 
+        const val = parseFloat(t.amount || 0);
+        categorySumTotal += val;
+        categoryItemsCount++;
+
         const dateObj = new Date(t.date);
         const monthKey = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
 
         if (!monthlyData[monthKey]) monthlyData[monthKey] = 0;
-        monthlyData[monthKey] += parseFloat(t.amount || 0);
+        monthlyData[monthKey] += val;
       });
     }
 
@@ -1551,13 +1576,16 @@
         const sub = (a.desc || '').toUpperCase().trim();
         if (selectedSub !== 'ALL' && sub !== selectedSub) return;
 
+        const count = parseInt(a.peopleCount) || 2;
+        const myShare = parseFloat(a.amount || 0) / count;
+
+        categorySumTotal += myShare;
+        categoryItemsCount++;
+
         const dateObj = new Date(a.date);
         const monthKey = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
 
         if (!monthlyData[monthKey]) monthlyData[monthKey] = 0;
-        
-        const count = parseInt(a.peopleCount) || 2;
-        const myShare = parseFloat(a.amount || 0) / count;
         monthlyData[monthKey] += myShare;
       });
     }
@@ -1570,11 +1598,15 @@
         const dateStr = d.settledDate || new Date().toISOString().split('T')[0];
         if (!isDateInRange(dateStr)) return;
 
+        const val = parseFloat(d.paidAmount || 0);
+        categorySumTotal += val;
+        if (val > 0) categoryItemsCount++;
+
         const dateObj = new Date(dateStr);
         const monthKey = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
 
         if (!monthlyData[monthKey]) monthlyData[monthKey] = 0;
-        monthlyData[monthKey] += parseFloat(d.paidAmount || 0);
+        monthlyData[monthKey] += val;
       });
     }
 
@@ -1590,25 +1622,43 @@
             const sub = (ar.name || '').toUpperCase().trim();
             if (selectedSub !== 'ALL' && sub !== selectedSub) return;
 
+            const val = parseFloat(ar.currentAmount || 0);
+            categorySumTotal += val;
+            if (val > 0) categoryItemsCount++;
+
             if (!monthlyData[monthKey]) monthlyData[monthKey] = 0;
-            monthlyData[monthKey] += parseFloat(ar.currentAmount || 0);
+            monthlyData[monthKey] += val;
           });
         } else {
           const sub = (s.name || '').toUpperCase().trim();
           if (selectedSub !== 'ALL' && sub !== selectedSub) return;
 
+          const val = parseFloat(s.currentAmount || 0);
+          categorySumTotal += val;
+          if (val > 0) categoryItemsCount++;
+
           if (!monthlyData[monthKey]) monthlyData[monthKey] = 0;
-          monthlyData[monthKey] += parseFloat(s.currentAmount || 0);
+          monthlyData[monthKey] += val;
         }
       });
     }
+
+    // ATUALIZA O BADGE COM A SOMA TOTAL DA CATEGORIA
+    const curr = financeData.currency || "€";
+    let filterLabel = "SOMA TOTAL (TODAS AS SAÍDAS)";
+    if (selectedCat !== 'ALL') filterLabel = `SOMA TOTAL: ${selectedCat}`;
+    if (selectedSub !== 'ALL') filterLabel += ` > ${selectedSub}`;
+
+    document.getElementById('statBadgeLabel').textContent = filterLabel;
+    document.getElementById('statBadgeValue').textContent = `${curr} ${Math.round(categorySumTotal).toLocaleString('pt-BR')}`;
+    document.getElementById('statBadgeSub').textContent = `${categoryItemsCount} item(ns) no filtro`;
 
     const labels = Object.keys(monthlyData).sort();
     const values = labels.map(k => monthlyData[k]);
 
     if (historyChartInstance) historyChartInstance.destroy();
 
-    let chartLabel = `Todas as Saídas de Dinheiro (${financeData.currency || '€'})`;
+    let chartLabel = `Saídas (${curr})`;
     if (selectedCat !== 'ALL') chartLabel = `${selectedCat}`;
     if (selectedSub !== 'ALL') chartLabel += ` > ${selectedSub}`;
 
