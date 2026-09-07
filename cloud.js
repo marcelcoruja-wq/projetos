@@ -1,7 +1,20 @@
-/* cloud.js - Proteção contra sobrescrevimento em branco */
+/* cloud.js - Sincronizador Inteligente com Fusão de Dados (Smart Merge) */
 const CLOUD_TOKEN_KEY = 'cloud_gist_token';
 const CLOUD_ID_KEY = 'cloud_gist_id';
 
+const MODULE_KEYS = [
+    'persistence_engine_data_v1', // Planejador / Rotina
+    'projects_engine_data_v1',    // Gestor de Projetos
+    'personalFinanceData',        // Finanças Pessoais
+    'pomodoro_engine_data_v1'     // Pomodoro
+];
+
+// Helper para validar se o objeto contém dados reais
+function hasData(obj) {
+    return obj && typeof obj === 'object' && Object.keys(obj).length > 0;
+}
+
+// 1. Puxar dados da nuvem (Sem apagar o localStorage local)
 async function cloudPull() {
     const token = localStorage.getItem(CLOUD_TOKEN_KEY);
     const gistId = localStorage.getItem(CLOUD_ID_KEY);
@@ -19,25 +32,23 @@ async function cloudPull() {
 
         if (content && content !== '{}') {
             const parsed = JSON.parse(content);
-            let updated = false;
+            let needsPush = false;
 
-            if (parsed.persistence_engine_data_v1 && Object.keys(parsed.persistence_engine_data_v1).length > 0) {
-                localStorage.setItem('persistence_engine_data_v1', JSON.stringify(parsed.persistence_engine_data_v1));
-                updated = true;
+            MODULE_KEYS.forEach(key => {
+                const remoteData = parsed[key];
+                const localData = JSON.parse(localStorage.getItem(key)) || {};
+
+                if (hasData(remoteData)) {
+                    localStorage.setItem(key, JSON.stringify(remoteData));
+                } else if (hasData(localData)) {
+                    needsPush = true;
+                }
+            });
+
+            if (needsPush) {
+                await cloudPush();
             }
-            if (parsed.projects_engine_data_v1 && Object.keys(parsed.projects_engine_data_v1).length > 0) {
-                localStorage.setItem('projects_engine_data_v1', JSON.stringify(parsed.projects_engine_data_v1));
-                updated = true;
-            }
-            if (parsed.personalFinanceData && Object.keys(parsed.personalFinanceData).length > 0) {
-                localStorage.setItem('personalFinanceData', JSON.stringify(parsed.personalFinanceData));
-                updated = true;
-            }
-            if (parsed.pomodoro_engine_data_v1 && Object.keys(parsed.pomodoro_engine_data_v1).length > 0) {
-                localStorage.setItem('pomodoro_engine_data_v1', JSON.stringify(parsed.pomodoro_engine_data_v1));
-                updated = true;
-            }
-            return updated;
+            return true;
         }
     } catch (e) {
         console.error("Erro no Cloud Pull:", e);
@@ -45,20 +56,42 @@ async function cloudPull() {
     return false;
 }
 
+// 2. Enviar para a nuvem fundindo os módulos (Protege contra sobrescrita)
 async function cloudPush() {
     const token = localStorage.getItem(CLOUD_TOKEN_KEY);
     const gistId = localStorage.getItem(CLOUD_ID_KEY);
 
     if (!token || !gistId) return;
 
-    const payload = {
-        persistence_engine_data_v1: JSON.parse(localStorage.getItem('persistence_engine_data_v1')) || {},
-        projects_engine_data_v1: JSON.parse(localStorage.getItem('projects_engine_data_v1')) || {},
-        personalFinanceData: JSON.parse(localStorage.getItem('personalFinanceData')) || {},
-        pomodoro_engine_data_v1: JSON.parse(localStorage.getItem('pomodoro_engine_data_v1')) || {}
-    };
-
     try {
+        const res = await fetch(`https://api.github.com/gists/${gistId}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        let remoteParsed = {};
+        if (res.ok) {
+            const gistData = await res.json();
+            const content = gistData.files['dados.json']?.content;
+            if (content && content !== '{}') {
+                remoteParsed = JSON.parse(content);
+            }
+        }
+
+        const payload = {};
+
+        MODULE_KEYS.forEach(key => {
+            const localData = JSON.parse(localStorage.getItem(key)) || {};
+            const remoteData = remoteParsed[key] || {};
+
+            if (hasData(localData)) {
+                payload[key] = localData;
+            } else if (hasData(remoteData)) {
+                payload[key] = remoteData;
+            } else {
+                payload[key] = {};
+            }
+        });
+
         await fetch(`https://api.github.com/gists/${gistId}`, {
             method: 'PATCH',
             headers: {
