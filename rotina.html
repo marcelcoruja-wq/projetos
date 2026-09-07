@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Planejador • Sistema de Persistência</title>
+    <script src="cloud.js"></script>
     <style>
         :root {
             --azul: #2F5FD0;
@@ -383,7 +384,7 @@
         </div>
     </div>
 
-    <!-- PESTAÑA 1: HOJE -->
+    <!-- ABA 1: HOJE -->
     <main id="tab-hoje" class="tab-content active">
         <div class="card">
             <div class="time-budget-header">
@@ -428,7 +429,7 @@
         </div>
     </main>
 
-    <!-- PESTAÑA 2: DASHBOARD -->
+    <!-- ABA 2: DASHBOARD -->
     <main id="tab-dashboard" class="tab-content">
         <div class="stats-grid">
             <div class="stat-card">
@@ -496,7 +497,7 @@
         </div>
     </main>
 
-    <!-- PESTAÑA 3: PLANEJAMENTO -->
+    <!-- ABA 3: PLANEJAMENTO -->
     <main id="tab-planejamento" class="tab-content">
         <div class="card">
             <h3 style="margin-bottom: 12px; font-size: 16px; color: var(--cinza);">⏳ Próximos Ciclos (Em Descanso)</h3>
@@ -551,7 +552,7 @@
         </div>
     </main>
 
-    <!-- PESTAÑA 4: LÓGICA -->
+    <!-- ABA 4: LÓGICA -->
     <main id="tab-logica" class="tab-content">
         <div class="logic-container">
             <h2 style="font-size:20px; color:var(--azul); margin-bottom:12px;">🧠 Arquitetura do Planejador</h2>
@@ -559,7 +560,7 @@
 
             <div class="logic-step-card">
                 <strong>1. Bolsa de Tempo Editável</strong><br>
-                Funciona como um orçamento flexível de esforço diário. Você escolhe quantos minutos quer dedicar ao dia (ex: 120 min, 180 min, 240 min) clicando em <em>✏️ Alterar Orçamento</em>.
+                Funciona como um orçamento flexível de esforço diário. Você escolhe quantos minutos quer dedicar ao dia clicando em <em>✏️ Alterar Orçamento</em>.
             </div>
 
             <div class="logic-step-card">
@@ -573,8 +574,8 @@
             </div>
 
             <div class="logic-step-card">
-                <strong>4. Gestão do Histórico</strong><br>
-                Acompanhe o total de <em>Vezes Realizada</em> no Dashboard e limpe registros incorretos do histórico clicando no ícone de lixeira (🗑).
+                <strong>4. Sincronização Automática com a Nuvem (Gist)</strong><br>
+                Qualquer atividade criada, editada ou concluída é enviada em segundo plano para o seu GitHub Gist, garantindo que o progresso apareça no seu computador, celular ou tablet.
             </div>
         </div>
     </main>
@@ -650,11 +651,6 @@
     </div>
 </div>
 
-    window.onload = async function() {
-    await cloudPull(); // Baixa os dados novos do outro dispositivo antes de desenhar a tela
-    render();
-};
-
 <script>
     const STORAGE_KEY = 'persistence_engine_data_v1';
     const PROJECTS_KEY = 'projects_engine_data_v1';
@@ -665,9 +661,10 @@
         dailyTargetMinutes: 180
     };
 
-    function saveData() {
+    async function saveData() {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
         render();
+        if (typeof cloudPush === 'function') await cloudPush();
     }
 
     function editDailyBudget() {
@@ -1223,7 +1220,16 @@
         }
     }
 
-    window.onload = function() {
+    window.onload = async function() {
+        if (typeof cloudPull === 'function') await cloudPull();
+        
+        // Recarregar dados após o pull
+        state = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
+            tasks: [],
+            logs: [],
+            dailyTargetMinutes: 180
+        };
+
         loadProjectTasksDropdown();
         render();
     };
