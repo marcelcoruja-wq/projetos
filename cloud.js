@@ -1,8 +1,7 @@
-/* cloud.js - Gerenciador Automático de Nuvem */
+/* cloud.js */
 const CLOUD_TOKEN_KEY = 'cloud_gist_token';
 const CLOUD_ID_KEY = 'cloud_gist_id';
 
-// 1. Puxar dados da nuvem ao carregar a página
 async function cloudPull() {
     const token = localStorage.getItem(CLOUD_TOKEN_KEY);
     const gistId = localStorage.getItem(CLOUD_ID_KEY);
@@ -30,6 +29,10 @@ async function cloudPull() {
                 localStorage.setItem('projects_engine_data_v1', JSON.stringify(parsed.projects_engine_data_v1));
                 updated = true;
             }
+            if (parsed.financas_engine_data_v1) {
+                localStorage.setItem('financas_engine_data_v1', JSON.stringify(parsed.financas_engine_data_v1));
+                updated = true;
+            }
             return updated;
         }
     } catch (e) {
@@ -38,7 +41,6 @@ async function cloudPull() {
     return false;
 }
 
-// 2. Enviar dados para a nuvem sempre que algo for salvo
 async function cloudPush() {
     const token = localStorage.getItem(CLOUD_TOKEN_KEY);
     const gistId = localStorage.getItem(CLOUD_ID_KEY);
@@ -47,7 +49,8 @@ async function cloudPush() {
 
     const payload = {
         persistence_engine_data_v1: JSON.parse(localStorage.getItem('persistence_engine_data_v1')) || {},
-        projects_engine_data_v1: JSON.parse(localStorage.getItem('projects_engine_data_v1')) || {}
+        projects_engine_data_v1: JSON.parse(localStorage.getItem('projects_engine_data_v1')) || {},
+        financas_engine_data_v1: JSON.parse(localStorage.getItem('financas_engine_data_v1')) || {}
     };
 
     try {
