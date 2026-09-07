@@ -10,6 +10,8 @@
             --azul: #2F5FD0;
             --azul-escuro: #1e3a8a;
             --verde: #10B981;
+            --amarelo: #F59E0B;
+            --vermelho: #EF4444;
             --cinza: #64748B;
             --texto: #243041;
             --fundo: #F5F7FB;
@@ -31,7 +33,7 @@
             padding: 40px 20px;
         }
 
-        .container { width: min(850px, 95%); }
+        .container { width: min(900px, 95%); }
 
         header {
             text-align: center;
@@ -50,8 +52,8 @@
         .cloud-bar {
             background: var(--card);
             border: 2px solid var(--border-color);
-            border-radius: 12px;
-            padding: 16px 20px;
+            border-radius: 14px;
+            padding: 18px 20px;
             margin-bottom: 30px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.02);
         }
@@ -194,10 +196,46 @@
                 <div class="btn-access">Acessar App &rarr;</div>
             </div>
         </a>
+
+        <!-- Card Finanças Pessoais -->
+        <a href="financas.html" class="card-link">
+            <div class="card">
+                <div>
+                    <div class="card-icon">💰</div>
+                    <h2>Finanças Pessoais</h2>
+                    <p>Calculador de teto diário de gastos, acompanhamento histórico por categoria, evolução de dívidas e acerto 50/50 do apê.</p>
+                </div>
+                <div class="btn-access">Acessar App &rarr;</div>
+            </div>
+        </a>
+
+        <!-- Card Pomodoro -->
+        <a href="pomodoro.html" class="card-link">
+            <div class="card">
+                <div>
+                    <div class="card-icon">🍅</div>
+                    <h2>Pomodoro & Foco</h2>
+                    <p>Gerenciador de tempo por modos autorregulados (Explorar, Executar, Revisar) com barra de progresso visual e planejamento de blocos.</p>
+                </div>
+                <div class="btn-access">Acessar App &rarr;</div>
+            </div>
+        </a>
+
+        <!-- Card Big Five -->
+        <a href="bigfive.html" class="card-link">
+            <div class="card">
+                <div>
+                    <div class="card-icon">🧠</div>
+                    <h2>Big Five • Perfil</h2>
+                    <p>Análise da estabilidade da personalidade e relatório detalhado de traços e facetas psicológicas.</p>
+                </div>
+                <div class="btn-access">Acessar Relatório &rarr;</div>
+            </div>
+        </a>
     </div>
 
     <footer>
-        <p>© Central de Ferramentas de Produtividade</p>
+        <p>© Central de Ferramentas de Produtividade & Autoconhecimento</p>
     </footer>
 </div>
 
@@ -244,7 +282,6 @@
         statusEl.innerHTML = '<span style="color:var(--amarelo);">Sincronizando...</span>';
 
         try {
-            // 1. Puxar dados mais recentes do Gist
             const res = await fetch(`https://api.github.com/gists/${gistId}`, {
                 headers: { 'Authorization': `token ${token}` }
             });
@@ -264,7 +301,6 @@
                 }
             }
 
-            // 2. Enviar dados do navegador local de volta para o Gist (Garante backup bidirecional)
             const payload = {
                 persistence_engine_data_v1: JSON.parse(localStorage.getItem('persistence_engine_data_v1')) || {},
                 projects_engine_data_v1: JSON.parse(localStorage.getItem('projects_engine_data_v1')) || {}
