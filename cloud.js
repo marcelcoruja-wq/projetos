@@ -1,4 +1,4 @@
-/* cloud.js - Sincronizador Inteligente com Fusão Segura */
+/* cloud.js - Sincronização Estável sem Limite de Payload */
 const CLOUD_TOKEN_KEY = 'cloud_gist_token';
 const CLOUD_ID_KEY = 'cloud_gist_id';
 
@@ -14,14 +14,13 @@ function hasContent(obj) {
     return Object.keys(obj).length > 0;
 }
 
-// Mescla dados de finanças combinando arrays por ID para evitar perdas
 function mergeFinanceData(local, remote) {
     if (!hasContent(remote)) return local || {};
     if (!hasContent(local)) return remote || {};
 
     const merged = { ...remote, ...local };
-
     const arrayKeys = ['transactions', 'savings', 'debts', 'apeExpenses', 'favors'];
+
     arrayKeys.forEach(arrKey => {
         const localArr = Array.isArray(local[arrKey]) ? local[arrKey] : [];
         const remoteArr = Array.isArray(remote[arrKey]) ? remote[arrKey] : [];
@@ -36,7 +35,6 @@ function mergeFinanceData(local, remote) {
     return merged;
 }
 
-// 1. Puxar dados da nuvem protegendo registros locais
 async function cloudPull() {
     const token = localStorage.getItem(CLOUD_TOKEN_KEY);
     const gistId = localStorage.getItem(CLOUD_ID_KEY);
@@ -54,6 +52,7 @@ async function cloudPull() {
 
         if (content && content !== '{}') {
             const parsed = JSON.parse(content);
+            let hasLocalAdditions = false;
 
             MODULE_KEYS.forEach(key => {
                 const remoteObj = parsed[key];
@@ -65,14 +64,21 @@ async function cloudPull() {
                     if (hasContent(mergedFinance)) {
                         localStorage.setItem(key, JSON.stringify(mergedFinance));
                     }
+                    if (hasContent(localObj) && (!hasContent(remoteObj) || JSON.stringify(localObj) !== JSON.stringify(remoteObj))) {
+                        hasLocalAdditions = true;
+                    }
                 } else {
                     if (hasContent(remoteObj)) {
                         localStorage.setItem(key, JSON.stringify(remoteObj));
-                    } else if (!rawLocal && remoteObj) {
-                        localStorage.setItem(key, JSON.stringify(remoteObj));
+                    } else if (hasContent(localObj)) {
+                        hasLocalAdditions = true;
                     }
                 }
             });
+
+            if (hasLocalAdditions) {
+                await cloudPush();
+            }
             return true;
         }
     } catch (e) {
@@ -81,12 +87,11 @@ async function cloudPull() {
     return false;
 }
 
-// 2. Enviar para a nuvem garantindo envio em segundo plano
 async function cloudPush() {
     const token = localStorage.getItem(CLOUD_TOKEN_KEY);
     const gistId = localStorage.getItem(CLOUD_ID_KEY);
 
-    if (!token || !gistId) return;
+    if (!token || !gistId) return false;
 
     const payload = {};
     MODULE_KEYS.forEach(key => {
@@ -103,9 +108,8 @@ async function cloudPush() {
     });
 
     try {
-        await fetch(`https://api.github.com/gists/${gistId}`, {
+        const res = await fetch(`https://api.github.com/gists/${gistId}`, {
             method: 'PATCH',
-            keepalive: true,
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
@@ -116,7 +120,16 @@ async function cloudPush() {
                 }
             })
         });
+
+        if (res.ok) {
+            console.log("Sincronização com o Gist realizada com sucesso!");
+            return true;
+        } else {
+            console.error("Erro no Cloud Push (Status HTTP):", res.status);
+            return false;
+        }
     } catch (e) {
         console.error("Erro no Cloud Push:", e);
+        return false;
     }
 }
