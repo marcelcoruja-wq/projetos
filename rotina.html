@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Motor de Persistência & Execução</title>
+    <style>
+        :root {
+            --azul: #2F5FD0;
+            --azul-escuro: #1e3a8a;
+            --verde: #10B981;
+            --cinza: #64748B;
+            --texto: #243041;
+            --fundo: #F5F7FB;
+            --card: #FFFFFF;
+            --border-color: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--fundo);
+            font-family: Inter, "Segoe UI", Arial, sans-serif;
+            color: var(--texto);
+            line-height: 1.6;
+            padding: 30px 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: min(900px, 95%);
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-back {
+            text-decoration: none;
+            color: var(--cinza);
+            font-weight: 600;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: color 0.2s;
+        }
+
+        .btn-back:hover { color: var(--azul); }
+
+        h1 {
+            font-size: 28px;
+            color: var(--azul);
+            font-weight: 800;
+        }
+
+        nav {
+            display: flex;
+            background: #e2e8f0;
+            padding: 4px;
+            border-radius: 10px;
+            gap: 4px;
+        }
+
+        nav button {
+            border: none;
+            background: none;
+            padding: 8px 18px;
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--cinza);
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        nav button.active {
+            background: var(--card);
+            color: var(--azul);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .card {
+            background: var(--card);
+            border-radius: 16px;
+            border: 2px solid var(--border-color);
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+        }
+
+        /* Bolsa de Tempo */
+        .time-budget-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .progress-bar-bg {
+            background: var(--border-color);
+            height: 14px;
+            border-radius: 7px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            background: var(--azul);
+            height: 100%;
+            width: 0%;
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Formulários */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr auto;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .form-row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            color: var(--texto);
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--azul);
+        }
+
+        .btn-primary {
+            background: var(--azul);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-weight: 700;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: var(--azul-escuro);
+        }
+
+        /* Tabelas */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            color: var(--cinza);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 12px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        td {
+            padding: 14px 12px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
+            vertical-align: middle;
+        }
+
+        .tag {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            background: var(--fundo);
+            color: var(--cinza);
+            border: 1px solid var(--border-color);
+        }
+
+        .tag.Ciclico { background: #e0f2fe; color: #0369a1; border-color: #bae6fd; }
+        .tag.Fixo { background: #fef3c7; color: #b45309; border-color: #fde68a; }
+        .tag.Projeto { background: #f3e8ff; color: #6b21a8; border-color: #e9d5ff; }
+        .tag.Casa { background: #dcfce7; color: #15803d; border-color: #bbf7d0; }
+
+        .btn-check {
+            background: var(--verde);
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            font-weight: 700;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .btn-link {
+            text-decoration: none;
+            color: var(--azul);
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        /* Dashboard Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--card);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--azul);
+            margin-top: 4px;
+        }
+
+        .stat-label {
+            color: var(--cinza);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .btn-delete {
+            background: none;
+            border: none;
+            color: #ef4444;
+            cursor: pointer;
+            font-size: 16px;
+            margin-left: 8px;
+        }
+
+        @media (max-width: 640px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .form-row-2 { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div>
+            <a href="index.html" class="btn-back">&larr; Voltar ao Painel</a>
+            <div class="header-title">
+                <h1>⚡ Motor de Persistência</h1>
+            </div>
+        </div>
+        <nav>
+            <button id="nav-hoy" class="active" onclick="switchTab('hoy')">Hoy / Execução</button>
+            <button id="nav-dashboard" onclick="switchTab('dashboard')">Dashboard</button>
+        </nav>
+    </header>
+
+    <!-- ABA HOY -->
+    <main id="tab-hoy" class="tab-content active">
+        <!-- Bolsa de Tempo -->
+        <div class="card">
+            <div class="time-budget-header">
+                <span>🎯 Bolsa de Tempo Diária</span>
+                <span id="budget-text">0 min / 180 min</span>
+            </div>
+            <div class="progress-bar-bg">
+                <div id="budget-fill" class="progress-bar-fill"></div>
+            </div>
+        </div>
+
+        <!-- Adicionar Nova Atividade -->
+        <div class="card">
+            <h3 style="margin-bottom: 16px; font-size: 16px; color: var(--texto);">+ Cadastrar Atividade / Rotina</h3>
+            <div class="form-grid">
+                <input type="text" id="task-name" placeholder="Nome da atividade (ex: Corrida, Estudo Docs)...">
+                <select id="task-type">
+                    <option value="Ciclico">Cíclico (Intervalo puro)</option>
+                    <option value="Fixo">Fixo (Calendário)</option>
+                    <option value="Projeto">Bloco de Projeto</option>
+                    <option value="Casa">Manutenção Casa</option>
+                </select>
+                <input type="number" id="task-meta" placeholder="Meta (min)">
+                <button class="btn-primary" onclick="addTask()">Cadastrar</button>
+            </div>
+            <div class="form-row-2">
+                <input type="url" id="task-link" placeholder="Link opcional (ex: Google Docs, Drive, Planilha)">
+                <input type="number" id="daily-target-input" placeholder="Ajustar Meta Diária Global (min)" onchange="updateDailyTarget(this.value)">
+            </div>
+        </div>
+
+        <!-- Tabela Diária -->
+        <div class="card">
+            <h3 style="margin-bottom: 16px; font-size: 16px; color: var(--texto);">📋 Folha do Dia</h3>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Atividade</th>
+                            <th>Tipo</th>
+                            <th>Meta</th>
+                            <th>Tempo Real</th>
+                            <th>Nota / Link</th>
+                            <th>Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody id="task-list"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- ABA DASHBOARD -->
+    <main id="tab-dashboard" class="tab-content">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Tempo Total Acumulado</div>
+                <div id="stat-total-time" class="stat-number">0 min</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Sessões Concluídas</div>
+                <div id="stat-total-checks" class="stat-number">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Média por Sessão</div>
+                <div id="stat-avg-time" class="stat-number">0 min</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 style="margin-bottom: 16px; font-size: 16px; color: var(--texto);">📜 Histórico de Presença & Volume</h3>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Atividade</th>
+                            <th>Tempo Registrado</th>
+                            <th>Nota de Contexto</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-list"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    const STORAGE_KEY = 'persistence_engine_data_v1';
+
+    let state = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
+        tasks: [],
+        logs: [],
+        dailyTargetMinutes: 180
+    };
+
+    function saveData() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        render();
+    }
+
+    function switchTab(tabName) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('nav button').forEach(el => el.classList.remove('active'));
+        document.getElementById(`tab-${tabName}`).classList.add('active');
+        document.getElementById(`nav-${tabName}`).classList.add('active');
+        render();
+    }
+
+    function updateDailyTarget(val) {
+        const num = parseInt(val);
+        if (num > 0) {
+            state.dailyTargetMinutes = num;
+            saveData();
+        }
+    }
+
+    function addTask() {
+        const name = document.getElementById('task-name').value.trim();
+        const type = document.getElementById('task-type').value;
+        const meta = parseInt(document.getElementById('task-meta').value) || 0;
+        const link = document.getElementById('task-link').value.trim();
+
+        if (!name) return alert('Por favor, informe o nome da atividade.');
+
+        state.tasks.push({
+            id: Date.now(),
+            name,
+            type,
+            meta,
+            link,
+            completedToday: false
+        });
+
+        document.getElementById('task-name').value = '';
+        document.getElementById('task-meta').value = '';
+        document.getElementById('task-link').value = '';
+        saveData();
+    }
+
+    function checkIn(id) {
+        const timeInput = document.getElementById(`time-${id}`).value;
+        const noteInput = document.getElementById(`note-${id}`).value;
+        const task = state.tasks.find(t => t.id === id);
+
+        if (task) {
+            const minutes = parseInt(timeInput) || task.meta || 0;
+            task.completedToday = true;
+
+            state.logs.push({
+                id: Date.now(),
+                date: new Date().toLocaleDateString('pt-BR'),
+                taskName: task.name,
+                minutes: minutes,
+                note: noteInput
+            });
+        }
+        saveData();
+    }
+
+    function deleteTask(id) {
+        if (confirm('Deseja remover esta atividade da lista diária?')) {
+            state.tasks = state.tasks.filter(t => t.id !== id);
+            saveData();
+        }
+    }
+
+    function render() {
+        const todayStr = new Date().toLocaleDateString('pt-BR');
+        const taskList = document.getElementById('task-list');
+        taskList.innerHTML = '';
+        
+        let totalMinutesToday = 0;
+
+        if (state.tasks.length === 0) {
+            taskList.innerHTML = `<tr><td colspan="6" style="text-align:center; color: var(--cinza);">Nenhuma atividade cadastrada. Adicione uma acima!</td></tr>`;
+        }
+
+        state.tasks.forEach(task => {
+            const todayLog = state.logs.find(l => l.taskName === task.name && l.date === todayStr);
+            
+            if (task.completedToday && todayLog) {
+                totalMinutesToday += todayLog.minutes;
+            }
+
+            const docLinkHtml = task.link 
+                ? `<a href="${task.link}" target="_blank" class="btn-link">🔗 Abrir Doc</a>` 
+                : '';
+
+            taskList.innerHTML += `
+                <tr>
+                    <td><strong>${task.name}</strong></td>
+                    <td><span class="tag ${task.type}">${task.type}</span></td>
+                    <td>${task.meta} min</td>
+                    <td>
+                        ${task.completedToday 
+                            ? `<strong>${todayLog ? todayLog.minutes : task.meta} min</strong>` 
+                            : `<input type="number" id="time-${task.id}" style="width:70px" placeholder="${task.meta}"> min`}
+                    </td>
+                    <td>
+                        ${task.completedToday 
+                            ? `<span>${todayLog && todayLog.note ? todayLog.note : '-'}</span> ${docLinkHtml}` 
+                            : `<input type="text" id="note-${task.id}" placeholder="Observação..." style="margin-bottom:4px;"> ${docLinkHtml}`}
+                    </td>
+                    <td>
+                        ${task.completedToday 
+                            ? `<span style="color:var(--verde); font-weight:700;">✔ Concluído</span>` 
+                            : `<button class="btn-check" onclick="checkIn(${task.id})">Check-in</button>`}
+                        <button class="btn-delete" onclick="deleteTask(${task.id})" title="Excluir">🗑</button>
+                    </td>
+                </tr>
+            `;
+        });
+
+        // Atualizar Bolsa de Tempo
+        const targetGlobal = state.dailyTargetMinutes || 180;
+        document.getElementById('budget-text').innerText = `${totalMinutesToday} min / ${targetGlobal} min`;
+        document.getElementById('daily-target-input').placeholder = `Meta Global Atual: ${targetGlobal} min`;
+        
+        const pct = Math.min(100, Math.round((totalMinutesToday / targetGlobal) * 100));
+        document.getElementById('budget-fill').style.width = `${pct}%`;
+
+        // Dashboard
+        const totalTime = state.logs.reduce((acc, curr) => acc + curr.minutes, 0);
+        const totalChecks = state.logs.length;
+        const avgTime = totalChecks > 0 ? Math.round(totalTime / totalChecks) : 0;
+
+        document.getElementById('stat-total-time').innerText = `${totalTime} min`;
+        document.getElementById('stat-total-checks').innerText = totalChecks;
+        document.getElementById('stat-avg-time').innerText = `${avgTime} min`;
+
+        const historyList = document.getElementById('history-list');
+        historyList.innerHTML = '';
+
+        if (state.logs.length === 0) {
+            historyList.innerHTML = `<tr><td colspan="4" style="text-align:center; color: var(--cinza);">Nenhum histórico registrado ainda.</td></tr>`;
+        } else {
+            [...state.logs].reverse().forEach(log => {
+                historyList.innerHTML += `
+                    <tr>
+                        <td>${log.date}</td>
+                        <td><strong>${log.taskName}</strong></td>
+                        <td>${log.minutes} min</td>
+                        <td>${log.note || '-'}</td>
+                    </tr>
+                `;
+            });
+        }
+    }
+
+    render();
+</script>
+</body>
+</html>
