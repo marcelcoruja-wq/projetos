@@ -8,7 +8,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="cloud.js"></script>
+  <!-- Quebra de cache para garantir que lê o cloud.js novo -->
+  <script src="cloud.js?v=3"></script>
   <style>
     :root {
       --bg-main: #F8FAFC; 
@@ -725,26 +726,31 @@
   let historyChartInstance = null;
   let categoryChartInstance = null;
 
+  // VERSÃO COM DIAGNÓSTICO DE ERROS
   async function saveData() {
     try {
       localStorage.setItem('personalFinanceData', JSON.stringify(financeData));
     } catch(err) {
       alert("Erro ao gravar dados no navegador: " + err.message);
+      return;
     }
 
     refreshAll();
 
     if (typeof cloudPush === 'function') {
-      try {
-        await cloudPush();
-      } catch(e) {
-        console.error("Erro na sincronização:", e);
+      const enviado = await cloudPush();
+      if (enviado) {
+        alert("✅ Sucesso: Dados das finanças enviados para o GitHub!");
+      } else {
+        alert("⚠️ Falha no envio: O Token ou Gist ID estão ausentes ou incorretos.");
       }
+    } else {
+      alert("❌ Erro: O financas.html não encontrou o arquivo cloud.js!");
     }
   }
 
   window.onload = async function() {
-    // 1. Carrega dados do armazenamento local primeiro
+    // 1. Carrega dados do armazenamento local
     const saved = localStorage.getItem('personalFinanceData');
     if (saved) {
       try { 
@@ -758,12 +764,10 @@
           apeExpenses: Array.isArray(parsed.apeExpenses) ? parsed.apeExpenses : [],
           favors: Array.isArray(parsed.favors) ? parsed.favors : []
         };
-      } catch(e) { 
-        console.error("Erro ao ler dados salvos:", e); 
-      }
+      } catch(e) {}
     }
 
-    // 2. Busca a versão remota e atualiza a interface
+    // 2. Busca na nuvem ao abrir a página
     if (typeof cloudPull === 'function') {
       const pulled = await cloudPull();
       if (pulled) {
@@ -776,7 +780,7 @@
     
     document.getElementById('currencySelect').value = financeData.currency || "€";
     document.getElementById('fixedEstimateInput').value = financeData.fixedEstimate || '';
-
+    
     const today = new Date().toISOString().split('T')[0];
     if (document.getElementById('lData')) document.getElementById('lData').value = today;
     if (document.getElementById('aData')) document.getElementById('aData').value = today;
@@ -784,15 +788,34 @@
 
     document.querySelectorAll('.modal-overlay').forEach(overlay => {
       overlay.addEventListener('click', function(e) {
-        if (e.target === this) {
-          closeModal(this.id);
-        }
+        if (e.target === this) closeModal(this.id);
       });
     });
 
     initDateFilters();
     refreshAll();
   };
+
+  // ---------------------------------------------------------------------
+  // ALARME DE DESPERTADOR (Para Celulares e Abas inativas)
+  // Toda vez que você voltar para a aba do App, ele puxa os dados novos
+  // ---------------------------------------------------------------------
+  document.addEventListener("visibilitychange", async () => {
+    if (document.visibilityState === 'visible') {
+      if (typeof cloudPull === 'function') {
+        const hasUpdates = await cloudPull();
+        if (hasUpdates) {
+          const updatedStr = localStorage.getItem('personalFinanceData');
+          if (updatedStr) {
+            try { 
+              financeData = JSON.parse(updatedStr); 
+              refreshAll(); 
+            } catch(e) {}
+          }
+        }
+      }
+    }
+  });
 
   function initDateFilters() {
     document.getElementById('globalStartDate').value = '';
