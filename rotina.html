@@ -34,7 +34,6 @@
 
         .container { width: min(1050px, 95%); }
 
-        /* BARRA SUPERIOR DE NAVEGAÇÃO */
         .top-bar {
             display: flex;
             justify-content: space-between;
@@ -236,7 +235,6 @@
             margin-bottom: 4px;
         }
 
-        /* SELETOR DE DIAS POR BOTÃO (PILLS) */
         .days-checkbox-group {
             display: flex;
             gap: 6px;
@@ -268,7 +266,6 @@
             border-color: var(--azul);
         }
 
-        /* Modal Overlay & Box */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -360,12 +357,22 @@
         }
 
         .logic-step-card strong { color: var(--azul-escuro); font-size: 15px; }
+
+        .btn-edit-budget {
+            background: none;
+            border: none;
+            color: var(--azul);
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-left: 8px;
+        }
+        .btn-edit-budget:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- BARRA SUPERIOR DE NAVEGAÇÃO -->
     <div class="top-bar">
         <div class="nav-tabs">
             <a href="index.html" class="tab-btn btn-back">🏠 Painel</a>
@@ -376,11 +383,14 @@
         </div>
     </div>
 
-    <!-- PESTAÑA 1: HOJE (PRIMEIRA ABA / FOCO DIÁRIO) -->
+    <!-- PESTAÑA 1: HOJE -->
     <main id="tab-hoje" class="tab-content active">
         <div class="card">
             <div class="time-budget-header">
-                <span>🎯 Bolsa de Tempo do Dia</span>
+                <div>
+                    <span>🎯 Bolsa de Tempo do Dia</span>
+                    <button class="btn-edit-budget" onclick="editDailyBudget()">✏️ Alterar Orçamento</button>
+                </div>
                 <span id="budget-text">0 min / 180 min</span>
             </div>
             <div class="progress-bar-bg">
@@ -435,7 +445,6 @@
             </div>
         </div>
 
-        <!-- MÉRITAS MENSAIS E INÍCIO DE CADA ATIVIDADE -->
         <div class="card">
             <h3 style="margin-bottom: 16px; font-size: 16px;">📊 Desempenho por Atividade (Mês Atual)</h3>
             <div class="table-responsive">
@@ -454,7 +463,6 @@
             </div>
         </div>
 
-        <!-- HISTÓRICO DE LOGS -->
         <div class="card">
             <h3 style="margin-bottom: 16px; font-size: 16px;">📜 Histórico de Presença & Volume</h3>
             
@@ -479,6 +487,7 @@
                             <th>Tags</th>
                             <th>Tempo Registrado</th>
                             <th>Nota de Contexto</th>
+                            <th>Ações</th>
                         </tr>
                     </thead>
                     <tbody id="history-list"></tbody>
@@ -487,9 +496,8 @@
         </div>
     </main>
 
-    <!-- PESTAÑA 3: PLANEJAMENTO (VISÃO GERAL) -->
+    <!-- PESTAÑA 3: PLANEJAMENTO -->
     <main id="tab-planejamento" class="tab-content">
-        <!-- PRÓXIMOS CICLOS -->
         <div class="card">
             <h3 style="margin-bottom: 12px; font-size: 16px; color: var(--cinza);">⏳ Próximos Ciclos (Em Descanso)</h3>
             <div class="table-responsive">
@@ -508,7 +516,6 @@
             </div>
         </div>
 
-        <!-- DELEGADAS -->
         <div class="card">
             <h3 style="margin-bottom: 12px; font-size: 16px;">🤝 Em Acompanhamento (Delegadas)</h3>
             <div class="table-responsive">
@@ -526,7 +533,6 @@
             </div>
         </div>
 
-        <!-- INCUBADORA -->
         <div class="card">
             <h3 style="margin-bottom: 12px; font-size: 16px;">💡 Incubadora (Ideias & Futuro)</h3>
             <div class="table-responsive">
@@ -545,30 +551,30 @@
         </div>
     </main>
 
-    <!-- PESTAÑA 4: LÓGICA E ARQUITETURA -->
+    <!-- PESTAÑA 4: LÓGICA -->
     <main id="tab-logica" class="tab-content">
         <div class="logic-container">
             <h2 style="font-size:20px; color:var(--azul); margin-bottom:12px;">🧠 Arquitetura do Planejador</h2>
             <p style="margin-bottom: 20px; color:var(--cinza);">O Planejador foi desenhado para sustentar a <strong>persistência e a constância no longo prazo</strong>, eliminando a ansiedade por schedules rígidos e promovendo a total liberdade de escolha.</p>
 
             <div class="logic-step-card">
-                <strong>1. Liberdade Total & Preenchimento Opcional</strong><br>
+                <strong>1. Bolsa de Tempo Editável</strong><br>
+                Funciona como um orçamento flexível de esforço diário. Você escolhe quantos minutos quer dedicar ao dia (ex: 120 min, 180 min, 240 min) clicando em <em>✏️ Alterar Orçamento</em>.
+            </div>
+
+            <div class="logic-step-card">
+                <strong>2. Liberdade Total & Preenchimento Opcional</strong><br>
                 Nenhum dado é obrigatório. Você pode cadastrar uma atividade simples só com o nome ou detalhar metas, dias da semana fixos, intervalos flexíveis e checklists.
             </div>
 
             <div class="logic-step-card">
-                <strong>2. Bolsa de Tempo Flexível (Hoje)</strong><br>
-                Define uma capacidade orientativa de tempo para o dia (ex: 180 min). Ao dar check-in, o progresso avança sem travar sua agenda.
-            </div>
-
-            <div class="logic-step-card">
                 <strong>3. Motor Cíclico & Marcação de Dias</strong><br>
-                Configure dias fixos da semana (ex: Seg, Qua, Sex) ou um intervalo relativo (ex: a cada 3 dias). Quando você conclui um hábito cíclico, ele é enviado para <em>⏳ Próximos Ciclos</em> e reaparece na aba <em>🔥 Hoje</em> automaticamente no momento certo.
+                Configure dias fixos da semana (ex: Seg, Qua, Sex) ou um intervalo relativo (ex: a cada 3 dias). Quando você conclui um hábito cíclico, ele vai para a aba de descanso e reaparece na aba <em>🔥 Hoje</em> automaticamente no momento certo.
             </div>
 
             <div class="logic-step-card">
-                <strong>4. Métricas Flexíveis no Dashboard</strong><br>
-                Acompanhe o total de <em>Vezes Realizada</em>, a data de início de cada hábito e a frequência cumprida no mês contra o objetivo estimado.
+                <strong>4. Gestão do Histórico</strong><br>
+                Acompanhe o total de <em>Vezes Realizada</em> no Dashboard e limpe registros incorretos do histórico clicando no ícone de lixeira (🗑).
             </div>
         </div>
     </main>
@@ -657,6 +663,18 @@
     function saveData() {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
         render();
+    }
+
+    function editDailyBudget() {
+        const current = state.dailyTargetMinutes || 180;
+        const newMeta = prompt('Quantos minutos você deseja estabelecer para a Bolsa de Tempo de hoje?', current);
+        if (newMeta !== null) {
+            const num = parseInt(newMeta);
+            if (!isNaN(num) && num > 0) {
+                state.dailyTargetMinutes = num;
+                saveData();
+            }
+        }
     }
 
     function switchTab(tabName) {
@@ -906,6 +924,14 @@
         loadProjectTasksDropdown();
     }
 
+    function deleteLog(logId) {
+        if (confirm('Deseja apagar este registro de check-in do histórico?')) {
+            state.logs = state.logs.filter(l => l.id !== logId);
+            saveData();
+            renderDashboard();
+        }
+    }
+
     function promoteToExecution(id) {
         const task = state.tasks.find(t => t.id === id);
         if (task) {
@@ -1124,17 +1150,14 @@
         document.getElementById('stat-total-checks').innerText = totalChecks;
         document.getElementById('stat-avg-time').innerText = `${avgTime} min`;
 
-        // TABELA DE MENSALIDADES E INÍCIO DE ATIVIDADES
         const monthlyBody = document.getElementById('task-monthly-summary');
         if (monthlyBody) {
             monthlyBody.innerHTML = '';
             const now = new Date();
-            const currentMonthStr = `${now.getMonth() + 1}/${now.getFullYear()}`;
 
             state.tasks.forEach(task => {
                 const startDateStr = task.createdAtYMD ? parseYMD(task.createdAtYMD).toLocaleDateString('pt-BR') : '-';
                 
-                // Contar execuções no mês atual
                 const thisMonthLogs = state.logs.filter(l => {
                     if (l.taskId !== task.id && l.taskName !== task.name) return false;
                     const parts = l.date.split('/');
@@ -1147,7 +1170,6 @@
                 const countThisMonth = thisMonthLogs.length;
                 const totalHistorical = state.logs.filter(l => l.taskId === task.id || l.taskName === task.name).length;
 
-                // Estimar Meta Mensal se houver ciclo ou dias fixos
                 let monthlyTargetText = 'Sem meta fixa';
                 if (task.intervalDays > 0) {
                     const estTarget = Math.round(30 / task.intervalDays);
@@ -1178,7 +1200,7 @@
         historyList.innerHTML = '';
 
         if (filteredLogs.length === 0) {
-            historyList.innerHTML = `<tr><td colspan="5" style="text-align:center; color: var(--cinza);">Nenhum histórico encontrado para estes filtros.</td></tr>`;
+            historyList.innerHTML = `<tr><td colspan="6" style="text-align:center; color: var(--cinza);">Nenhum histórico encontrado para estes filtros.</td></tr>`;
         } else {
             [...filteredLogs].reverse().forEach(log => {
                 const tagsHtml = (log.tags || []).map(tg => `<span class="tag-badge">${tg}</span>`).join('');
@@ -1189,6 +1211,7 @@
                         <td>${tagsHtml || '-'}</td>
                         <td>${log.minutes} min</td>
                         <td>${log.note || '-'}</td>
+                        <td><button class="btn-icon btn-delete" onclick="deleteLog(${log.id})" title="Apagar Check-in">🗑</button></td>
                     </tr>
                 `;
             });
