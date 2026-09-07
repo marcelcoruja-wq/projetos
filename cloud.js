@@ -1,4 +1,4 @@
-/* cloud.js - Sincronização Definitiva (v10) */
+/* cloud.js - Sincronização Definitiva Sem Bloqueio CORS (v11) */
 const CLOUD_TOKEN_KEY = 'cloud_gist_token';
 const CLOUD_ID_KEY = 'cloud_gist_id';
 const SYNC_LOCK_KEY = 'cloud_sync_last_push';
@@ -20,7 +20,10 @@ async function cloudPull() {
 
     try {
         const res = await fetch(`https://api.github.com/gists/${gistId}?t=${Date.now()}`, {
-            headers: { 'Authorization': `Bearer ${token}`, 'Cache-Control': 'no-cache' }
+            headers: { 
+                'Authorization': `Bearer ${token}`,
+                'Accept': 'application/vnd.github.v3+json'
+            }
         });
         if (!res.ok) return false;
 
@@ -55,7 +58,10 @@ async function cloudPush() {
         let remotePayload = {};
         // 1. Puxa os dados antigos para não apagar o que já está lá
         const getRes = await fetch(`https://api.github.com/gists/${gistId}?t=${Date.now()}`, {
-            headers: { 'Authorization': `Bearer ${token}`, 'Cache-Control': 'no-cache' }
+            headers: { 
+                'Authorization': `Bearer ${token}`,
+                'Accept': 'application/vnd.github.v3+json'
+            }
         });
 
         if (getRes.ok) {
@@ -82,10 +88,14 @@ async function cloudPush() {
             }
         });
 
-        // 3. Envia para o GitHub
+        // 3. Envia para o GitHub sem cabeçalhos restritivos de CORS
         const res = await fetch(`https://api.github.com/gists/${gistId}`, {
             method: 'PATCH',
-            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            headers: { 
+                'Authorization': `Bearer ${token}`,
+                'Accept': 'application/vnd.github.v3+json',
+                'Content-Type': 'application/json' 
+            },
             body: JSON.stringify({
                 files: { 'dados.json': { content: JSON.stringify(remotePayload, null, 2) } }
             })
@@ -93,7 +103,7 @@ async function cloudPush() {
 
         if (res.ok) {
             localStorage.setItem(SYNC_LOCK_KEY, Date.now().toString());
-            return true; // Retorna SUCESSO para o financas.html
+            return true;
         } else {
             const errText = await res.text();
             alert(`🚨 O GitHub rejeitou o formato dos dados: ${res.status}\n${errText}`);
