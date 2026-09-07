@@ -16,11 +16,7 @@
             --border-color: #e2e8f0;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             background: var(--fundo);
@@ -33,9 +29,7 @@
             justify-content: center;
         }
 
-        .container {
-            width: min(900px, 95%);
-        }
+        .container { width: min(900px, 95%); }
 
         header {
             display: flex;
@@ -54,16 +48,11 @@
             display: inline-flex;
             align-items: center;
             gap: 4px;
-            transition: color 0.2s;
         }
 
         .btn-back:hover { color: var(--azul); }
 
-        h1 {
-            font-size: 28px;
-            color: var(--azul);
-            font-weight: 800;
-        }
+        h1 { font-size: 28px; color: var(--azul); font-weight: 800; }
 
         nav {
             display: flex;
@@ -158,12 +147,9 @@
             font-size: 14px;
             color: var(--texto);
             outline: none;
-            transition: border-color 0.2s;
         }
 
-        input:focus, select:focus {
-            border-color: var(--azul);
-        }
+        input:focus, select:focus { border-color: var(--azul); }
 
         .btn-primary {
             background: var(--azul);
@@ -173,16 +159,11 @@
             font-weight: 700;
             border-radius: 8px;
             cursor: pointer;
-            transition: background 0.2s;
         }
 
-        .btn-primary:hover {
-            background: var(--azul-escuro);
-        }
+        .btn-primary:hover { background: var(--azul-escuro); }
 
-        .table-responsive {
-            overflow-x: auto;
-        }
+        .table-responsive { overflow-x: auto; }
 
         table {
             width: 100%;
@@ -194,16 +175,14 @@
             color: var(--cinza);
             font-size: 12px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
             padding: 12px;
             border-bottom: 2px solid var(--border-color);
         }
 
         td {
-            padding: 14px 12px;
+            padding: 12px;
             border-bottom: 1px solid var(--border-color);
             font-size: 14px;
-            vertical-align: middle;
         }
 
         .tag {
@@ -214,9 +193,9 @@
             text-transform: uppercase;
         }
 
-        .tag.fazer_ja { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
-        .tag.delegar { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
-        .tag.incubar { background: #f3e8ff; color: #6b21a8; border: 1px solid #e9d5ff; }
+        .tag.fazer_ja { background: #fee2e2; color: #991b1b; }
+        .tag.delegar { background: #fef3c7; color: #92400e; }
+        .tag.incubar { background: #f3e8ff; color: #6b21a8; }
 
         .btn-check {
             background: var(--verde);
@@ -236,7 +215,6 @@
             font-size: 15px;
             margin-left: 4px;
             color: var(--cinza);
-            transition: color 0.2s;
         }
 
         .btn-icon:hover { color: var(--azul); }
@@ -247,6 +225,16 @@
             color: var(--azul);
             font-weight: 600;
             font-size: 13px;
+        }
+
+        .section-subtitle {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--texto);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .stats-grid {
@@ -264,24 +252,8 @@
             text-align: center;
         }
 
-        .stat-number {
-            font-size: 32px;
-            font-weight: 800;
-            color: var(--azul);
-            margin-top: 4px;
-        }
-
-        .stat-label {
-            color: var(--cinza);
-            font-size: 13px;
-            font-weight: 600;
-        }
-
-        @media (max-width: 640px) {
-            .form-grid { grid-template-columns: 1fr; }
-            .form-row-2 { grid-template-columns: 1fr; }
-            .import-box { flex-direction: column; }
-        }
+        .stat-number { font-size: 32px; font-weight: 800; color: var(--azul); }
+        .stat-label { color: var(--cinza); font-size: 13px; font-weight: 600; }
     </style>
 </head>
 <body>
@@ -295,17 +267,17 @@
             </div>
         </div>
         <nav>
-            <button id="nav-hoy" class="active" onclick="switchTab('hoy')">Hoy / Execução</button>
+            <button id="nav-hoy" class="active" onclick="switchTab('hoy')">Planejamento</button>
             <button id="nav-dashboard" onclick="switchTab('dashboard')">Dashboard</button>
         </nav>
     </header>
 
-    <!-- ABA HOY -->
+    <!-- ABA PLANEJAMENTO -->
     <main id="tab-hoy" class="tab-content active">
         <!-- Bolsa de Tempo -->
         <div class="card">
             <div class="time-budget-header">
-                <span>🎯 Bolsa de Tempo Diária</span>
+                <span>🎯 Bolsa de Tempo do Planejamento</span>
                 <span id="budget-text">0 min / 180 min</span>
             </div>
             <div class="progress-bar-bg">
@@ -319,44 +291,77 @@
             <select id="project-task-import">
                 <option value="">Nenhuma tarefa pendente nos projetos</option>
             </select>
-            <button class="btn-primary" style="padding: 8px 14px; font-size:13px;" onclick="importProjectTask()">+ Puxar para Hoje</button>
+            <button class="btn-primary" style="padding: 8px 14px; font-size:13px;" onclick="importProjectTask()">+ Puxar para Execução</button>
         </div>
 
-        <!-- Adicionar Nova Atividade -->
+        <!-- Adicionar Atividade -->
         <div class="card">
-            <h3 style="margin-bottom: 16px; font-size: 16px; color: var(--texto);">+ Cadastrar Atividade / Rotina</h3>
+            <h3 style="margin-bottom: 16px; font-size: 16px;">+ Cadastrar Atividade</h3>
             <div class="form-grid">
-                <input type="text" id="task-name" placeholder="Nome da atividade (ex: Estudo Docs, Treino, Revisar e-mails)...">
+                <input type="text" id="task-name" placeholder="Nome da atividade...">
                 <select id="task-type">
-                    <option value="fazer_ja">Fazer já (Foco / Imediato)</option>
-                    <option value="delegar">Delegar (Acompanhar)</option>
-                    <option value="incubar">Incubar (Someday / Espera)</option>
+                    <option value="fazer_ja">Fazer já (Execução Hoje)</option>
+                    <option value="delegar">Delegar (Acompanhar terceiros)</option>
+                    <option value="incubar">Incubar (Ideias / Espera)</option>
                 </select>
                 <input type="number" id="task-meta" placeholder="Meta (min)">
                 <button class="btn-primary" onclick="addTask()">Cadastrar</button>
             </div>
             <div class="form-row-2">
-                <input type="url" id="task-link" placeholder="Link opcional (ex: Google Docs, Drive, Planilha)">
-                <input type="number" id="daily-target-input" placeholder="Ajustar Meta Diária Global (min)" onchange="updateDailyTarget(this.value)">
+                <input type="url" id="task-link" placeholder="Link opcional (Docs, Drive, etc.)">
+                <input type="number" id="daily-target-input" placeholder="Meta Diária Global (min)" onchange="updateDailyTarget(this.value)">
             </div>
         </div>
 
-        <!-- Tabela Diária -->
+        <!-- TABELA 1: EXECUÇÃO DIRETA (FAZER JÁ) -->
         <div class="card">
-            <h3 style="margin-bottom: 16px; font-size: 16px; color: var(--texto);">📋 Folha do Dia</h3>
+            <div class="section-subtitle">🚀 Execução do Dia (Fazer Já)</div>
             <div class="table-responsive">
                 <table>
                     <thead>
                         <tr>
                             <th>Atividade</th>
-                            <th>Ação</th>
                             <th>Meta</th>
                             <th>Tempo Real</th>
                             <th>Nota / Link</th>
                             <th>Opções</th>
                         </tr>
                     </thead>
-                    <tbody id="task-list"></tbody>
+                    <tbody id="task-list-fazer-ja"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TABELA 2: DELEGADAS (ACOMPANHAMENTO) -->
+        <div class="card">
+            <div class="section-subtitle">🤝 Em Acompanhamento (Delegadas)</div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Atividade / Responsável</th>
+                            <th>Observações</th>
+                            <th>Status / Opções</th>
+                        </tr>
+                    </thead>
+                    <tbody id="task-list-delegar"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TABELA 3: INCUBADORA (SOMEDAY / IDEIAS) -->
+        <div class="card">
+            <div class="section-subtitle">💡 Incubadora (Ideias & Futuro)</div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ideia / Projeto Futuro</th>
+                            <th>Anotações</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="task-list-incubar"></tbody>
                 </table>
             </div>
         </div>
@@ -380,7 +385,7 @@
         </div>
 
         <div class="card">
-            <h3 style="margin-bottom: 16px; font-size: 16px; color: var(--texto);">📜 Histórico de Presença & Volume</h3>
+            <h3 style="margin-bottom: 16px; font-size: 16px;">📜 Histórico de Presença & Volume</h3>
             <div class="table-responsive">
                 <table>
                     <thead>
@@ -430,16 +435,19 @@
     }
 
     function loadProjectTasksDropdown() {
-        const projectsData = JSON.parse(localStorage.getItem(PROJECTS_KEY)) || [];
+        const projectsData = JSON.parse(localStorage.getItem(PROJECTS_KEY)) || {};
         const select = document.getElementById('project-task-import');
         select.innerHTML = '<option value="">-- Selecione uma tarefa do Gestor de Projetos --</option>';
 
         let count = 0;
-        projectsData.forEach(p => {
-            p.tasks.filter(t => t.status !== 'Concluida').forEach(t => {
-                select.innerHTML += `<option value="${p.id}|${t.id}">[${p.name}] ${t.name}</option>`;
-                count++;
-            });
+        Object.keys(projectsData).forEach(pId => {
+            const p = projectsData[pId];
+            if (p.tasks && Array.isArray(p.tasks)) {
+                p.tasks.filter(t => t.status !== 'completed').forEach(t => {
+                    select.innerHTML += `<option value="${pId}|${t.id}">[${p.name}] ${t.title || t.name}</option>`;
+                    count++;
+                });
+            }
         });
 
         if (count === 0) {
@@ -449,18 +457,18 @@
 
     function importProjectTask() {
         const val = document.getElementById('project-task-import').value;
-        if (!val) return alert('Selecione uma tarefa válida da lista.');
+        if (!val) return alert('Selecione uma tarefa válida.');
 
-        const [projectId, taskId] = val.split('|').map(Number);
-        const projectsData = JSON.parse(localStorage.getItem(PROJECTS_KEY)) || [];
-        const project = projectsData.find(p => p.id === projectId);
+        const [projectId, taskId] = val.split('|');
+        const projectsData = JSON.parse(localStorage.getItem(PROJECTS_KEY)) || {};
+        const project = projectsData[projectId];
         if (!project) return;
         const task = project.tasks.find(t => t.id === taskId);
         if (!task) return;
 
         state.tasks.push({
             id: Date.now(),
-            name: `[${project.name}] ${task.name}`,
+            name: `[${project.name}] ${task.title || task.name}`,
             type: 'fazer_ja',
             meta: 30,
             link: '',
@@ -496,16 +504,24 @@
         saveData();
     }
 
+    function promoteToExecution(id) {
+        const task = state.tasks.find(t => t.id === id);
+        if (task) {
+            task.type = 'fazer_ja';
+            saveData();
+        }
+    }
+
     function editTask(id) {
         const task = state.tasks.find(t => t.id === id);
         if (!task) return;
 
-        const newName = prompt('Nome da atividade:', task.name);
+        const newName = prompt('Nome:', task.name);
         if (newName === null) return;
 
-        const newMeta = prompt('Meta em minutos:', task.meta);
-        const newCategory = prompt('Categoria (fazer_ja, delegar, incubar):', task.type);
-        const newLink = prompt('Link (Google Docs, Drive, etc.):', task.link || '');
+        const newMeta = prompt('Meta em min:', task.meta);
+        const newCategory = prompt('Tipo (fazer_ja, delegar, incubar):', task.type);
+        const newLink = prompt('Link:', task.link || '');
 
         task.name = newName.trim() || task.name;
         task.meta = parseInt(newMeta) || task.meta;
@@ -518,8 +534,8 @@
     }
 
     function checkIn(id) {
-        const timeInput = document.getElementById(`time-${id}`).value;
-        const noteInput = document.getElementById(`note-${id}`).value;
+        const timeInput = document.getElementById(`time-${id}`)?.value;
+        const noteInput = document.getElementById(`note-${id}`)?.value || '';
         const task = state.tasks.find(t => t.id === id);
 
         if (task) {
@@ -534,14 +550,13 @@
                 note: noteInput
             });
 
-            // Sincronizar conclusão com o Gestor de Projetos
             if (task.projectId && task.projectTaskId) {
-                const projectsData = JSON.parse(localStorage.getItem(PROJECTS_KEY)) || [];
-                const project = projectsData.find(p => p.id === task.projectId);
-                if (project) {
+                const projectsData = JSON.parse(localStorage.getItem(PROJECTS_KEY)) || {};
+                const project = projectsData[task.projectId];
+                if (project && project.tasks) {
                     const pTask = project.tasks.find(t => t.id === task.projectTaskId);
                     if (pTask) {
-                        pTask.status = 'Concluida';
+                        pTask.status = 'completed';
                         localStorage.setItem(PROJECTS_KEY, JSON.stringify(projectsData));
                     }
                 }
@@ -552,74 +567,94 @@
     }
 
     function deleteTask(id) {
-        if (confirm('Deseja remover esta atividade da lista?')) {
+        if (confirm('Deseja remover esta atividade?')) {
             state.tasks = state.tasks.filter(t => t.id !== id);
             saveData();
         }
     }
 
-    function getTagLabel(type) {
-        switch (type) {
-            case 'fazer_ja': return 'Fazer já';
-            case 'delegar': return 'Delegar';
-            case 'incubar': return 'Incubar';
-            default: return 'Fazer já';
-        }
-    }
-
     function render() {
         const todayStr = new Date().toLocaleDateString('pt-BR');
-        const taskList = document.getElementById('task-list');
-        taskList.innerHTML = '';
         
-        let totalMinutesToday = 0;
+        const tbodyFazerJa = document.getElementById('task-list-fazer-ja');
+        const tbodyDelegar = document.getElementById('task-list-delegar');
+        const tbodyIncubar = document.getElementById('task-list-incubar');
 
-        if (state.tasks.length === 0) {
-            taskList.innerHTML = `<tr><td colspan="6" style="text-align:center; color: var(--cinza);">Nenhuma atividade cadastrada. Adicione uma acima!</td></tr>`;
-        }
+        tbodyFazerJa.innerHTML = '';
+        tbodyDelegar.innerHTML = '';
+        tbodyIncubar.innerHTML = '';
+
+        let totalMinutesToday = 0;
+        let countFazerJa = 0, countDelegar = 0, countIncubar = 0;
 
         state.tasks.forEach(task => {
             const todayLog = state.logs.find(l => l.taskName === task.name && l.date === todayStr);
-            
-            if (task.completedToday && todayLog) {
-                totalMinutesToday += todayLog.minutes;
+            const docLinkHtml = task.link ? `<a href="${task.link}" target="_blank" class="btn-link">🔗 Doc</a>` : '';
+
+            if (task.type === 'fazer_ja') {
+                countFazerJa++;
+                if (task.completedToday && todayLog) totalMinutesToday += todayLog.minutes;
+
+                tbodyFazerJa.innerHTML += `
+                    <tr>
+                        <td><strong>${task.name}</strong></td>
+                        <td>${task.meta} min</td>
+                        <td>
+                            ${task.completedToday 
+                                ? `<strong>${todayLog ? todayLog.minutes : task.meta} min</strong>` 
+                                : `<input type="number" id="time-${task.id}" style="width:70px" placeholder="${task.meta}"> min`}
+                        </td>
+                        <td>
+                            ${task.completedToday 
+                                ? `<span>${todayLog && todayLog.note ? todayLog.note : '-'}</span> ${docLinkHtml}` 
+                                : `<input type="text" id="note-${task.id}" placeholder="Nota..." style="margin-bottom:4px;"> ${docLinkHtml}`}
+                        </td>
+                        <td>
+                            ${task.completedToday 
+                                ? `<span style="color:var(--verde); font-weight:700;">✔ Concluído</span>` 
+                                : `<button class="btn-check" onclick="checkIn(${task.id})">Check-in</button>`}
+                            <button class="btn-icon" onclick="editTask(${task.id})">✏️</button>
+                            <button class="btn-icon btn-delete" onclick="deleteTask(${task.id})">🗑</button>
+                        </td>
+                    </tr>
+                `;
+            } else if (task.type === 'delegar') {
+                countDelegar++;
+                tbodyDelegar.innerHTML += `
+                    <tr>
+                        <td><strong>${task.name}</strong></td>
+                        <td><input type="text" id="note-${task.id}" placeholder="Acompanhamento..." value="${task.link || ''}"></td>
+                        <td>
+                            <button class="btn-primary" style="padding:4px 8px; font-size:12px;" onclick="promoteToExecution(${task.id})">🚀 Mover p/ Hoje</button>
+                            <button class="btn-icon" onclick="editTask(${task.id})">✏️</button>
+                            <button class="btn-icon btn-delete" onclick="deleteTask(${task.id})">🗑</button>
+                        </td>
+                    </tr>
+                `;
+            } else if (task.type === 'incubar') {
+                countIncubar++;
+                tbodyIncubar.innerHTML += `
+                    <tr>
+                        <td><strong>${task.name}</strong></td>
+                        <td>${docLinkHtml || '-'}</td>
+                        <td>
+                            <button class="btn-primary" style="padding:4px 8px; font-size:12px;" onclick="promoteToExecution(${task.id})">🚀 Mover p/ Hoje</button>
+                            <button class="btn-icon" onclick="editTask(${task.id})">✏️</button>
+                            <button class="btn-icon btn-delete" onclick="deleteTask(${task.id})">🗑</button>
+                        </td>
+                    </tr>
+                `;
             }
-
-            const docLinkHtml = task.link 
-                ? `<a href="${task.link}" target="_blank" class="btn-link">🔗 Abrir Doc</a>` 
-                : '';
-
-            taskList.innerHTML += `
-                <tr>
-                    <td><strong>${task.name}</strong></td>
-                    <td><span class="tag ${task.type}">${getTagLabel(task.type)}</span></td>
-                    <td>${task.meta} min</td>
-                    <td>
-                        ${task.completedToday 
-                            ? `<strong>${todayLog ? todayLog.minutes : task.meta} min</strong>` 
-                            : `<input type="number" id="time-${task.id}" style="width:70px" placeholder="${task.meta}"> min`}
-                    </td>
-                    <td>
-                        ${task.completedToday 
-                            ? `<span>${todayLog && todayLog.note ? todayLog.note : '-'}</span> ${docLinkHtml}` 
-                            : `<input type="text" id="note-${task.id}" placeholder="Observação..." style="margin-bottom:4px;"> ${docLinkHtml}`}
-                    </td>
-                    <td>
-                        ${task.completedToday 
-                            ? `<span style="color:var(--verde); font-weight:700;">✔ Concluído</span>` 
-                            : `<button class="btn-check" onclick="checkIn(${task.id})">Check-in</button>`}
-                        <button class="btn-icon" onclick="editTask(${task.id})" title="Editar">✏️</button>
-                        <button class="btn-icon btn-delete" onclick="deleteTask(${task.id})" title="Excluir">🗑</button>
-                    </td>
-                </tr>
-            `;
         });
 
-        // Atualizar Bolsa de Tempo
+        if (countFazerJa === 0) tbodyFazerJa.innerHTML = `<tr><td colspan="5" style="text-align:center; color: var(--cinza);">Nenhuma tarefa ativa para hoje.</td></tr>`;
+        if (countDelegar === 0) tbodyDelegar.innerHTML = `<tr><td colspan="3" style="text-align:center; color: var(--cinza);">Nenhuma tarefa em acompanhamento.</td></tr>`;
+        if (countIncubar === 0) tbodyIncubar.innerHTML = `<tr><td colspan="3" style="text-align:center; color: var(--cinza);">Nenhuma ideia incubada no momento.</td></tr>`;
+
+        // Bolsa de Tempo
         const targetGlobal = state.dailyTargetMinutes || 180;
         document.getElementById('budget-text').innerText = `${totalMinutesToday} min / ${targetGlobal} min`;
-        document.getElementById('daily-target-input').placeholder = `Meta Global Atual: ${targetGlobal} min`;
-        
+        document.getElementById('daily-target-input').placeholder = `Meta Global: ${targetGlobal} min`;
         const pct = Math.min(100, Math.round((totalMinutesToday / targetGlobal) * 100));
         document.getElementById('budget-fill').style.width = `${pct}%`;
 
@@ -634,9 +669,8 @@
 
         const historyList = document.getElementById('history-list');
         historyList.innerHTML = '';
-
         if (state.logs.length === 0) {
-            historyList.innerHTML = `<tr><td colspan="4" style="text-align:center; color: var(--cinza);">Nenhum histórico registrado ainda.</td></tr>`;
+            historyList.innerHTML = `<tr><td colspan="4" style="text-align:center; color: var(--cinza);">Nenhum histórico registrado.</td></tr>`;
         } else {
             [...state.logs].reverse().forEach(log => {
                 historyList.innerHTML += `
