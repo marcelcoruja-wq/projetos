@@ -650,6 +650,11 @@
     </div>
 </div>
 
+    window.onload = async function() {
+    await cloudPull(); // Baixa os dados novos do outro dispositivo antes de desenhar a tela
+    render();
+};
+
 <script>
     const STORAGE_KEY = 'persistence_engine_data_v1';
     const PROJECTS_KEY = 'projects_engine_data_v1';
