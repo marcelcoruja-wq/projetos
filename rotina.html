@@ -3,17 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Motor de Persistência & Execução</title>
+    <title>Planejador • Sistema de Persistência</title>
     <style>
         :root {
             --azul: #2F5FD0;
             --azul-escuro: #1e3a8a;
             --verde: #10B981;
+            --amarelo: #F59E0B;
+            --vermelho: #EF4444;
             --cinza: #64748B;
             --texto: #243041;
             --fundo: #F5F7FB;
             --card: #FFFFFF;
             --border-color: #e2e8f0;
+            --radius: 12px;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -22,14 +25,14 @@
             background: var(--fundo);
             font-family: Inter, "Segoe UI", Arial, sans-serif;
             color: var(--texto);
-            line-height: 1.6;
-            padding: 30px 20px;
+            line-height: 1.5;
+            padding: 24px 16px;
             min-height: 100vh;
             display: flex;
             justify-content: center;
         }
 
-        .container { width: min(950px, 95%); }
+        .container { width: min(1000px, 95%); }
 
         header {
             display: flex;
@@ -47,12 +50,17 @@
             font-size: 14px;
             display: inline-flex;
             align-items: center;
-            gap: 4px;
+            gap: 6px;
+            padding: 6px 12px;
+            background: var(--card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            transition: all 0.2s;
         }
 
-        .btn-back:hover { color: var(--azul); }
+        .btn-back:hover { color: var(--azul); border-color: var(--azul); }
 
-        h1 { font-size: 28px; color: var(--azul); font-weight: 800; }
+        h1 { font-size: 26px; color: var(--azul); font-weight: 800; }
 
         nav {
             display: flex;
@@ -87,10 +95,36 @@
             background: var(--card);
             border-radius: 16px;
             border: 2px solid var(--border-color);
-            padding: 24px;
-            margin-bottom: 24px;
+            padding: 20px;
+            margin-bottom: 20px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.02);
         }
+
+        .action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .btn-add {
+            background: var(--azul);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-weight: 700;
+            font-size: 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 10px rgba(47, 95, 208, 0.2);
+        }
+
+        .btn-add:hover { background: var(--azul-escuro); }
 
         .time-budget-header {
             display: flex;
@@ -102,8 +136,8 @@
 
         .progress-bar-bg {
             background: var(--border-color);
-            height: 14px;
-            border-radius: 7px;
+            height: 12px;
+            border-radius: 6px;
             overflow: hidden;
         }
 
@@ -111,57 +145,8 @@
             background: var(--azul);
             height: 100%;
             width: 0%;
-            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: width 0.4s ease;
         }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr auto;
-            gap: 12px;
-            margin-bottom: 12px;
-        }
-
-        .form-row-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-
-        .import-box {
-            background: var(--fundo);
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px dashed var(--azul);
-            margin-bottom: 16px;
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 10px 14px;
-            border: 2px solid var(--border-color);
-            border-radius: 8px;
-            font-size: 14px;
-            color: var(--texto);
-            outline: none;
-        }
-
-        input:focus, select:focus { border-color: var(--azul); }
-
-        .btn-primary {
-            background: var(--azul);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            font-weight: 700;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-
-        .btn-primary:hover { background: var(--azul-escuro); }
 
         .table-responsive { overflow-x: auto; }
 
@@ -169,6 +154,7 @@
             width: 100%;
             border-collapse: collapse;
             text-align: left;
+            font-size: 14px;
         }
 
         th {
@@ -182,27 +168,39 @@
         td {
             padding: 12px;
             border-bottom: 1px solid var(--border-color);
-            font-size: 14px;
+            vertical-align: middle;
         }
 
-        .badge-cycle {
-            font-size: 11px;
+        .tag-badge {
+            font-size: 10px;
             font-weight: 700;
-            padding: 3px 8px;
-            border-radius: 6px;
-            background: #e0f2fe;
-            color: #0369a1;
-            border: 1px solid #bae6fd;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: #f1f5f9;
+            color: var(--cinza);
+            border: 1px solid var(--border-color);
+            margin-right: 4px;
+            display: inline-block;
         }
 
-        .badge-resting {
+        .badge-streak {
             font-size: 11px;
-            font-weight: 700;
-            padding: 3px 8px;
-            border-radius: 6px;
+            font-weight: 800;
+            color: #d97706;
             background: #fef3c7;
-            color: #92400e;
+            padding: 2px 6px;
+            border-radius: 6px;
             border: 1px solid #fde68a;
+        }
+
+        .badge-blocked {
+            font-size: 11px;
+            font-weight: 800;
+            color: #991b1b;
+            background: #fee2e2;
+            padding: 2px 6px;
+            border-radius: 6px;
+            border: 1px solid #fca5a5;
         }
 
         .btn-check {
@@ -221,52 +219,121 @@
             border: none;
             cursor: pointer;
             font-size: 15px;
-            margin-left: 4px;
             color: var(--cinza);
+            padding: 4px;
         }
 
         .btn-icon:hover { color: var(--azul); }
-        .btn-delete:hover { color: #ef4444; }
+        .btn-delete:hover { color: var(--vermelho); }
 
-        .btn-link {
-            text-decoration: none;
-            color: var(--azul);
-            font-weight: 600;
-            font-size: 13px;
+        .checklist-container {
+            margin-top: 6px;
+            font-size: 12px;
+            background: var(--fundo);
+            padding: 8px;
+            border-radius: 6px;
         }
 
-        .section-subtitle {
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--texto);
-            margin-bottom: 12px;
+        .checklist-item {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
+            margin-bottom: 4px;
         }
+
+        /* Modal Overlay & Box */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+            backdrop-filter: blur(3px);
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .modal-box {
+            background: var(--card);
+            width: 100%;
+            max-width: 600px;
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: 0 20px 25px rgba(0,0,0,0.1);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .form-group { margin-bottom: 14px; }
+        .form-group label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 6px; color: var(--texto); }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        input:focus, select:focus { border-color: var(--azul); }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .filter-select { flex: 1; min-width: 150px; }
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 16px;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
         }
 
         .stat-card {
             background: var(--card);
             border: 2px solid var(--border-color);
             border-radius: 12px;
-            padding: 20px;
+            padding: 16px;
             text-align: center;
         }
 
-        .stat-number { font-size: 32px; font-weight: 800; color: var(--azul); }
-        .stat-label { color: var(--cinza); font-size: 13px; font-weight: 600; }
+        .stat-number { font-size: 28px; font-weight: 800; color: var(--azul); }
+        .stat-label { color: var(--cinza); font-size: 12px; font-weight: 700; text-transform: uppercase; }
 
-        @media (max-width: 640px) {
-            .form-grid { grid-template-columns: 1fr; }
-            .form-row-2 { grid-template-columns: 1fr; }
+        /* Estilos da Aba Lógica */
+        .logic-container {
+            background: var(--card);
+            padding: 28px;
+            border-radius: var(--radius);
+            border: 2px solid var(--border-color);
+            line-height: 1.7;
         }
+
+        .logic-step-card {
+            background: var(--fundo);
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--azul);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .logic-step-card strong { color: var(--azul-escuro); font-size: 15px; }
     </style>
 </head>
 <body>
@@ -274,138 +341,21 @@
 <div class="container">
     <header>
         <div>
-            <a href="index.html" class="btn-back">&larr; Voltar ao Painel</a>
-            <div style="display:flex; align-items:center; gap:12px;">
-                <h1>⚡ Motor de Persistência</h1>
-            </div>
+            <a href="index.html" class="btn-back">🏠 Painel</a>
+            <h1 style="margin-top:4px;">⚡ Planejador</h1>
         </div>
         <nav>
-            <button id="nav-hoy" class="active" onclick="switchTab('hoy')">Planejamento</button>
-            <button id="nav-dashboard" onclick="switchTab('dashboard')">Dashboard</button>
+            <button id="nav-dashboard" class="active" onclick="switchTab('dashboard')">📊 Dashboard</button>
+            <button id="nav-planejamento" onclick="switchTab('planejamento')">🚀 Planejamento</button>
+            <button id="nav-logica" onclick="switchTab('logica')">🧠 Lógica</button>
         </nav>
     </header>
 
-    <!-- ABA PLANEJAMENTO -->
-    <main id="tab-hoy" class="tab-content active">
-        <!-- Bolsa de Tempo -->
-        <div class="card">
-            <div class="time-budget-header">
-                <span>🎯 Bolsa de Tempo do Planejamento</span>
-                <span id="budget-text">0 min / 180 min</span>
-            </div>
-            <div class="progress-bar-bg">
-                <div id="budget-fill" class="progress-bar-fill"></div>
-            </div>
-        </div>
-
-        <!-- Importar de Projetos -->
-        <div class="import-box card" style="margin-bottom: 16px;">
-            <span style="font-weight:700; font-size:13px; color:var(--azul);">📌 Puxar do Gestor de Projetos:</span>
-            <select id="project-task-import">
-                <option value="">Nenhuma tarefa pendente nos projetos</option>
-            </select>
-            <button class="btn-primary" style="padding: 8px 14px; font-size:13px;" onclick="importProjectTask()">+ Puxar para Execução</button>
-        </div>
-
-        <!-- Adicionar Atividade -->
-        <div class="card">
-            <h3 style="margin-bottom: 16px; font-size: 16px;">+ Cadastrar Atividade</h3>
-            <div class="form-grid">
-                <input type="text" id="task-name" placeholder="Nome da atividade (ex: Corrida, Estudo)...">
-                <select id="task-type">
-                    <option value="fazer_ja">Fazer já (Execução Hoje)</option>
-                    <option value="delegar">Delegar (Acompanhar terceiros)</option>
-                    <option value="incubar">Incubar (Ideias / Espera)</option>
-                </select>
-                <input type="number" id="task-meta" placeholder="Meta (min)">
-                <input type="number" id="task-interval" placeholder="Ciclo (dias - ex: 2)" title="0 = Diário/Pontual, 2 = A cada 2 dias, 7 = Semanal">
-                <button class="btn-primary" onclick="addTask()">Cadastrar</button>
-            </div>
-            <div class="form-row-2">
-                <input type="url" id="task-link" placeholder="Link opcional (Docs, Drive, etc.)">
-                <input type="number" id="daily-target-input" placeholder="Meta Diária Global (min)" onchange="updateDailyTarget(this.value)">
-            </div>
-        </div>
-
-        <!-- TABELA 1: EXECUÇÃO DIRETA (FAZER JÁ / ATIVAS HOJE) -->
-        <div class="card">
-            <div class="section-subtitle">🚀 Execução do Dia (Fazer Já & Ciclos Ativos)</div>
-            <div class="table-responsive">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Atividade</th>
-                            <th>Ciclo</th>
-                            <th>Meta</th>
-                            <th>Tempo Real</th>
-                            <th>Nota / Link</th>
-                            <th>Opções</th>
-                        </tr>
-                    </thead>
-                    <tbody id="task-list-fazer-ja"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- TABELA 2: EM DESCANSO / CICLOS FUTUROS -->
-        <div class="card">
-            <div class="section-subtitle">⏳ Próximos Ciclos (Em Descanso)</div>
-            <div class="table-responsive">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Atividade</th>
-                            <th>Intervalo</th>
-                            <th>Última Conclusão</th>
-                            <th>Previsão de Retorno</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody id="task-list-cycling"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- TABELA 3: DELEGADAS -->
-        <div class="card">
-            <div class="section-subtitle">🤝 Em Acompanhamento (Delegadas)</div>
-            <div class="table-responsive">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Atividade / Responsável</th>
-                            <th>Observações</th>
-                            <th>Status / Opções</th>
-                        </tr>
-                    </thead>
-                    <tbody id="task-list-delegar"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- TABELA 4: INCUBADORA -->
-        <div class="card">
-            <div class="section-subtitle">💡 Incubadora (Ideias & Futuro)</div>
-            <div class="table-responsive">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Ideia / Projeto Futuro</th>
-                            <th>Anotações</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody id="task-list-incubar"></tbody>
-                </table>
-            </div>
-        </div>
-    </main>
-
-    <!-- ABA DASHBOARD -->
-    <main id="tab-dashboard" class="tab-content">
+    <!-- PESTAÑA 1: DASHBOARD (VISÃO GERAL INICIAL) -->
+    <main id="tab-dashboard" class="tab-content active">
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-label">Tempo Total Acumulado</div>
+                <div class="stat-label">Tempo Acumulado</div>
                 <div id="stat-total-time" class="stat-number">0 min</div>
             </div>
             <div class="stat-card">
@@ -420,12 +370,26 @@
 
         <div class="card">
             <h3 style="margin-bottom: 16px; font-size: 16px;">📜 Histórico de Presença & Volume</h3>
+            
+            <div class="filter-bar">
+                <select id="filter-tag" class="filter-select" onchange="renderDashboard()">
+                    <option value="">Todas as Tags</option>
+                </select>
+                <select id="filter-type" class="filter-select" onchange="renderDashboard()">
+                    <option value="">Todas as Categorias</option>
+                    <option value="fazer_ja">Fazer já</option>
+                    <option value="delegar">Delegar</option>
+                    <option value="incubar">Incubar</option>
+                </select>
+            </div>
+
             <div class="table-responsive">
                 <table>
                     <thead>
                         <tr>
                             <th>Data</th>
                             <th>Atividade</th>
+                            <th>Tags</th>
                             <th>Tempo Registrado</th>
                             <th>Nota de Contexto</th>
                         </tr>
@@ -435,6 +399,204 @@
             </div>
         </div>
     </main>
+
+    <!-- PESTAÑA 2: PLANEJAMENTO (EXECUÇÃO) -->
+    <main id="tab-planejamento" class="tab-content">
+        <div class="card">
+            <div class="time-budget-header">
+                <span>🎯 Bolsa de Tempo Diária</span>
+                <span id="budget-text">0 min / 180 min</span>
+            </div>
+            <div class="progress-bar-bg">
+                <div id="budget-fill" class="progress-bar-fill"></div>
+            </div>
+        </div>
+
+        <div class="action-bar">
+            <button class="btn-add" onclick="openTaskModal()">+ Cadastrar Atividade</button>
+            
+            <div style="display:flex; align-items:center; gap:8px;">
+                <span style="font-size:13px; font-weight:700; color:var(--azul);">📌 Puxar Projeto:</span>
+                <select id="project-task-import" style="max-width: 250px; padding: 6px 10px; font-size:13px;"></select>
+                <button class="btn-add" style="padding: 6px 12px; font-size:13px;" onclick="importProjectTask()">Puxar</button>
+            </div>
+        </div>
+
+        <!-- EXECUÇÃO DO DIA -->
+        <div class="card">
+            <h3 style="margin-bottom: 12px; font-size: 16px;">🚀 Execução do Dia (Fazer Já & Ativas)</h3>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Atividade & Tags</th>
+                            <th>Streak</th>
+                            <th>Meta</th>
+                            <th>Tempo Real</th>
+                            <th>Nota / Link</th>
+                            <th>Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody id="task-list-fazer-ja"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- PRÓXIMOS CICLOS -->
+        <div class="card">
+            <h3 style="margin-bottom: 12px; font-size: 16px; color: var(--cinza);">⏳ Próximos Ciclos (Em Descanso)</h3>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Atividade</th>
+                            <th>Frequência</th>
+                            <th>Última Conclusão</th>
+                            <th>Previsão de Retorno</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="task-list-cycling"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- DELEGADAS -->
+        <div class="card">
+            <h3 style="margin-bottom: 12px; font-size: 16px;">🤝 Em Acompanhamento (Delegadas)</h3>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Atividade / Responsável</th>
+                            <th>Tags</th>
+                            <th>Observações</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="task-list-delegar"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- INCUBADORA -->
+        <div class="card">
+            <h3 style="margin-bottom: 12px; font-size: 16px;">💡 Incubadora (Ideias & Futuro)</h3>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ideia</th>
+                            <th>Tags</th>
+                            <th>Anotações / Link</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="task-list-incubar"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- PESTAÑA 3: LÓGICA E ARQUITETURA -->
+    <main id="tab-logica" class="tab-content">
+        <div class="logic-container">
+            <h2 style="font-size:20px; color:var(--azul); margin-bottom:12px;">🧠 Arquitetura do Planejador</h2>
+            <p style="margin-bottom: 20px; color:var(--cinza);">O Planejador foi desenhado para sustentar a <strong>persistência e a constância no longo prazo</strong>, eliminando a ansiedade causada por agendas engessadas e focando na bolsa de esforço diário.</p>
+
+            <div class="logic-step-card">
+                <strong>1. Bolsa de Tempo Flexível (Orçamento de Esforço)</strong><br>
+                Em vez de horários fixos e travados, você define uma capacidade diária total em minutos (ex: 180 min). Conforme você conclui as atividades, a barra preenche e mostra exatamente o avanço do dia.
+            </div>
+
+            <div class="logic-step-card">
+                <strong>2. Triagem de Foco (Fazer Já vs. Delegar vs. Incubar)</strong><br>
+                Para não inflar a bolsa de tempo com ruído mental:
+                <ul style="margin-left: 20px; margin-top: 6px;">
+                    <li><strong>Fazer Já:</strong> Ações de execução direta no dia atual.</li>
+                    <li><strong>Delegar:</strong> Acompanhamento de itens terceirizados ou aguardando resposta.</li>
+                    <li><strong>Incubar:</strong> Ideias para o futuro (Someday/Maybe) guardadas sem gastar seu foco.</li>
+                </ul>
+            </div>
+
+            <div class="logic-step-card">
+                <strong>3. Motor Dual Cíclico & Relativo</strong><br>
+                Permite combinar tarefas de dias fixos (ex: Seg, Qua, Sex) com rituais de ciclo relativo (ex: Corrida a cada 2 dias). Ao fazer o check-in de um item cíclico, ele sai da lista de hoje e entra na seção <em>⏳ Em Descanso</em>, avisando automaticamente quando deve retornar ao seu Planejamento.
+            </div>
+
+            <div class="logic-step-card">
+                <strong>4. Gamificação & Streaks (🔥)</strong><br>
+                Cada check-in realizado alimenta o seu contador de sequência sem quebrar a corrente, ajudando a criar tração psicológica nos hábitos essenciais.
+            </div>
+
+            <div class="logic-step-card">
+                <strong>5. Conexão Nativa com o Gestor de Projetos</strong><br>
+                Você pode puxar entregáveis pendentes do seu Gestor de Projetos diretamente para o Planejamento. Ao dar check-in aqui, o status da tarefa é atualizado automaticamente para concluído no seu projeto. Se o projeto estiver marcado como <code>🛑 Trabado</code>, o Planejador exibe um alerta visual imediato.
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- MODAL CADASTRAR / EDITAR ATIVIDADE -->
+<div id="modalTask" class="modal-overlay">
+    <div class="modal-box">
+        <h2 id="modal-title" style="margin-bottom: 16px; font-size: 18px; color: var(--azul);">Cadastrar Nova Atividade</h2>
+        <form id="formTask" onsubmit="saveTaskForm(event)">
+            <input type="hidden" id="edit-task-id">
+
+            <div class="form-group">
+                <label>Nome da Atividade</label>
+                <input type="text" id="task-name" placeholder="Ex: Corrida matinal, Estudo Docs..." required autocomplete="off">
+            </div>
+
+            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <div class="form-group" style="flex: 1; min-width: 140px;">
+                    <label>Categoria de Ação</label>
+                    <select id="task-type">
+                        <option value="fazer_ja">Fazer já (Execução Hoje)</option>
+                        <option value="delegar">Delegar (Acompanhar)</option>
+                        <option value="incubar">Incubar (Ideias/Espera)</option>
+                    </select>
+                </div>
+                <div class="form-group" style="flex: 1; min-width: 120px;">
+                    <label>Meta (minutos)</label>
+                    <input type="number" id="task-meta" placeholder="Ex: 30" min="0">
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <div class="form-group" style="flex: 1; min-width: 140px;">
+                    <label>Ciclo Relativo (dias)</label>
+                    <input type="number" id="task-interval" placeholder="0 = Diário, 2 = A cada 2 dias" min="0">
+                </div>
+                <div class="form-group" style="flex: 1; min-width: 140px;">
+                    <label>Dias Fixos da Semana</label>
+                    <input type="text" id="task-fixed-days" placeholder="Ex: Seg, Qua, Sex">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Tags (separadas por vírgula)</label>
+                <input type="text" id="task-tags" placeholder="Ex: Saúde, Trabalho, Estudo">
+            </div>
+
+            <div class="form-group">
+                <label>Checklist (Sub-itens opcionais)</label>
+                <div id="checklist-builder"></div>
+                <button type="button" class="btn-add" style="padding: 4px 10px; font-size: 12px; margin-top: 6px; background: var(--cinza);" onclick="addChecklistInput()">+ Adicionar Item</button>
+            </div>
+
+            <div class="form-group">
+                <label>Link Opcional (Google Docs, Drive, etc.)</label>
+                <input type="url" id="task-link" placeholder="https://...">
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-add" style="background: var(--cinza);" onclick="closeTaskModal()">Cancelar</button>
+                <button type="submit" class="btn-add">Salvar Atividade</button>
+            </div>
+        </form>
+    </div>
 </div>
 
 <script>
@@ -457,35 +619,126 @@
         document.querySelectorAll('nav button').forEach(el => el.classList.remove('active'));
         document.getElementById(`tab-${tabName}`).classList.add('active');
         document.getElementById(`nav-${tabName}`).classList.add('active');
-        render();
-    }
-
-    function updateDailyTarget(val) {
-        const num = parseInt(val);
-        if (num > 0) {
-            state.dailyTargetMinutes = num;
-            saveData();
-        }
+        
+        if (tabName === 'dashboard') renderDashboard();
+        if (tabName === 'planejamento') render();
     }
 
     function getTodayYMD() {
         const d = new Date();
-        const yyyy = d.getFullYear();
-        const mm = String(d.getMonth() + 1).padStart(2, '0');
-        const dd = String(d.getDate()).padStart(2, '0');
-        return `${yyyy}-${mm}-${dd}`;
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     }
 
     function parseYMD(ymdStr) {
         if (!ymdStr) return null;
         const parts = ymdStr.split('-');
-        if (parts.length !== 3) return null;
-        return new Date(parts[0], parts[1] - 1, parts[2]);
+        return parts.length === 3 ? new Date(parts[0], parts[1] - 1, parts[2]) : null;
+    }
+
+    function openTaskModal(taskId = null) {
+        document.getElementById('formTask').reset();
+        document.getElementById('checklist-builder').innerHTML = '';
+        document.getElementById('edit-task-id').value = '';
+
+        if (taskId) {
+            const task = state.tasks.find(t => t.id === taskId);
+            if (task) {
+                document.getElementById('modal-title').innerText = 'Editar Atividade';
+                document.getElementById('edit-task-id').value = task.id;
+                document.getElementById('task-name').value = task.name;
+                document.getElementById('task-type').value = task.type || 'fazer_ja';
+                document.getElementById('task-meta').value = task.meta || 0;
+                document.getElementById('task-interval').value = task.intervalDays || 0;
+                document.getElementById('task-fixed-days').value = (task.fixedDays || []).join(', ');
+                document.getElementById('task-tags').value = (task.tags || []).join(', ');
+                document.getElementById('task-link').value = task.link || '';
+
+                if (task.checklist && Array.isArray(task.checklist)) {
+                    task.checklist.forEach(item => addChecklistInput(item.text, item.done));
+                }
+            }
+        } else {
+            document.getElementById('modal-title').innerText = 'Cadastrar Nova Atividade';
+        }
+
+        document.getElementById('modalTask').classList.add('active');
+    }
+
+    function closeTaskModal() {
+        document.getElementById('modalTask').classList.remove('active');
+    }
+
+    function addChecklistInput(text = '', done = false) {
+        const container = document.getElementById('checklist-builder');
+        const div = document.createElement('div');
+        div.className = 'checklist-item';
+        div.innerHTML = `
+            <input type="checkbox" ${done ? 'checked' : ''} style="width: auto;">
+            <input type="text" placeholder="Item do checklist..." value="${text}" style="padding: 6px 10px;">
+            <button type="button" class="btn-icon btn-delete" onclick="this.parentElement.remove()">X</button>
+        `;
+        container.appendChild(div);
+    }
+
+    function saveTaskForm(e) {
+        e.preventDefault();
+        const editId = document.getElementById('edit-task-id').value;
+        const name = document.getElementById('task-name').value.trim();
+        const type = document.getElementById('task-type').value;
+        const meta = parseInt(document.getElementById('task-meta').value) || 0;
+        const intervalDays = parseInt(document.getElementById('task-interval').value) || 0;
+        
+        const fixedDaysRaw = document.getElementById('task-fixed-days').value.trim();
+        const fixedDays = fixedDaysRaw ? fixedDaysRaw.split(',').map(s => s.trim()) : [];
+
+        const tagsRaw = document.getElementById('task-tags').value.trim();
+        const tags = tagsRaw ? tagsRaw.split(',').map(s => s.trim()) : [];
+
+        const link = document.getElementById('task-link').value.trim();
+
+        const checklist = [];
+        document.querySelectorAll('#checklist-builder .checklist-item').forEach(el => {
+            const chk = el.querySelector('input[type="checkbox"]').checked;
+            const txt = el.querySelector('input[type="text"]').value.trim();
+            if (txt) checklist.push({ text: txt, done: chk });
+        });
+
+        if (editId) {
+            const task = state.tasks.find(t => t.id === Number(editId));
+            if (task) {
+                task.name = name;
+                task.type = type;
+                task.meta = meta;
+                task.intervalDays = intervalDays;
+                task.fixedDays = fixedDays;
+                task.tags = tags;
+                task.checklist = checklist;
+                task.link = link;
+            }
+        } else {
+            state.tasks.push({
+                id: Date.now(),
+                name,
+                type,
+                meta,
+                intervalDays,
+                fixedDays,
+                tags,
+                checklist,
+                link,
+                streak: 0,
+                lastCompletedYMD: null
+            });
+        }
+
+        saveData();
+        closeTaskModal();
     }
 
     function loadProjectTasksDropdown() {
         const projectsData = JSON.parse(localStorage.getItem(PROJECTS_KEY)) || {};
         const select = document.getElementById('project-task-import');
+        if (!select) return;
         select.innerHTML = '<option value="">-- Selecione uma tarefa do Gestor de Projetos --</option>';
 
         let count = 0;
@@ -499,9 +752,7 @@
             }
         });
 
-        if (count === 0) {
-            select.innerHTML = '<option value="">Nenhuma tarefa pendente nos projetos</option>';
-        }
+        if (count === 0) select.innerHTML = '<option value="">Nenhuma tarefa pendente nos projetos</option>';
     }
 
     function importProjectTask() {
@@ -521,6 +772,9 @@
             type: 'fazer_ja',
             meta: 30,
             intervalDays: 0,
+            tags: ['Projeto'],
+            checklist: [],
+            streak: 0,
             lastCompletedYMD: null,
             link: '',
             projectId,
@@ -531,61 +785,12 @@
         loadProjectTasksDropdown();
     }
 
-    function addTask() {
-        const name = document.getElementById('task-name').value.trim();
-        const type = document.getElementById('task-type').value;
-        const meta = parseInt(document.getElementById('task-meta').value) || 0;
-        const intervalDays = parseInt(document.getElementById('task-interval').value) || 0;
-        const link = document.getElementById('task-link').value.trim();
-
-        if (!name) return alert('Por favor, informe o nome da atividade.');
-
-        state.tasks.push({
-            id: Date.now(),
-            name,
-            type,
-            meta,
-            intervalDays,
-            lastCompletedYMD: null,
-            link
-        });
-
-        document.getElementById('task-name').value = '';
-        document.getElementById('task-meta').value = '';
-        document.getElementById('task-interval').value = '';
-        document.getElementById('task-link').value = '';
-        saveData();
-    }
-
-    function promoteToExecution(id) {
-        const task = state.tasks.find(t => t.id === id);
-        if (task) {
-            task.type = 'fazer_ja';
+    function toggleChecklistItem(taskId, index) {
+        const task = state.tasks.find(t => t.id === taskId);
+        if (task && task.checklist && task.checklist[index]) {
+            task.checklist[index].done = !task.checklist[index].done;
             saveData();
         }
-    }
-
-    function editTask(id) {
-        const task = state.tasks.find(t => t.id === id);
-        if (!task) return;
-
-        const newName = prompt('Nome:', task.name);
-        if (newName === null) return;
-
-        const newMeta = prompt('Meta em min:', task.meta);
-        const newInterval = prompt('Ciclo em dias (0 = Diário/Pontual):', task.intervalDays || 0);
-        const newCategory = prompt('Tipo (fazer_ja, delegar, incubar):', task.type);
-        const newLink = prompt('Link:', task.link || '');
-
-        task.name = newName.trim() || task.name;
-        task.meta = parseInt(newMeta) || task.meta;
-        task.intervalDays = parseInt(newInterval) || 0;
-        if (['fazer_ja', 'delegar', 'incubar'].includes(newCategory)) {
-            task.type = newCategory;
-        }
-        task.link = newLink.trim();
-
-        saveData();
     }
 
     function checkIn(id) {
@@ -598,6 +803,7 @@
             const todayYMD = getTodayYMD();
             const todayBR = new Date().toLocaleDateString('pt-BR');
 
+            task.streak = (task.streak || 0) + 1;
             task.lastCompletedYMD = todayYMD;
 
             state.logs.push({
@@ -605,7 +811,8 @@
                 date: todayBR,
                 taskName: task.name,
                 minutes: minutes,
-                note: noteInput
+                note: noteInput,
+                tags: task.tags || []
             });
 
             if (task.projectId && task.projectTaskId) {
@@ -624,6 +831,14 @@
         loadProjectTasksDropdown();
     }
 
+    function promoteToExecution(id) {
+        const task = state.tasks.find(t => t.id === id);
+        if (task) {
+            task.type = 'fazer_ja';
+            saveData();
+        }
+    }
+
     function deleteTask(id) {
         if (confirm('Deseja remover esta atividade?')) {
             state.tasks = state.tasks.filter(t => t.id !== id);
@@ -635,11 +850,15 @@
         const todayYMD = getTodayYMD();
         const todayDateObj = parseYMD(todayYMD);
         const todayBR = new Date().toLocaleDateString('pt-BR');
-        
+
+        const projectsData = JSON.parse(localStorage.getItem(PROJECTS_KEY)) || {};
+
         const tbodyFazerJa = document.getElementById('task-list-fazer-ja');
         const tbodyCycling = document.getElementById('task-list-cycling');
         const tbodyDelegar = document.getElementById('task-list-delegar');
         const tbodyIncubar = document.getElementById('task-list-incubar');
+
+        if (!tbodyFazerJa) return;
 
         tbodyFazerJa.innerHTML = '';
         tbodyCycling.innerHTML = '';
@@ -651,9 +870,29 @@
 
         state.tasks.forEach(task => {
             const todayLog = state.logs.find(l => l.taskName === task.name && l.date === todayBR);
-            const docLinkHtml = task.link ? `<a href="${task.link}" target="_blank" class="btn-link">🔗 Doc</a>` : '';
+            const docLinkHtml = task.link ? `<a href="${task.link}" target="_blank" style="color:var(--azul); font-weight:600; font-size:12px;">🔗 Doc</a>` : '';
+            
+            const tagsHtml = (task.tags || []).map(tg => `<span class="tag-badge">${tg}</span>`).join('');
+            
+            let blockedBadge = '';
+            if (task.projectId && projectsData[task.projectId]?.isBlocked) {
+                blockedBadge = `<span class="badge-blocked">🛑 Projeto Trabado</span> `;
+            }
 
-            // Lógica Cíclica de Vencimento
+            let checklistHtml = '';
+            if (task.checklist && task.checklist.length > 0) {
+                checklistHtml = '<div class="checklist-container">';
+                task.checklist.forEach((chk, idx) => {
+                    checklistHtml += `
+                        <div class="checklist-item">
+                            <input type="checkbox" ${chk.done ? 'checked' : ''} onchange="toggleChecklistItem(${task.id}, ${idx})">
+                            <span style="${chk.done ? 'text-decoration:line-through; color:var(--cinza);' : ''}">${chk.text}</span>
+                        </div>
+                    `;
+                });
+                checklistHtml += '</div>';
+            }
+
             let isResting = false;
             let daysRemaining = 0;
             let nextReturnStr = '';
@@ -663,7 +902,6 @@
                 if (lastDateObj) {
                     const nextDateObj = new Date(lastDateObj.getTime());
                     nextDateObj.setDate(nextDateObj.getDate() + task.intervalDays);
-                    
                     const diffTime = nextDateObj - todayDateObj;
                     daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                     
@@ -680,13 +918,13 @@
                     const lastBR = parseYMD(task.lastCompletedYMD).toLocaleDateString('pt-BR');
                     tbodyCycling.innerHTML += `
                         <tr>
-                            <td><strong>${task.name}</strong></td>
-                            <td><span class="badge-cycle">Cada ${task.intervalDays} dias</span></td>
+                            <td><strong>${task.name}</strong> ${tagsHtml}</td>
+                            <td><span class="tag-badge">Cada ${task.intervalDays}d</span></td>
                             <td>${lastBR}</td>
-                            <td><span class="badge-resting">⏳ Volta em ${daysRemaining} dia(s) (${nextReturnStr})</span></td>
+                            <td><span style="color:var(--amarelo); font-weight:700;">⏳ Volta em ${daysRemaining}d (${nextReturnStr})</span></td>
                             <td>
-                                <button class="btn-primary" style="padding:4px 8px; font-size:12px;" onclick="promoteToExecution(${task.id})">⚡ Antecipar p/ Hoje</button>
-                                <button class="btn-icon" onclick="editTask(${task.id})">✏️</button>
+                                <button class="btn-add" style="padding:4px 8px; font-size:11px;" onclick="promoteToExecution(${task.id})">⚡ Antecipar</button>
+                                <button class="btn-icon" onclick="openTaskModal(${task.id})">✏️</button>
                                 <button class="btn-icon btn-delete" onclick="deleteTask(${task.id})">🗑</button>
                             </td>
                         </tr>
@@ -696,17 +934,19 @@
                     const isCompletedToday = task.lastCompletedYMD === todayYMD;
                     if (isCompletedToday && todayLog) totalMinutesToday += todayLog.minutes;
 
-                    const cycleLabel = task.intervalDays > 0 ? `<span class="badge-cycle">${task.intervalDays}d</span>` : '<span style="color:var(--cinza); font-size:12px;">Diário</span>';
-
                     tbodyFazerJa.innerHTML += `
                         <tr>
-                            <td><strong>${task.name}</strong></td>
-                            <td>${cycleLabel}</td>
+                            <td>
+                                ${blockedBadge}<strong>${task.name}</strong><br>
+                                ${tagsHtml}
+                                ${checklistHtml}
+                            </td>
+                            <td><span class="badge-streak">🔥 ${task.streak || 0}</span></td>
                             <td>${task.meta} min</td>
                             <td>
                                 ${isCompletedToday 
                                     ? `<strong>${todayLog ? todayLog.minutes : task.meta} min</strong>` 
-                                    : `<input type="number" id="time-${task.id}" style="width:70px" placeholder="${task.meta}"> min`}
+                                    : `<input type="number" id="time-${task.id}" style="width:65px" placeholder="${task.meta}"> min`}
                             </td>
                             <td>
                                 ${isCompletedToday 
@@ -717,7 +957,7 @@
                                 ${isCompletedToday 
                                     ? `<span style="color:var(--verde); font-weight:700;">✔ Concluído</span>` 
                                     : `<button class="btn-check" onclick="checkIn(${task.id})">Check-in</button>`}
-                                <button class="btn-icon" onclick="editTask(${task.id})">✏️</button>
+                                <button class="btn-icon" onclick="openTaskModal(${task.id})">✏️</button>
                                 <button class="btn-icon btn-delete" onclick="deleteTask(${task.id})">🗑</button>
                             </td>
                         </tr>
@@ -728,10 +968,11 @@
                 tbodyDelegar.innerHTML += `
                     <tr>
                         <td><strong>${task.name}</strong></td>
-                        <td><input type="text" id="note-${task.id}" placeholder="Acompanhamento..." value="${task.link || ''}"></td>
+                        <td>${tagsHtml}</td>
+                        <td>${docLinkHtml || '-'}</td>
                         <td>
-                            <button class="btn-primary" style="padding:4px 8px; font-size:12px;" onclick="promoteToExecution(${task.id})">🚀 Mover p/ Execução</button>
-                            <button class="btn-icon" onclick="editTask(${task.id})">✏️</button>
+                            <button class="btn-add" style="padding:4px 8px; font-size:11px;" onclick="promoteToExecution(${task.id})">🚀 Mover p/ Execução</button>
+                            <button class="btn-icon" onclick="openTaskModal(${task.id})">✏️</button>
                             <button class="btn-icon btn-delete" onclick="deleteTask(${task.id})">🗑</button>
                         </td>
                     </tr>
@@ -741,10 +982,11 @@
                 tbodyIncubar.innerHTML += `
                     <tr>
                         <td><strong>${task.name}</strong></td>
+                        <td>${tagsHtml}</td>
                         <td>${docLinkHtml || '-'}</td>
                         <td>
-                            <button class="btn-primary" style="padding:4px 8px; font-size:12px;" onclick="promoteToExecution(${task.id})">🚀 Mover p/ Execução</button>
-                            <button class="btn-icon" onclick="editTask(${task.id})">✏️</button>
+                            <button class="btn-add" style="padding:4px 8px; font-size:11px;" onclick="promoteToExecution(${task.id})">🚀 Mover p/ Execução</button>
+                            <button class="btn-icon" onclick="openTaskModal(${task.id})">✏️</button>
                             <button class="btn-icon btn-delete" onclick="deleteTask(${task.id})">🗑</button>
                         </td>
                     </tr>
@@ -754,19 +996,52 @@
 
         if (countFazerJa === 0) tbodyFazerJa.innerHTML = `<tr><td colspan="6" style="text-align:center; color: var(--cinza);">Nenhuma tarefa ativa para hoje.</td></tr>`;
         if (countCycling === 0) tbodyCycling.innerHTML = `<tr><td colspan="5" style="text-align:center; color: var(--cinza);">Nenhuma atividade em período de descanso.</td></tr>`;
-        if (countDelegar === 0) tbodyDelegar.innerHTML = `<tr><td colspan="3" style="text-align:center; color: var(--cinza);">Nenhuma tarefa em acompanhamento.</td></tr>`;
-        if (countIncubar === 0) tbodyIncubar.innerHTML = `<tr><td colspan="3" style="text-align:center; color: var(--cinza);">Nenhuma ideia incubada no momento.</td></tr>`;
+        if (countDelegar === 0) tbodyDelegar.innerHTML = `<tr><td colspan="4" style="text-align:center; color: var(--cinza);">Nenhuma tarefa em acompanhamento.</td></tr>`;
+        if (countIncubar === 0) tbodyIncubar.innerHTML = `<tr><td colspan="4" style="text-align:center; color: var(--cinza);">Nenhuma ideia incubada.</td></tr>`;
 
-        // Bolsa de Tempo
         const targetGlobal = state.dailyTargetMinutes || 180;
         document.getElementById('budget-text').innerText = `${totalMinutesToday} min / ${targetGlobal} min`;
-        document.getElementById('daily-target-input').placeholder = `Meta Global: ${targetGlobal} min`;
         const pct = Math.min(100, Math.round((totalMinutesToday / targetGlobal) * 100));
         document.getElementById('budget-fill').style.width = `${pct}%`;
 
-        // Dashboard
-        const totalTime = state.logs.reduce((acc, curr) => acc + curr.minutes, 0);
-        const totalChecks = state.logs.length;
+        populateDashboardTagFilter();
+    }
+
+    function populateDashboardTagFilter() {
+        const select = document.getElementById('filter-tag');
+        if (!select) return;
+        const currentVal = select.value;
+        select.innerHTML = '<option value="">Todas as Tags</option>';
+
+        const allTags = new Set();
+        state.tasks.forEach(t => (t.tags || []).forEach(tg => allTags.add(tg)));
+        
+        allTags.forEach(tg => {
+            const opt = document.createElement('option');
+            opt.value = tg;
+            opt.textContent = tg;
+            if (tg === currentVal) opt.selected = true;
+            select.appendChild(opt);
+        });
+    }
+
+    function renderDashboard() {
+        const filterTag = document.getElementById('filter-tag')?.value;
+        const filterType = document.getElementById('filter-type')?.value;
+
+        let filteredLogs = [...state.logs];
+
+        if (filterTag) {
+            filteredLogs = filteredLogs.filter(l => (l.tags || []).includes(filterTag));
+        }
+
+        if (filterType) {
+            const taskNamesOfType = state.tasks.filter(t => t.type === filterType).map(t => t.name);
+            filteredLogs = filteredLogs.filter(l => taskNamesOfType.includes(l.taskName));
+        }
+
+        const totalTime = filteredLogs.reduce((acc, curr) => acc + curr.minutes, 0);
+        const totalChecks = filteredLogs.length;
         const avgTime = totalChecks > 0 ? Math.round(totalTime / totalChecks) : 0;
 
         document.getElementById('stat-total-time').innerText = `${totalTime} min`;
@@ -774,15 +1049,19 @@
         document.getElementById('stat-avg-time').innerText = `${avgTime} min`;
 
         const historyList = document.getElementById('history-list');
+        if (!historyList) return;
         historyList.innerHTML = '';
-        if (state.logs.length === 0) {
-            historyList.innerHTML = `<tr><td colspan="4" style="text-align:center; color: var(--cinza);">Nenhum histórico registrado.</td></tr>`;
+
+        if (filteredLogs.length === 0) {
+            historyList.innerHTML = `<tr><td colspan="5" style="text-align:center; color: var(--cinza);">Nenhum histórico encontrado para estes filtros.</td></tr>`;
         } else {
-            [...state.logs].reverse().forEach(log => {
+            [...filteredLogs].reverse().forEach(log => {
+                const tagsHtml = (log.tags || []).map(tg => `<span class="tag-badge">${tg}</span>`).join('');
                 historyList.innerHTML += `
                     <tr>
                         <td>${log.date}</td>
                         <td><strong>${log.taskName}</strong></td>
+                        <td>${tagsHtml || '-'}</td>
                         <td>${log.minutes} min</td>
                         <td>${log.note || '-'}</td>
                     </tr>
@@ -791,8 +1070,10 @@
         }
     }
 
-    loadProjectTasksDropdown();
-    render();
+    window.onload = function() {
+        loadProjectTasksDropdown();
+        renderDashboard();
+    };
 </script>
 </body>
 </html>
