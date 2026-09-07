@@ -1,4 +1,4 @@
-/* cloud.js - Sincronizador Inteligente com Suporte a Deleção */
+/* cloud.js - Sincronizador Inteligente com Fusão Segura */
 const CLOUD_TOKEN_KEY = 'cloud_gist_token';
 const CLOUD_ID_KEY = 'cloud_gist_id';
 
@@ -9,7 +9,34 @@ const MODULE_KEYS = [
     'pomodoro_engine_data_v1'     // Pomodoro
 ];
 
-// 1. Puxar dados da nuvem
+function hasContent(obj) {
+    if (!obj || typeof obj !== 'object') return false;
+    return Object.keys(obj).length > 0;
+}
+
+// Mescla dados de finanças combinando arrays por ID para evitar perdas
+function mergeFinanceData(local, remote) {
+    if (!hasContent(remote)) return local || {};
+    if (!hasContent(local)) return remote || {};
+
+    const merged = { ...remote, ...local };
+
+    const arrayKeys = ['transactions', 'savings', 'debts', 'apeExpenses', 'favors'];
+    arrayKeys.forEach(arrKey => {
+        const localArr = Array.isArray(local[arrKey]) ? local[arrKey] : [];
+        const remoteArr = Array.isArray(remote[arrKey]) ? remote[arrKey] : [];
+
+        const map = new Map();
+        remoteArr.forEach(item => { if (item && item.id) map.set(String(item.id), item); });
+        localArr.forEach(item => { if (item && item.id) map.set(String(item.id), item); });
+
+        merged[arrKey] = Array.from(map.values());
+    });
+
+    return merged;
+}
+
+// 1. Puxar dados da nuvem protegendo registros locais
 async function cloudPull() {
     const token = localStorage.getItem(CLOUD_TOKEN_KEY);
     const gistId = localStorage.getItem(CLOUD_ID_KEY);
@@ -29,8 +56,21 @@ async function cloudPull() {
             const parsed = JSON.parse(content);
 
             MODULE_KEYS.forEach(key => {
-                if (parsed[key] !== undefined) {
-                    localStorage.setItem(key, JSON.stringify(parsed[key]));
+                const remoteObj = parsed[key];
+                const rawLocal = localStorage.getItem(key);
+                const localObj = rawLocal ? JSON.parse(rawLocal) : null;
+
+                if (key === 'personalFinanceData') {
+                    const mergedFinance = mergeFinanceData(localObj, remoteObj);
+                    if (hasContent(mergedFinance)) {
+                        localStorage.setItem(key, JSON.stringify(mergedFinance));
+                    }
+                } else {
+                    if (hasContent(remoteObj)) {
+                        localStorage.setItem(key, JSON.stringify(remoteObj));
+                    } else if (!rawLocal && remoteObj) {
+                        localStorage.setItem(key, JSON.stringify(remoteObj));
+                    }
                 }
             });
             return true;
@@ -41,44 +81,31 @@ async function cloudPull() {
     return false;
 }
 
-// 2. Enviar para a nuvem respeitando deleções locais
+// 2. Enviar para a nuvem garantindo envio em segundo plano
 async function cloudPush() {
     const token = localStorage.getItem(CLOUD_TOKEN_KEY);
     const gistId = localStorage.getItem(CLOUD_ID_KEY);
 
     if (!token || !gistId) return;
 
-    try {
-        const res = await fetch(`https://api.github.com/gists/${gistId}`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-
-        let remoteParsed = {};
-        if (res.ok) {
-            const gistData = await res.json();
-            const content = gistData.files['dados.json']?.content;
-            if (content && content !== '{}') {
-                remoteParsed = JSON.parse(content);
-            }
-        }
-
-        const payload = {};
-
-        MODULE_KEYS.forEach(key => {
-            const rawLocal = localStorage.getItem(key);
-            if (rawLocal !== null) {
-                // Se a chave existe no localStorage local, envia o estado exato (mesmo modificado ou apagado)
-                payload[key] = JSON.parse(rawLocal);
-            } else if (remoteParsed[key] !== undefined) {
-                // Se o dispositivo nunca carregou este módulo, preserva o remoto
-                payload[key] = remoteParsed[key];
-            } else {
+    const payload = {};
+    MODULE_KEYS.forEach(key => {
+        const raw = localStorage.getItem(key);
+        if (raw !== null) {
+            try {
+                payload[key] = JSON.parse(raw);
+            } catch(e) {
                 payload[key] = {};
             }
-        });
+        } else {
+            payload[key] = {};
+        }
+    });
 
+    try {
         await fetch(`https://api.github.com/gists/${gistId}`, {
             method: 'PATCH',
+            keepalive: true,
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
