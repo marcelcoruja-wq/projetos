@@ -3,12 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Motor de Persistência & Execução</title>
+    <title>Gestor de Projetos Completo</title>
     <style>
         :root {
             --azul: #2F5FD0;
             --azul-escuro: #1e3a8a;
             --verde: #10B981;
+            --amarelo: #F59E0B;
+            --vermelho: #EF4444;
             --cinza: #64748B;
             --texto: #243041;
             --fundo: #F5F7FB;
@@ -16,11 +18,7 @@
             --border-color: #e2e8f0;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             background: var(--fundo);
@@ -33,9 +31,7 @@
             justify-content: center;
         }
 
-        .container {
-            width: min(900px, 95%);
-        }
+        .container { width: min(1050px, 95%); }
 
         header {
             display: flex;
@@ -54,45 +50,11 @@
             display: inline-flex;
             align-items: center;
             gap: 4px;
-            transition: color 0.2s;
         }
 
         .btn-back:hover { color: var(--azul); }
 
-        h1 {
-            font-size: 28px;
-            color: var(--azul);
-            font-weight: 800;
-        }
-
-        nav {
-            display: flex;
-            background: #e2e8f0;
-            padding: 4px;
-            border-radius: 10px;
-            gap: 4px;
-        }
-
-        nav button {
-            border: none;
-            background: none;
-            padding: 8px 18px;
-            font-weight: 700;
-            font-size: 14px;
-            color: var(--cinza);
-            cursor: pointer;
-            border-radius: 8px;
-            transition: all 0.2s;
-        }
-
-        nav button.active {
-            background: var(--card);
-            color: var(--azul);
-            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-        }
-
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
+        h1 { font-size: 28px; color: var(--azul); font-weight: 800; }
 
         .card {
             background: var(--card);
@@ -103,51 +65,31 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.02);
         }
 
-        .time-budget-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-            font-weight: 700;
-        }
-
-        .progress-bar-bg {
-            background: var(--border-color);
-            height: 14px;
-            border-radius: 7px;
-            overflow: hidden;
-        }
-
-        .progress-bar-fill {
-            background: var(--azul);
-            height: 100%;
-            width: 0%;
-            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .form-grid {
+        /* Dashboard de Estatísticas Consolidadas */
+        .stats-grid {
             display: grid;
-            grid-template-columns: 2fr 1fr 1fr auto;
-            gap: 12px;
-            margin-bottom: 12px;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
         }
 
-        .form-row-2 {
+        .stat-card {
+            background: var(--card);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 18px;
+            text-align: center;
+        }
+
+        .stat-number { font-size: 28px; font-weight: 800; color: var(--azul); }
+        .stat-label { color: var(--cinza); font-size: 12px; font-weight: 700; text-transform: uppercase; }
+
+        /* Formulário Hierárquico */
+        .form-row {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-
-        .import-box {
-            background: var(--fundo);
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px dashed var(--azul);
-            margin-bottom: 16px;
-            display: flex;
+            grid-template-columns: 1fr 2fr 2fr auto;
             gap: 10px;
-            align-items: center;
+            margin-bottom: 12px;
         }
 
         input, select {
@@ -158,129 +100,127 @@
             font-size: 14px;
             color: var(--texto);
             outline: none;
-            transition: border-color 0.2s;
         }
 
-        input:focus, select:focus {
-            border-color: var(--azul);
-        }
+        input:focus, select:focus { border-color: var(--azul); }
 
         .btn-primary {
             background: var(--azul);
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 10px 18px;
             font-weight: 700;
             border-radius: 8px;
             cursor: pointer;
             transition: background 0.2s;
         }
 
-        .btn-primary:hover {
-            background: var(--azul-escuro);
+        .btn-primary:hover { background: var(--azul-escuro); }
+
+        /* Estrutura do Projeto */
+        .project-card {
+            border: 2px solid var(--border-color);
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: var(--card);
         }
 
-        .table-responsive {
-            overflow-x: auto;
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-        }
-
-        th {
-            color: var(--cinza);
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            padding: 12px;
-            border-bottom: 2px solid var(--border-color);
-        }
-
-        td {
-            padding: 14px 12px;
-            border-bottom: 1px solid var(--border-color);
-            font-size: 14px;
-            vertical-align: middle;
-        }
-
-        .tag {
+        .country-tag {
             font-size: 11px;
-            font-weight: 700;
+            font-weight: 800;
+            background: #e0f2fe;
+            color: #0369a1;
             padding: 3px 8px;
             border-radius: 6px;
             text-transform: uppercase;
         }
 
-        .tag.fazer_ja { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
-        .tag.delegar { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
-        .tag.incubar { background: #f3e8ff; color: #6b21a8; border: 1px solid #e9d5ff; }
+        .progress-bar-bg {
+            background: var(--border-color);
+            height: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 10px 0 16px 0;
+        }
 
-        .btn-check {
+        .progress-bar-fill {
             background: var(--verde);
-            color: white;
-            border: none;
-            padding: 6px 12px;
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        /* Módulos e Entregáveis */
+        .module-block {
+            background: var(--fundo);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 14px;
+            margin-top: 12px;
+        }
+
+        .module-title {
+            font-size: 14px;
             font-weight: 700;
+            color: var(--azul-escuro);
+            margin-bottom: 8px;
+        }
+
+        .task-row-add {
+            display: grid;
+            grid-template-columns: 2fr 1.5fr 1fr auto;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .task-list { list-style: none; margin-top: 8px; }
+
+        .task-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 10px;
+            background: var(--card);
+            border: 1px solid var(--border-color);
             border-radius: 6px;
-            cursor: pointer;
+            margin-bottom: 6px;
             font-size: 13px;
         }
+
+        .status-badge {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        .status-Pendente { background: #fee2e2; color: #991b1b; }
+        .status-Andamento { background: #fef3c7; color: #92400e; }
+        .status-Concluida { background: #dcfce7; color: #166534; }
 
         .btn-icon {
             background: none;
             border: none;
             cursor: pointer;
-            font-size: 15px;
-            margin-left: 4px;
+            font-size: 13px;
             color: var(--cinza);
-            transition: color 0.2s;
+            margin-left: 6px;
         }
 
         .btn-icon:hover { color: var(--azul); }
-        .btn-delete:hover { color: #ef4444; }
-
-        .btn-link {
-            text-decoration: none;
-            color: var(--azul);
-            font-weight: 600;
-            font-size: 13px;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-
-        .stat-card {
-            background: var(--card);
-            border: 2px solid var(--border-color);
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-        }
-
-        .stat-number {
-            font-size: 32px;
-            font-weight: 800;
-            color: var(--azul);
-            margin-top: 4px;
-        }
-
-        .stat-label {
-            color: var(--cinza);
-            font-size: 13px;
-            font-weight: 600;
-        }
+        .btn-delete:hover { color: var(--vermelho); }
 
         @media (max-width: 640px) {
-            .form-grid { grid-template-columns: 1fr; }
-            .form-row-2 { grid-template-columns: 1fr; }
-            .import-box { flex-direction: column; }
+            .form-row, .task-row-add { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -290,368 +230,239 @@
     <header>
         <div>
             <a href="index.html" class="btn-back">&larr; Voltar ao Painel</a>
-            <div style="display:flex; align-items:center; gap:12px;">
-                <h1>⚡ Motor de Persistência</h1>
-            </div>
+            <h1>📊 Gestor Modular de Projetos</h1>
         </div>
-        <nav>
-            <button id="nav-hoy" class="active" onclick="switchTab('hoy')">Hoy / Execução</button>
-            <button id="nav-dashboard" onclick="switchTab('dashboard')">Dashboard</button>
-        </nav>
     </header>
 
-    <!-- ABA HOY -->
-    <main id="tab-hoy" class="tab-content active">
-        <!-- Bolsa de Tempo -->
-        <div class="card">
-            <div class="time-budget-header">
-                <span>🎯 Bolsa de Tempo Diária</span>
-                <span id="budget-text">0 min / 180 min</span>
-            </div>
-            <div class="progress-bar-bg">
-                <div id="budget-fill" class="progress-bar-fill"></div>
-            </div>
+    <!-- Consolidação Geral -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">Total de Projetos</div>
+            <div id="stat-projects" class="stat-number">0</div>
         </div>
+        <div class="stat-card">
+            <div class="stat-label">Módulos Ativos</div>
+            <div id="stat-modules" class="stat-number">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Tarefas Concluídas</div>
+            <div id="stat-tasks-done" class="stat-number">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Progresso Geral</div>
+            <div id="stat-global-pct" class="stat-number">0%</div>
+        </div>
+    </div>
 
-        <!-- Importar de Projetos -->
-        <div class="import-box card" style="margin-bottom: 16px;">
-            <span style="font-weight:700; font-size:13px; color:var(--azul);">📌 Puxar do Gestor de Projetos:</span>
-            <select id="project-task-import">
-                <option value="">Nenhuma tarefa pendente nos projetos</option>
-            </select>
-            <button class="btn-primary" style="padding: 8px 14px; font-size:13px;" onclick="importProjectTask()">+ Puxar para Hoje</button>
+    <!-- Novo Projeto / País -->
+    <div class="card">
+        <h3 style="margin-bottom: 12px; font-size: 15px;">+ Cadastrar Novo Projeto</h3>
+        <div class="form-row">
+            <input type="text" id="project-country" placeholder="País / Região (ex: Brasil, Espanha)...">
+            <input type="text" id="project-name" placeholder="Nome do Projeto...">
+            <input type="text" id="module-name" placeholder="Módulo Inicial (ex: Módulo 1: Setup)...">
+            <button class="btn-primary" onclick="addProject()">Criar Projeto</button>
         </div>
+    </div>
 
-        <!-- Adicionar Nova Atividade -->
-        <div class="card">
-            <h3 style="margin-bottom: 16px; font-size: 16px; color: var(--texto);">+ Cadastrar Atividade / Rotina</h3>
-            <div class="form-grid">
-                <input type="text" id="task-name" placeholder="Nome da atividade (ex: Estudo Docs, Treino, Revisar e-mails)...">
-                <select id="task-type">
-                    <option value="fazer_ja">Fazer já (Foco / Imediato)</option>
-                    <option value="delegar">Delegar (Acompanhar)</option>
-                    <option value="incubar">Incubar (Someday / Espera)</option>
-                </select>
-                <input type="number" id="task-meta" placeholder="Meta (min)">
-                <button class="btn-primary" onclick="addTask()">Cadastrar</button>
-            </div>
-            <div class="form-row-2">
-                <input type="url" id="task-link" placeholder="Link opcional (ex: Google Docs, Drive, Planilha)">
-                <input type="number" id="daily-target-input" placeholder="Ajustar Meta Diária Global (min)" onchange="updateDailyTarget(this.value)">
-            </div>
-        </div>
-
-        <!-- Tabela Diária -->
-        <div class="card">
-            <h3 style="margin-bottom: 16px; font-size: 16px; color: var(--texto);">📋 Folha do Dia</h3>
-            <div class="table-responsive">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Atividade</th>
-                            <th>Ação</th>
-                            <th>Meta</th>
-                            <th>Tempo Real</th>
-                            <th>Nota / Link</th>
-                            <th>Opções</th>
-                        </tr>
-                    </thead>
-                    <tbody id="task-list"></tbody>
-                </table>
-            </div>
-        </div>
-    </main>
-
-    <!-- ABA DASHBOARD -->
-    <main id="tab-dashboard" class="tab-content">
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-label">Tempo Total Acumulado</div>
-                <div id="stat-total-time" class="stat-number">0 min</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Sessões Concluídas</div>
-                <div id="stat-total-checks" class="stat-number">0</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Média por Sessão</div>
-                <div id="stat-avg-time" class="stat-number">0 min</div>
-            </div>
-        </div>
-
-        <div class="card">
-            <h3 style="margin-bottom: 16px; font-size: 16px; color: var(--texto);">📜 Histórico de Presença & Volume</h3>
-            <div class="table-responsive">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Data</th>
-                            <th>Atividade</th>
-                            <th>Tempo Registrado</th>
-                            <th>Nota de Contexto</th>
-                        </tr>
-                    </thead>
-                    <tbody id="history-list"></tbody>
-                </table>
-            </div>
-        </div>
-    </main>
+    <!-- Lista de Projetos Consolidados -->
+    <div id="projects-container"></div>
 </div>
 
 <script>
-    const STORAGE_KEY = 'persistence_engine_data_v1';
-    const PROJECTS_KEY = 'projects_engine_data_v1';
+    const STORAGE_KEY = 'projects_engine_data_v1';
 
-    let state = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
-        tasks: [],
-        logs: [],
-        dailyTargetMinutes: 180
-    };
+    let projects = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
 
     function saveData() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
         render();
     }
 
-    function switchTab(tabName) {
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('nav button').forEach(el => el.classList.remove('active'));
-        document.getElementById(`tab-${tabName}`).classList.add('active');
-        document.getElementById(`nav-${tabName}`).classList.add('active');
-        render();
+    function addProject() {
+        const country = document.getElementById('project-country').value.trim() || 'Geral';
+        const name = document.getElementById('project-name').value.trim();
+        const initialModule = document.getElementById('module-name').value.trim() || 'Módulo Principal';
+
+        if (!name) return alert('Por favor, informe o nome do projeto.');
+
+        projects.push({
+            id: Date.now(),
+            country,
+            name,
+            modules: [
+                {
+                    id: Date.now() + 1,
+                    name: initialModule
+                }
+            ],
+            tasks: []
+        });
+
+        document.getElementById('project-country').value = '';
+        document.getElementById('project-name').value = '';
+        document.getElementById('module-name').value = '';
+        saveData();
     }
 
-    function updateDailyTarget(val) {
-        const num = parseInt(val);
-        if (num > 0) {
-            state.dailyTargetMinutes = num;
+    function addModule(projectId) {
+        const modName = prompt('Nome do novo Módulo:');
+        if (!modName) return;
+
+        const project = projects.find(p => p.id === projectId);
+        if (project) {
+            if (!project.modules) project.modules = [];
+            project.modules.push({ id: Date.now(), name: modName.trim() });
             saveData();
         }
     }
 
-    function loadProjectTasksDropdown() {
-        const projectsData = JSON.parse(localStorage.getItem(PROJECTS_KEY)) || [];
-        const select = document.getElementById('project-task-import');
-        select.innerHTML = '<option value="">-- Selecione uma tarefa do Gestor de Projetos --</option>';
+    function addTask(projectId) {
+        const nameInput = document.getElementById(`task-name-${projectId}`);
+        const moduleSelect = document.getElementById(`task-module-${projectId}`);
+        const deliverableInput = document.getElementById(`task-deliv-${projectId}`);
 
-        let count = 0;
-        projectsData.forEach(p => {
-            p.tasks.filter(t => t.status !== 'Concluida').forEach(t => {
-                select.innerHTML += `<option value="${p.id}|${t.id}">[${p.name}] ${t.name}</option>`;
-                count++;
-            });
-        });
+        const taskName = nameInput.value.trim();
+        if (!taskName) return;
 
-        if (count === 0) {
-            select.innerHTML = '<option value="">Nenhuma tarefa pendente nos projetos</option>';
-        }
-    }
-
-    function importProjectTask() {
-        const val = document.getElementById('project-task-import').value;
-        if (!val) return alert('Selecione uma tarefa válida da lista.');
-
-        const [projectId, taskId] = val.split('|').map(Number);
-        const projectsData = JSON.parse(localStorage.getItem(PROJECTS_KEY)) || [];
-        const project = projectsData.find(p => p.id === projectId);
-        if (!project) return;
-        const task = project.tasks.find(t => t.id === taskId);
-        if (!task) return;
-
-        state.tasks.push({
-            id: Date.now(),
-            name: `[${project.name}] ${task.name}`,
-            type: 'fazer_ja',
-            meta: 30,
-            link: '',
-            projectId,
-            projectTaskId: taskId,
-            completedToday: false
-        });
-
-        saveData();
-        loadProjectTasksDropdown();
-    }
-
-    function addTask() {
-        const name = document.getElementById('task-name').value.trim();
-        const type = document.getElementById('task-type').value;
-        const meta = parseInt(document.getElementById('task-meta').value) || 0;
-        const link = document.getElementById('task-link').value.trim();
-
-        if (!name) return alert('Por favor, informe o nome da atividade.');
-
-        state.tasks.push({
-            id: Date.now(),
-            name,
-            type,
-            meta,
-            link,
-            completedToday: false
-        });
-
-        document.getElementById('task-name').value = '';
-        document.getElementById('task-meta').value = '';
-        document.getElementById('task-link').value = '';
-        saveData();
-    }
-
-    function editTask(id) {
-        const task = state.tasks.find(t => t.id === id);
-        if (!task) return;
-
-        const newName = prompt('Nome da atividade:', task.name);
-        if (newName === null) return;
-
-        const newMeta = prompt('Meta em minutos:', task.meta);
-        const newCategory = prompt('Categoria (fazer_ja, delegar, incubar):', task.type);
-        const newLink = prompt('Link (Google Docs, Drive, etc.):', task.link || '');
-
-        task.name = newName.trim() || task.name;
-        task.meta = parseInt(newMeta) || task.meta;
-        if (['fazer_ja', 'delegar', 'incubar'].includes(newCategory)) {
-            task.type = newCategory;
-        }
-        task.link = newLink.trim();
-
-        saveData();
-    }
-
-    function checkIn(id) {
-        const timeInput = document.getElementById(`time-${id}`).value;
-        const noteInput = document.getElementById(`note-${id}`).value;
-        const task = state.tasks.find(t => t.id === id);
-
-        if (task) {
-            const minutes = parseInt(timeInput) || task.meta || 0;
-            task.completedToday = true;
-
-            state.logs.push({
+        const project = projects.find(p => p.id === projectId);
+        if (project) {
+            project.tasks.push({
                 id: Date.now(),
-                date: new Date().toLocaleDateString('pt-BR'),
-                taskName: task.name,
-                minutes: minutes,
-                note: noteInput
+                name: taskName,
+                module: moduleSelect.value,
+                deliverable: deliverableInput.value.trim() || 'Entregável Geral',
+                status: 'Pendente'
             });
+            saveData();
+        }
+    }
 
-            // Sincronizar conclusão com o Gestor de Projetos
-            if (task.projectId && task.projectTaskId) {
-                const projectsData = JSON.parse(localStorage.getItem(PROJECTS_KEY)) || [];
-                const project = projectsData.find(p => p.id === task.projectId);
-                if (project) {
-                    const pTask = project.tasks.find(t => t.id === task.projectTaskId);
-                    if (pTask) {
-                        pTask.status = 'Concluida';
-                        localStorage.setItem(PROJECTS_KEY, JSON.stringify(projectsData));
-                    }
-                }
+    function toggleTaskStatus(projectId, taskId) {
+        const project = projects.find(p => p.id === projectId);
+        if (project) {
+            const task = project.tasks.find(t => t.id === taskId);
+            if (task) {
+                if (task.status === 'Pendente') task.status = 'Andamento';
+                else if (task.status === 'Andamento') task.status = 'Concluida';
+                else task.status = 'Pendente';
+                saveData();
             }
         }
-        saveData();
-        loadProjectTasksDropdown();
     }
 
-    function deleteTask(id) {
-        if (confirm('Deseja remover esta atividade da lista?')) {
-            state.tasks = state.tasks.filter(t => t.id !== id);
+    function deleteTask(projectId, taskId) {
+        const project = projects.find(p => p.id === projectId);
+        if (project) {
+            project.tasks = project.tasks.filter(t => t.id !== taskId);
             saveData();
         }
     }
 
-    function getTagLabel(type) {
-        switch (type) {
-            case 'fazer_ja': return 'Fazer já';
-            case 'delegar': return 'Delegar';
-            case 'incubar': return 'Incubar';
-            default: return 'Fazer já';
+    function deleteProject(projectId) {
+        if (confirm('Excluir este projeto completo, seus módulos e tarefas?')) {
+            projects = projects.filter(p => p.id !== projectId);
+            saveData();
         }
     }
 
     function render() {
-        const todayStr = new Date().toLocaleDateString('pt-BR');
-        const taskList = document.getElementById('task-list');
-        taskList.innerHTML = '';
-        
-        let totalMinutesToday = 0;
+        const container = document.getElementById('projects-container');
+        container.innerHTML = '';
 
-        if (state.tasks.length === 0) {
-            taskList.innerHTML = `<tr><td colspan="6" style="text-align:center; color: var(--cinza);">Nenhuma atividade cadastrada. Adicione uma acima!</td></tr>`;
+        let totalModules = 0;
+        let totalTasks = 0;
+        let completedTasks = 0;
+
+        if (projects.length === 0) {
+            container.innerHTML = `<div class="card" style="text-align:center; color: var(--cinza);">Nenhum projeto cadastrado.</div>`;
         }
 
-        state.tasks.forEach(task => {
-            const todayLog = state.logs.find(l => l.taskName === task.name && l.date === todayStr);
-            
-            if (task.completedToday && todayLog) {
-                totalMinutesToday += todayLog.minutes;
-            }
+        projects.forEach(project => {
+            const pTasks = project.tasks || [];
+            const pModules = project.modules || [{ id: 1, name: 'Módulo Principal' }];
 
-            const docLinkHtml = task.link 
-                ? `<a href="${task.link}" target="_blank" class="btn-link">🔗 Abrir Doc</a>` 
-                : '';
+            totalModules += pModules.length;
+            totalTasks += pTasks.length;
 
-            taskList.innerHTML += `
-                <tr>
-                    <td><strong>${task.name}</strong></td>
-                    <td><span class="tag ${task.type}">${getTagLabel(task.type)}</span></td>
-                    <td>${task.meta} min</td>
-                    <td>
-                        ${task.completedToday 
-                            ? `<strong>${todayLog ? todayLog.minutes : task.meta} min</strong>` 
-                            : `<input type="number" id="time-${task.id}" style="width:70px" placeholder="${task.meta}"> min`}
-                    </td>
-                    <td>
-                        ${task.completedToday 
-                            ? `<span>${todayLog && todayLog.note ? todayLog.note : '-'}</span> ${docLinkHtml}` 
-                            : `<input type="text" id="note-${task.id}" placeholder="Observação..." style="margin-bottom:4px;"> ${docLinkHtml}`}
-                    </td>
-                    <td>
-                        ${task.completedToday 
-                            ? `<span style="color:var(--verde); font-weight:700;">✔ Concluído</span>` 
-                            : `<button class="btn-check" onclick="checkIn(${task.id})">Check-in</button>`}
-                        <button class="btn-icon" onclick="editTask(${task.id})" title="Editar">✏️</button>
-                        <button class="btn-icon btn-delete" onclick="deleteTask(${task.id})" title="Excluir">🗑</button>
-                    </td>
-                </tr>
+            const pDone = pTasks.filter(t => t.status === 'Concluida').length;
+            completedTasks += pDone;
+
+            const pPct = pTasks.length > 0 ? Math.round((pDone / pTasks.length) * 100) : 0;
+
+            // Renderizar formulário de adição de tarefas e visualização por Módulo
+            let modulesHtml = '';
+            pModules.forEach(mod => {
+                const modTasks = pTasks.filter(t => t.module === mod.name);
+                let tasksListHtml = '';
+
+                modTasks.forEach(task => {
+                    tasksListHtml += `
+                        <li class="task-item">
+                            <div>
+                                <span class="status-badge status-${task.status}">${task.status}</span>
+                                <strong style="margin-left:6px;">[${task.deliverable}]</strong> ${task.name}
+                            </div>
+                            <div>
+                                <button class="btn-icon" onclick="toggleTaskStatus(${project.id}, ${task.id})" title="Alterar Status">🔄 Status</button>
+                                <button class="btn-icon btn-delete" onclick="deleteTask(${project.id}, ${task.id})" title="Excluir">🗑</button>
+                            </div>
+                        </li>
+                    `;
+                });
+
+                modulesHtml += `
+                    <div class="module-block">
+                        <div class="module-title">📦 ${mod.name}</div>
+                        <ul class="task-list">
+                            ${tasksListHtml || '<li style="color:var(--cinza); font-size:12px;">Nenhuma tarefa neste módulo.</li>'}
+                        </ul>
+                    </div>
+                `;
+            });
+
+            let moduleOptionsHtml = pModules.map(m => `<option value="${m.name}">${m.name}</option>`).join('');
+
+            container.innerHTML += `
+                <div class="project-card">
+                    <div class="project-header">
+                        <div>
+                            <span class="country-tag">🌍 ${project.country}</span>
+                            <h2 style="font-size: 18px; font-weight:700; margin-top:4px;">${project.name}</h2>
+                        </div>
+                        <div>
+                            <strong style="font-size: 16px; color: var(--azul);">${pPct}%</strong>
+                            <button class="btn-icon" onclick="addModule(${project.id})" title="Adicionar Módulo">+ Módulo</button>
+                            <button class="btn-icon btn-delete" onclick="deleteProject(${project.id})" title="Excluir Projeto">🗑</button>
+                        </div>
+                    </div>
+
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${pPct}%;"></div>
+                    </div>
+
+                    <!-- Add Tarefa -->
+                    <div class="task-row-add">
+                        <input type="text" id="task-name-${project.id}" placeholder="Nome da tarefa...">
+                        <input type="text" id="task-deliv-${project.id}" placeholder="Entregável / Milestone...">
+                        <select id="task-module-${project.id}">${moduleOptionsHtml}</select>
+                        <button class="btn-primary" style="padding:6px 12px; font-size:13px;" onclick="addTask(${project.id})">+ Tarefa</button>
+                    </div>
+
+                    ${modulesHtml}
+                </div>
             `;
         });
 
-        // Atualizar Bolsa de Tempo
-        const targetGlobal = state.dailyTargetMinutes || 180;
-        document.getElementById('budget-text').innerText = `${totalMinutesToday} min / ${targetGlobal} min`;
-        document.getElementById('daily-target-input').placeholder = `Meta Global Atual: ${targetGlobal} min`;
+        // Atualizar Dashboard Consolidado
+        document.getElementById('stat-projects').innerText = projects.length;
+        document.getElementById('stat-modules').innerText = totalModules;
+        document.getElementById('stat-tasks-done').innerText = `${completedTasks} / ${totalTasks}`;
         
-        const pct = Math.min(100, Math.round((totalMinutesToday / targetGlobal) * 100));
-        document.getElementById('budget-fill').style.width = `${pct}%`;
-
-        // Dashboard
-        const totalTime = state.logs.reduce((acc, curr) => acc + curr.minutes, 0);
-        const totalChecks = state.logs.length;
-        const avgTime = totalChecks > 0 ? Math.round(totalTime / totalChecks) : 0;
-
-        document.getElementById('stat-total-time').innerText = `${totalTime} min`;
-        document.getElementById('stat-total-checks').innerText = totalChecks;
-        document.getElementById('stat-avg-time').innerText = `${avgTime} min`;
-
-        const historyList = document.getElementById('history-list');
-        historyList.innerHTML = '';
-
-        if (state.logs.length === 0) {
-            historyList.innerHTML = `<tr><td colspan="4" style="text-align:center; color: var(--cinza);">Nenhum histórico registrado ainda.</td></tr>`;
-        } else {
-            [...state.logs].reverse().forEach(log => {
-                historyList.innerHTML += `
-                    <tr>
-                        <td>${log.date}</td>
-                        <td><strong>${log.taskName}</strong></td>
-                        <td>${log.minutes} min</td>
-                        <td>${log.note || '-'}</td>
-                    </tr>
-                `;
-            });
-        }
+        const globalPct = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+        document.getElementById('stat-global-pct').innerText = `${globalPct}%`;
     }
 
-    loadProjectTasksDropdown();
     render();
 </script>
 </body>
