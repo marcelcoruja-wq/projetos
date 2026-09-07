@@ -9,7 +9,7 @@ const MODULE_KEYS = [
     'pomodoro_engine_data_v1'     // Pomodoro
 ];
 
-// 1. Puxar da nuvem garantindo dados atualizados (Sem cache)
+// 1. Puxar da nuvem garantindo leitura sem cache HTTP
 async function cloudPull() {
     const token = localStorage.getItem(CLOUD_TOKEN_KEY);
     const gistId = localStorage.getItem(CLOUD_ID_KEY);
@@ -49,7 +49,7 @@ async function cloudPull() {
     return false;
 }
 
-// 2. Enviar dados locais para o GitHub Gist
+// 2. Enviar dados locais para o arquivo dados.json no GitHub Gist
 async function cloudPush() {
     const token = localStorage.getItem(CLOUD_TOKEN_KEY);
     const gistId = localStorage.getItem(CLOUD_ID_KEY);
