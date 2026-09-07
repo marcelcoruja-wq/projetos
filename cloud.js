@@ -1,4 +1,4 @@
-/* cloud.js - Sincronização Estável sem Limite de Payload */
+/* cloud.js - Sincronização Direta com Anti-Cache HTTP */
 const CLOUD_TOKEN_KEY = 'cloud_gist_token';
 const CLOUD_ID_KEY = 'cloud_gist_id';
 
@@ -9,32 +9,7 @@ const MODULE_KEYS = [
     'pomodoro_engine_data_v1'     // Pomodoro
 ];
 
-function hasContent(obj) {
-    if (!obj || typeof obj !== 'object') return false;
-    return Object.keys(obj).length > 0;
-}
-
-function mergeFinanceData(local, remote) {
-    if (!hasContent(remote)) return local || {};
-    if (!hasContent(local)) return remote || {};
-
-    const merged = { ...remote, ...local };
-    const arrayKeys = ['transactions', 'savings', 'debts', 'apeExpenses', 'favors'];
-
-    arrayKeys.forEach(arrKey => {
-        const localArr = Array.isArray(local[arrKey]) ? local[arrKey] : [];
-        const remoteArr = Array.isArray(remote[arrKey]) ? remote[arrKey] : [];
-
-        const map = new Map();
-        remoteArr.forEach(item => { if (item && item.id) map.set(String(item.id), item); });
-        localArr.forEach(item => { if (item && item.id) map.set(String(item.id), item); });
-
-        merged[arrKey] = Array.from(map.values());
-    });
-
-    return merged;
-}
-
+// 1. Puxar da nuvem garantindo dados atualizados (Sem cache)
 async function cloudPull() {
     const token = localStorage.getItem(CLOUD_TOKEN_KEY);
     const gistId = localStorage.getItem(CLOUD_ID_KEY);
@@ -42,61 +17,52 @@ async function cloudPull() {
     if (!token || !gistId) return false;
 
     try {
-        const res = await fetch(`https://api.github.com/gists/${gistId}`, {
-            headers: { 'Authorization': `Bearer ${token}` }
+        const res = await fetch(`https://api.github.com/gists/${gistId}?t=${Date.now()}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Cache-Control': 'no-cache'
+            }
         });
-        if (!res.ok) return false;
+        if (!res.ok) {
+            console.error("❌ Erro HTTP no Cloud Pull:", res.status);
+            return false;
+        }
 
         const gistData = await res.json();
         const content = gistData.files['dados.json']?.content;
 
         if (content && content !== '{}') {
             const parsed = JSON.parse(content);
-            let hasLocalAdditions = false;
 
             MODULE_KEYS.forEach(key => {
                 const remoteObj = parsed[key];
-                const rawLocal = localStorage.getItem(key);
-                const localObj = rawLocal ? JSON.parse(rawLocal) : null;
-
-                if (key === 'personalFinanceData') {
-                    const mergedFinance = mergeFinanceData(localObj, remoteObj);
-                    if (hasContent(mergedFinance)) {
-                        localStorage.setItem(key, JSON.stringify(mergedFinance));
-                    }
-                    if (hasContent(localObj) && (!hasContent(remoteObj) || JSON.stringify(localObj) !== JSON.stringify(remoteObj))) {
-                        hasLocalAdditions = true;
-                    }
-                } else {
-                    if (hasContent(remoteObj)) {
-                        localStorage.setItem(key, JSON.stringify(remoteObj));
-                    } else if (hasContent(localObj)) {
-                        hasLocalAdditions = true;
-                    }
+                if (remoteObj && typeof remoteObj === 'object' && Object.keys(remoteObj).length > 0) {
+                    localStorage.setItem(key, JSON.stringify(remoteObj));
                 }
             });
-
-            if (hasLocalAdditions) {
-                await cloudPush();
-            }
+            console.log("✅ Dados puxados da nuvem com sucesso!");
             return true;
         }
     } catch (e) {
-        console.error("Erro no Cloud Pull:", e);
+        console.error("❌ Erro de rede no Cloud Pull:", e);
     }
     return false;
 }
 
+// 2. Enviar dados locais para o GitHub Gist
 async function cloudPush() {
     const token = localStorage.getItem(CLOUD_TOKEN_KEY);
     const gistId = localStorage.getItem(CLOUD_ID_KEY);
 
-    if (!token || !gistId) return false;
+    if (!token || !gistId) {
+        console.warn("⚠️ Token ou Gist ID não configurados.");
+        return false;
+    }
 
     const payload = {};
     MODULE_KEYS.forEach(key => {
         const raw = localStorage.getItem(key);
-        if (raw !== null) {
+        if (raw) {
             try {
                 payload[key] = JSON.parse(raw);
             } catch(e) {
@@ -122,14 +88,15 @@ async function cloudPush() {
         });
 
         if (res.ok) {
-            console.log("Sincronização com o Gist realizada com sucesso!");
+            console.log("✅ Sincronização com o Gist concluída!");
             return true;
         } else {
-            console.error("Erro no Cloud Push (Status HTTP):", res.status);
+            const errText = await res.text();
+            console.error("❌ Erro HTTP no Cloud Push:", res.status, errText);
             return false;
         }
     } catch (e) {
-        console.error("Erro no Cloud Push:", e);
+        console.error("❌ Erro de rede no Cloud Push:", e);
         return false;
     }
 }
