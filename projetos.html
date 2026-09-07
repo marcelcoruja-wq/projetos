@@ -1171,9 +1171,14 @@ function filterTasksBySubproject(spId) {
 }
 
 function renderTasksTable() {
+  if (!currentActiveProjectId || !localProjectsData[currentActiveProjectId]) {
+    switchTab('dashboard');
+    return;
+  }
+
   const proj = localProjectsData[currentActiveProjectId];
-  if (!proj) return;
   const tbody = document.getElementById('taskTableBody');
+  if (!tbody) return;
   tbody.innerHTML = '';
 
   let filtered = proj.tasks || [];
@@ -1372,8 +1377,16 @@ function submitEditProject(e) {
 function deleteTargetProject() {
   const pId = document.getElementById('editProjectId').value;
   if (!pId || !localProjectsData[pId]) return;
+
   if (confirm(`¿Eliminar el proyecto "${localProjectsData[pId].name}" y todas sus tareas?`)) {
     delete localProjectsData[pId];
+
+    if (currentActiveProjectId === pId) {
+      currentActiveProjectId = "";
+      currentActiveSubprojectId = "";
+      currentActiveMilestoneId = "";
+    }
+
     saveToCloud();
     closeModal('modalEditProject');
     populateGlobalFilter();
@@ -1431,20 +1444,25 @@ function submitEditSubproject(e) {
 }
 
 function deleteTargetSubproject() {
+  if (!currentActiveProjectId || !localProjectsData[currentActiveProjectId]) return;
   const proj = localProjectsData[currentActiveProjectId];
-  if (!proj) return;
+
   if (proj.subprojects.length <= 1) {
     alert("⚠️ No puedes eliminar la única carpeta del proyecto.");
     return;
   }
+
   if (confirm(`¿Seguro que deseas eliminar esta carpeta?\n\nLas tareas que estén dentro no se perderán, se moverán a la carpeta principal.`)) {
     const spIndex = proj.subprojects.findIndex(s => s.id === currentActiveSubprojectId);
     if (spIndex > -1) {
       proj.subprojects.splice(spIndex, 1);
       const defaultSpId = proj.subprojects[0].id;
+
       proj.tasks.forEach(t => {
         if (t.subprojectId === currentActiveSubprojectId) t.subprojectId = defaultSpId;
       });
+
+      currentActiveSubprojectId = "";
       saveToCloud();
       closeModal('modalEditSubproject');
       openProjectTasks(currentActiveProjectId, "", currentActiveMilestoneId);
@@ -1542,9 +1560,10 @@ function submitEditTask(e) {
 
 function deleteTargetTask() {
   const pId = currentActiveProjectId;
+  if (!pId || !localProjectsData[pId]) return;
+
   const taskId = document.getElementById('editTaskId').value;
   const proj = localProjectsData[pId];
-  if (!proj) return;
 
   const realIndex = proj.tasks.findIndex(t => t.id === taskId);
   if (realIndex > -1) {
