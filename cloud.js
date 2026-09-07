@@ -1,4 +1,4 @@
-/* cloud.js */
+/* cloud.js - Sincronização Unificada de Todos os Módulos */
 const CLOUD_TOKEN_KEY = 'cloud_gist_token';
 const CLOUD_ID_KEY = 'cloud_gist_id';
 
@@ -29,8 +29,12 @@ async function cloudPull() {
                 localStorage.setItem('projects_engine_data_v1', JSON.stringify(parsed.projects_engine_data_v1));
                 updated = true;
             }
-            if (parsed.financas_engine_data_v1) {
-                localStorage.setItem('financas_engine_data_v1', JSON.stringify(parsed.financas_engine_data_v1));
+            if (parsed.personalFinanceData) {
+                localStorage.setItem('personalFinanceData', JSON.stringify(parsed.personalFinanceData));
+                updated = true;
+            }
+            if (parsed.pomodoro_engine_data_v1) {
+                localStorage.setItem('pomodoro_engine_data_v1', JSON.stringify(parsed.pomodoro_engine_data_v1));
                 updated = true;
             }
             return updated;
@@ -50,7 +54,8 @@ async function cloudPush() {
     const payload = {
         persistence_engine_data_v1: JSON.parse(localStorage.getItem('persistence_engine_data_v1')) || {},
         projects_engine_data_v1: JSON.parse(localStorage.getItem('projects_engine_data_v1')) || {},
-        financas_engine_data_v1: JSON.parse(localStorage.getItem('financas_engine_data_v1')) || {}
+        personalFinanceData: JSON.parse(localStorage.getItem('personalFinanceData')) || {},
+        pomodoro_engine_data_v1: JSON.parse(localStorage.getItem('pomodoro_engine_data_v1')) || {}
     };
 
     try {
