@@ -1,4 +1,4 @@
-/* cloud.js - Sincronizador Inteligente com Fusão de Dados (Smart Merge) */
+/* cloud.js - Sincronizador Inteligente com Suporte a Deleção */
 const CLOUD_TOKEN_KEY = 'cloud_gist_token';
 const CLOUD_ID_KEY = 'cloud_gist_id';
 
@@ -9,12 +9,7 @@ const MODULE_KEYS = [
     'pomodoro_engine_data_v1'     // Pomodoro
 ];
 
-// Helper para validar se o objeto contém dados reais
-function hasData(obj) {
-    return obj && typeof obj === 'object' && Object.keys(obj).length > 0;
-}
-
-// 1. Puxar dados da nuvem (Sem apagar o localStorage local)
+// 1. Puxar dados da nuvem
 async function cloudPull() {
     const token = localStorage.getItem(CLOUD_TOKEN_KEY);
     const gistId = localStorage.getItem(CLOUD_ID_KEY);
@@ -32,22 +27,12 @@ async function cloudPull() {
 
         if (content && content !== '{}') {
             const parsed = JSON.parse(content);
-            let needsPush = false;
 
             MODULE_KEYS.forEach(key => {
-                const remoteData = parsed[key];
-                const localData = JSON.parse(localStorage.getItem(key)) || {};
-
-                if (hasData(remoteData)) {
-                    localStorage.setItem(key, JSON.stringify(remoteData));
-                } else if (hasData(localData)) {
-                    needsPush = true;
+                if (parsed[key] !== undefined) {
+                    localStorage.setItem(key, JSON.stringify(parsed[key]));
                 }
             });
-
-            if (needsPush) {
-                await cloudPush();
-            }
             return true;
         }
     } catch (e) {
@@ -56,7 +41,7 @@ async function cloudPull() {
     return false;
 }
 
-// 2. Enviar para a nuvem fundindo os módulos (Protege contra sobrescrita)
+// 2. Enviar para a nuvem respeitando deleções locais
 async function cloudPush() {
     const token = localStorage.getItem(CLOUD_TOKEN_KEY);
     const gistId = localStorage.getItem(CLOUD_ID_KEY);
@@ -80,13 +65,13 @@ async function cloudPush() {
         const payload = {};
 
         MODULE_KEYS.forEach(key => {
-            const localData = JSON.parse(localStorage.getItem(key)) || {};
-            const remoteData = remoteParsed[key] || {};
-
-            if (hasData(localData)) {
-                payload[key] = localData;
-            } else if (hasData(remoteData)) {
-                payload[key] = remoteData;
+            const rawLocal = localStorage.getItem(key);
+            if (rawLocal !== null) {
+                // Se a chave existe no localStorage local, envia o estado exato (mesmo modificado ou apagado)
+                payload[key] = JSON.parse(rawLocal);
+            } else if (remoteParsed[key] !== undefined) {
+                // Se o dispositivo nunca carregou este módulo, preserva o remoto
+                payload[key] = remoteParsed[key];
             } else {
                 payload[key] = {};
             }
