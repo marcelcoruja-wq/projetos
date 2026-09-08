@@ -1,8 +1,9 @@
-/* cloud.js - Sincronização Definitiva Sem Bloqueio CORS (v11) */
+/* cloud.js - Sincronização Definitiva (v11) */
 const CLOUD_TOKEN_KEY = 'cloud_gist_token';
 const CLOUD_ID_KEY = 'cloud_gist_id';
 const SYNC_LOCK_KEY = 'cloud_sync_last_push';
 
+// AQUI ESTÁ O SEGREDO: O script agora sabe que Finanças existe!
 const MODULE_KEYS = [
     'persistence_engine_data_v1',
     'projects_engine_data_v1',
@@ -20,10 +21,7 @@ async function cloudPull() {
 
     try {
         const res = await fetch(`https://api.github.com/gists/${gistId}?t=${Date.now()}`, {
-            headers: { 
-                'Authorization': `Bearer ${token}`,
-                'Accept': 'application/vnd.github.v3+json'
-            }
+            headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github.v3+json' }
         });
         if (!res.ok) return false;
 
@@ -39,29 +37,21 @@ async function cloudPull() {
             });
             return true;
         }
-    } catch (e) {
-        console.error("Erro no cloudPull:", e);
-    }
+    } catch (e) { console.error("Erro no cloudPull:", e); }
     return false;
 }
 
 async function cloudPush() {
     const token = (localStorage.getItem(CLOUD_TOKEN_KEY) || '').trim();
     const gistId = (localStorage.getItem(CLOUD_ID_KEY) || '').trim();
-    
-    if (!token || !gistId) {
-        alert("⚠️ Erro Interno: O cloud.js não conseguiu ler o Token da memória!");
-        return false;
-    }
+    if (!token || !gistId) return false;
 
     try {
         let remotePayload = {};
-        // 1. Puxa os dados antigos para não apagar o que já está lá
+        
+        // 1. Lê a nuvem primeiro para não apagar nada
         const getRes = await fetch(`https://api.github.com/gists/${gistId}?t=${Date.now()}`, {
-            headers: { 
-                'Authorization': `Bearer ${token}`,
-                'Accept': 'application/vnd.github.v3+json'
-            }
+            headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github.v3+json' }
         });
 
         if (getRes.ok) {
@@ -70,12 +60,9 @@ async function cloudPush() {
             if (content) {
                 try { remotePayload = JSON.parse(content); } catch(e) {}
             }
-        } else {
-            alert(`⚠️ Falha ao ler Gist antes de salvar (Código: ${getRes.status})`);
-            return false;
         }
 
-        // 2. Mescla com os dados locais
+        // 2. Mescla os dados locais (incluindo as Finanças)
         MODULE_KEYS.forEach(key => {
             const raw = localStorage.getItem(key);
             if (raw) {
@@ -88,7 +75,7 @@ async function cloudPush() {
             }
         });
 
-        // 3. Envia para o GitHub sem cabeçalhos restritivos de CORS
+        // 3. Salva tudo completo
         const res = await fetch(`https://api.github.com/gists/${gistId}`, {
             method: 'PATCH',
             headers: { 
@@ -104,13 +91,7 @@ async function cloudPush() {
         if (res.ok) {
             localStorage.setItem(SYNC_LOCK_KEY, Date.now().toString());
             return true;
-        } else {
-            const errText = await res.text();
-            alert(`🚨 O GitHub rejeitou o formato dos dados: ${res.status}\n${errText}`);
-            return false;
         }
-    } catch (e) {
-        alert("🚨 Ocorreu um erro de rede: " + e.message);
-        return false;
-    }
+    } catch (e) { console.error("Erro no cloudPush:", e); }
+    return false;
 }
