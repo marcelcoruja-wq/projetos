@@ -11,11 +11,14 @@
             --azul-escuro: #1e3a8a;
             --azul-claro: #eff6ff;
             --verde: #10B981;
+            --verde-suave: #ecfdf5;
             --verde-escuro: #047857;
             --amarelo: #F59E0B;
+            --amarelo-suave: #fffbeb;
             --laranja: #ea580c;
             --roxo: #8b5cf6;
             --vermelho: #EF4444;
+            --vermelho-suave: #fef2f2;
             --cinza: #64748B;
             --cinza-claro: #f1f5f9;
             --texto: #1e293b;
@@ -41,6 +44,7 @@
 
         .container { width: min(1180px, 98%); }
 
+        /* Top Bar e Abas */
         .top-bar {
             display: flex;
             justify-content: space-between;
@@ -125,6 +129,154 @@
             box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
         }
 
+        .progress-box-card {
+            background: var(--card);
+            border-radius: 14px;
+            border: 1px solid var(--border-color);
+            padding: 20px 24px;
+            margin-bottom: 22px;
+            box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03);
+        }
+
+        .pb-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .pb-title {
+            font-size: 16px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            color: #0f172a;
+            text-transform: uppercase;
+        }
+
+        .btn-reset-day {
+            background: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fca5a5;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-reset-day:hover {
+            background: #fecaca;
+        }
+
+        .pb-bar-track {
+            background: #e2e8f0;
+            height: 10px;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .pb-bar-fill {
+            background: #10b981;
+            height: 100%;
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        .pb-subtitle {
+            text-align: right;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--cinza);
+            margin-bottom: 18px;
+        }
+
+        /* Grade de KPIs com faixas superiores coloridas */
+        .kpi-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+
+        .kpi-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 16px 12px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+        }
+
+        .kpi-concluido::before { background: #10b981; }
+        .kpi-progresso::before { background: #f59e0b; }
+        .kpi-pendente::before { background: #ef4444; }
+
+        .kpi-number {
+            font-size: 26px;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 4px;
+        }
+
+        .kpi-concluido .kpi-number { color: #10b981; }
+        .kpi-progresso .kpi-number { color: #f59e0b; }
+        .kpi-pendente .kpi-number { color: #ef4444; }
+
+        .kpi-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--cinza);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Linha de Busca e Filtros */
+        .search-filter-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .search-input-box {
+            flex: 2;
+            min-width: 220px;
+            position: relative;
+        }
+
+        .search-input-box input {
+            padding-left: 32px;
+        }
+
+        .search-icon-decor {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--cinza);
+            font-size: 14px;
+            pointer-events: none;
+        }
+
+        .filter-select-box {
+            flex: 1;
+            min-width: 140px;
+        }
+
         .action-bar {
             display: flex;
             justify-content: space-between;
@@ -153,28 +305,6 @@
         .btn-add:hover { background: var(--azul-escuro); }
         .btn-add:active { transform: scale(0.98); }
 
-        .time-budget-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-            font-weight: 700;
-        }
-
-        .progress-bar-bg {
-            background: #e2e8f0;
-            height: 12px;
-            border-radius: 6px;
-            overflow: hidden;
-        }
-
-        .progress-bar-fill {
-            background: linear-gradient(90deg, var(--azul), #3b82f6);
-            height: 100%;
-            width: 0%;
-            transition: width 0.4s ease;
-        }
-
         .table-responsive { overflow-x: auto; }
 
         table {
@@ -195,7 +325,7 @@
         }
 
         td {
-            padding: 14px 12px;
+            padding: 12px;
             border-bottom: 1px solid var(--border-color);
             vertical-align: middle;
         }
@@ -229,57 +359,104 @@
             gap: 4px;
             font-size: 11px;
             font-weight: 700;
-            padding: 3px 8px;
+            padding: 4px 9px;
             border-radius: 6px;
             cursor: pointer;
             user-select: none;
             transition: opacity 0.2s;
+            white-space: nowrap;
         }
         .badge-status:hover { opacity: 0.85; }
 
         .status-pendente { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
-        .status-em_progresso { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+        .status-em_progresso { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
         .status-concluido { background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
 
-        .timer-badge {
-            display: inline-flex;
+        /* Barra de tempo compacta por atividade */
+        .compact-timer-widget {
+            display: flex;
             align-items: center;
-            gap: 5px;
-            font-family: monospace;
-            font-size: 13px;
-            font-weight: 700;
-            padding: 4px 8px;
-            border-radius: 6px;
-            background: #f8fafc;
-            border: 1px solid #cbd5e1;
-            color: #1e293b;
+            gap: 6px;
+            width: 145px;
         }
 
-        .timer-badge.running {
-            background: #eff6ff;
-            border-color: #60a5fa;
-            color: #1d4ed8;
-            animation: pulse-border 1.5s infinite;
-        }
-
-        @keyframes pulse-border {
-            0%, 100% { border-color: #60a5fa; }
-            50% { border-color: #2563eb; }
-        }
-
-        .btn-timer {
+        .btn-timer-icon {
             background: none;
             border: 1px solid var(--border-color);
             border-radius: 6px;
             cursor: pointer;
-            font-size: 11px;
-            padding: 4px 8px;
-            font-weight: 700;
+            font-size: 12px;
+            width: 28px;
+            height: 26px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             color: var(--cinza);
             transition: all 0.2s;
+            flex-shrink: 0;
         }
-        .btn-timer:hover { background: #e2e8f0; color: var(--texto); }
-        .btn-timer.btn-timer-active { background: #fee2e2; color: #b91c1c; border-color: #fca5a5; }
+        .btn-timer-icon:hover { background: #e2e8f0; color: var(--texto); }
+        .btn-timer-icon.running { background: #fee2e2; color: #b91c1c; border-color: #fca5a5; }
+
+        .timer-progress-bg {
+            flex: 1;
+            background: #e2e8f0;
+            height: 20px;
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            border: 1px solid #cbd5e1;
+        }
+
+        .timer-progress-fill {
+            background: var(--azul);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .timer-progress-fill.running {
+            background: linear-gradient(90deg, #f59e0b, #ea580c);
+        }
+
+        .timer-progress-text {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 800;
+            color: #1e293b;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        /* Botão para abrir modal de observação */
+        .btn-obs-trigger {
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            color: var(--azul);
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 9px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+        .btn-obs-trigger:hover {
+            background: #eff6ff;
+            border-color: #93c5fd;
+        }
+        .btn-obs-trigger.has-notes {
+            background: #eff6ff;
+            border-color: #60a5fa;
+            color: #1d4ed8;
+        }
 
         .btn-check {
             background: var(--verde);
@@ -294,6 +471,7 @@
             align-items: center;
             gap: 4px;
             transition: background 0.2s;
+            white-space: nowrap;
         }
         .btn-check:hover { background: var(--verde-escuro); }
 
@@ -310,24 +488,13 @@
         .btn-icon:hover { color: var(--azul); background: #f1f5f9; }
         .btn-delete:hover { color: var(--vermelho); background: #fee2e2; }
 
-        .task-obs-box {
-            margin-top: 6px;
-            font-size: 12px;
-            color: var(--texto-suave);
-            background: #f8fafc;
-            border-left: 3px solid #cbd5e1;
-            padding: 6px 10px;
-            border-radius: 0 6px 6px 0;
-            white-space: pre-wrap;
-            word-break: break-word;
-        }
-
         .subtasks-wrapper {
-            margin-top: 8px;
+            margin-top: 6px;
             background: #f8fafc;
             border: 1px solid var(--border-color);
             border-radius: 8px;
-            padding: 8px 10px;
+            padding: 6px 8px;
+            max-width: 380px;
         }
 
         .subtask-item {
@@ -335,13 +502,12 @@
             align-items: center;
             gap: 8px;
             font-size: 12px;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
         }
         .subtask-item:last-child { margin-bottom: 0; }
         .subtask-item input[type="checkbox"] { width: auto; cursor: pointer; }
         .subtask-item.done span { text-decoration: line-through; color: var(--cinza); }
 
-        /* Grid de Ideias / Inspirações */
         .ideas-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
@@ -403,7 +569,7 @@
         .modal-box {
             background: var(--card);
             width: 100%;
-            max-width: 620px;
+            max-width: 600px;
             border-radius: var(--radius);
             padding: 24px;
             box-shadow: 0 20px 25px rgba(0,0,0,0.15);
@@ -433,36 +599,6 @@
             margin-top: 20px;
         }
 
-        .days-checkbox-group {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-            margin-top: 4px;
-        }
-
-        .day-pill {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--fundo);
-            border: 2px solid var(--border-color);
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--cinza);
-            cursor: pointer;
-            user-select: none;
-            transition: all 0.2s;
-        }
-
-        .day-pill input { display: none; }
-        .day-pill.selected {
-            background: var(--azul);
-            color: white;
-            border-color: var(--azul);
-        }
-
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -481,18 +617,6 @@
         .stat-number { font-size: 26px; font-weight: 800; color: var(--azul); }
         .stat-label { color: var(--cinza); font-size: 11px; font-weight: 700; text-transform: uppercase; }
 
-        .btn-edit-budget {
-            background: none;
-            border: none;
-            color: var(--azul);
-            font-size: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            margin-left: 8px;
-        }
-        .btn-edit-budget:hover { text-decoration: underline; }
-
-        /* Modal Customizado de Confirmação e Aviso (Sem alert/confirm) */
         .prompt-box {
             max-width: 420px;
             text-align: center;
@@ -525,16 +649,46 @@
 
     <!-- ABA 1: HOJE -->
     <main id="tab-hoje" class="tab-content active">
-        <div class="card">
-            <div class="time-budget-header">
-                <div>
-                    <span>🎯 Bolsa de Tempo do Dia</span>
-                    <button class="btn-edit-budget" onclick="openBudgetModal()">✏️ Alterar Orçamento</button>
-                </div>
-                <span id="budget-text">0 min / 180 min</span>
+        <!-- Card de Progresso do Dia estilo Painel com KPIs de Faixas Coloridas -->
+        <div class="progress-box-card">
+            <div class="pb-header">
+                <span class="pb-title">Progresso do Dia</span>
+                <button class="btn-reset-day" onclick="promptResetToday()">🔄 Reiniciar Tudo</button>
             </div>
-            <div class="progress-bar-bg">
-                <div id="budget-fill" class="progress-bar-fill"></div>
+
+            <div class="pb-bar-track">
+                <div id="pb-fill" class="pb-bar-fill"></div>
+            </div>
+            <div id="pb-subtitle" class="pb-subtitle">0 de 0 montados hoje (0%)</div>
+
+            <div class="kpi-container">
+                <div class="kpi-card kpi-concluido">
+                    <div id="kpi-concluido-val" class="kpi-number">0</div>
+                    <div class="kpi-label">Montados Hoje</div>
+                </div>
+                <div class="kpi-card kpi-progresso">
+                    <div id="kpi-progresso-val" class="kpi-number">0</div>
+                    <div class="kpi-label">Em Processo</div>
+                </div>
+                <div class="kpi-card kpi-pendente">
+                    <div id="kpi-pendente-val" class="kpi-number">0</div>
+                    <div class="kpi-label">Sem Iniciar</div>
+                </div>
+            </div>
+
+            <div class="search-filter-row">
+                <div class="search-input-box">
+                    <span class="search-icon-decor">🔍</span>
+                    <input type="text" id="filter-search-hoje" placeholder="Buscar por atividade, observação ou tag..." oninput="render()">
+                </div>
+                <div class="filter-select-box">
+                    <select id="filter-status-hoje" onchange="render()">
+                        <option value="">📌 Todos os estados</option>
+                        <option value="pendente">⏳ Sem Iniciar</option>
+                        <option value="em_progresso">⚡ Em Processo</option>
+                        <option value="concluido">✔ Concluídos</option>
+                    </select>
+                </div>
             </div>
         </div>
 
@@ -550,46 +704,24 @@
 
         <div class="card">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                <h3 style="font-size: 16px;">🚀 Atividades de Hoje (Em Execução)</h3>
+                <h3 style="font-size: 16px;">🚀 Atividades de Hoje</h3>
                 <div style="font-size:12px; color:var(--cinza);">
-                    Clique no <strong>Status</strong> para alternar entre Pendente, Em Progresso e Concluído
+                    Clique no <strong>Status</strong> para alternar entre Pendente, Em Processo e Concluído
                 </div>
             </div>
             <div class="table-responsive">
                 <table>
                     <thead>
                         <tr>
-                            <th style="min-width: 240px;">Atividade, Sub-tarefas & Observação</th>
-                            <th>Status</th>
+                            <th style="min-width: 130px;">Status</th>
+                            <th style="min-width: 240px;">Atividade & Sub-tarefas</th>
                             <th>Streak</th>
-                            <th style="min-width: 140px;">Meta & Timer Regressivo</th>
-                            <th style="min-width: 110px;">Tempo Real</th>
-                            <th style="min-width: 130px;">Ação</th>
+                            <th style="min-width: 160px;">Meta & Timer</th>
+                            <th style="min-width: 110px;">Observações</th>
+                            <th style="min-width: 140px;">Ações</th>
                         </tr>
                     </thead>
                     <tbody id="task-list-fazer-ja"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Seção de Ciclos em Descanso / Intervalos -->
-        <div class="card" style="margin-top: 24px; border-style: dashed;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px;">
-                <h3 style="font-size: 15px; color: var(--cinza);">⏳ Hábitos Cíclicos em Descanso</h3>
-                <span id="cycling-counter-label" style="font-size:12px; font-weight:700; color:var(--cinza);">0 em descanso</span>
-            </div>
-            <div class="table-responsive">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Atividade</th>
-                            <th>Frequência</th>
-                            <th>Última Conclusão</th>
-                            <th>Previsão de Retorno</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody id="task-list-cycling"></tbody>
                 </table>
             </div>
         </div>
@@ -612,7 +744,7 @@
                         <tr>
                             <th>Atividade & Responsável</th>
                             <th>Tags</th>
-                            <th>Observações / Contexto</th>
+                            <th>Observações</th>
                             <th>Link</th>
                             <th>Ações</th>
                         </tr>
@@ -628,7 +760,7 @@
         <div class="action-bar">
             <div>
                 <h2 style="font-size:18px; font-weight:800; color:var(--roxo);">💡 Mural de Ideias & Inspirações</h2>
-                <p style="font-size:13px; color:var(--cinza);">Registre lampejos, ideias de projetos ou reflexões sem pressão de prazo.</p>
+                <p style="font-size:13px; color:var(--cinza);">Guarde lampejos criativos, ideias futuras ou reflexões sem pressão de prazo.</p>
             </div>
             <button class="btn-add" style="background:var(--roxo);" onclick="openTaskModal(null, 'incubar')">+ Nova Inspiração</button>
         </div>
@@ -654,15 +786,14 @@
         </div>
 
         <div class="card">
-            <h3 style="margin-bottom: 16px; font-size: 16px;">📊 Desempenho por Atividade (Mês Atual)</h3>
+            <h3 style="margin-bottom: 16px; font-size: 16px;">📊 Desempenho por Atividade</h3>
             <div class="table-responsive">
                 <table>
                     <thead>
                         <tr>
                             <th>Atividade</th>
-                            <th>Início</th>
+                            <th>Data de Início</th>
                             <th>Realizado no Mês</th>
-                            <th>Meta Estimada</th>
                             <th>Total Histórico</th>
                         </tr>
                     </thead>
@@ -694,7 +825,7 @@
                             <th>Atividade</th>
                             <th>Tags</th>
                             <th>Tempo</th>
-                            <th>Nota de Contexto</th>
+                            <th>Observação</th>
                             <th>Ações</th>
                         </tr>
                     </thead>
@@ -710,24 +841,19 @@
             <h2 style="font-size:20px; color:var(--azul); margin-bottom:12px;">🧠 Arquitetura do Planejador</h2>
             <p style="margin-bottom: 20px; color:var(--texto-suave);">O sistema foi desenhado para sustentar a <strong>persistência e constância no longo prazo</strong>, separando claramente o que é foco diário, delegação e inspiração criativa.</p>
 
-            <div style="background:var(--fundo); border-left:4px solid var(--azul); padding:14px; border-radius:6px; margin-bottom:12px;">
-                <strong>1. Status Dinâmico & Contagem Regressiva</strong><br>
-                Cada atividade pode estar <em>Pendente</em>, <em>Em Progresso</em> ou <em>Concluída</em>. O timer regressivo calcula o tempo restante de acordo com a sua meta em minutos e soma os segundos reais gastos.
+            <div style="background:var(--fundo); border-left:4px solid var(--verde); padding:14px; border-radius:6px; margin-bottom:12px;">
+                <strong>1. Panorama de Progresso Diário</strong><br>
+                Um visual consolidado de tudo o que está <em>Concluído</em>, <em>Em Processo</em> e <em>Sem Iniciar</em> no dia, com contagem e percentual em tempo real.
             </div>
 
             <div style="background:var(--fundo); border-left:4px solid var(--azul); padding:14px; border-radius:6px; margin-bottom:12px;">
-                <strong>2. Sub-tarefas & Observações Contínuas</strong><br>
-                Mantenha anotações de raciocínio no campo de observação para não se perder, e quebre itens complexos em sub-tarefas leves com checklist direto.
+                <strong>2. Timer Compacto & Meta em Minutos</strong><br>
+                Cada tarefa possui uma barra visual de tempo que se preenche gradualmente conforme você executa a atividade.
             </div>
 
             <div style="background:var(--fundo); border-left:4px solid var(--roxo); padding:14px; border-radius:6px; margin-bottom:12px;">
-                <strong>3. Divisão entre Delegado & Ideias</strong><br>
-                Tarefas delegadas a outras pessoas ficam organizadas na aba <em>🤝 Delegado</em>. Lampejos de inspiração ficam no mural <em>💡 Ideias</em> e podem ser ativados para Hoje a qualquer momento.
-            </div>
-
-            <div style="background:var(--fundo); border-left:4px solid var(--verde); padding:14px; border-radius:6px; margin-bottom:12px;">
-                <strong>4. Contadores Dinâmicos</strong><br>
-                Os badges nas abas exibem exatamente a quantidade de itens ativos em cada contexto em tempo real.
+                <strong>3. Observações em Pop-up Exclusivo</strong><br>
+                Mantenha anotações, links rápidos e histórico sem poluir o visual da sua tabela diária.
             </div>
         </div>
     </main>
@@ -748,8 +874,8 @@
             <div style="display: flex; gap: 12px; flex-wrap: wrap;">
                 <div class="form-group" style="flex: 1; min-width: 140px;">
                     <label>Aba / Categoria</label>
-                    <select id="task-type" onchange="toggleFormFieldsByCategory()">
-                        <option value="fazer_ja">🔥 Hoje (Fazer Já)</option>
+                    <select id="task-type">
+                        <option value="fazer_ja">🔥 Hoje (Execução)</option>
                         <option value="delegar">🤝 Delegado (Acompanhamento)</option>
                         <option value="incubar">💡 Ideias (Inspiração / Futuro)</option>
                     </select>
@@ -757,44 +883,20 @@
                 <div class="form-group" style="flex: 1; min-width: 120px;" id="group-task-status">
                     <label>Status Inicial</label>
                     <select id="task-status">
-                        <option value="pendente">⏳ Pendente</option>
-                        <option value="em_progresso">⚡ Em Progresso</option>
+                        <option value="pendente">⏳ Sem Iniciar</option>
+                        <option value="em_progresso">⚡ Em Processo</option>
                         <option value="concluido">✔ Concluído</option>
                     </select>
                 </div>
-                <div class="form-group" style="flex: 1; min-width: 120px;" id="group-task-meta">
+                <div class="form-group" style="flex: 1; min-width: 120px;">
                     <label>Meta (minutos)</label>
                     <input type="number" id="task-meta" placeholder="Ex: 30" min="0">
                 </div>
             </div>
 
-            <div class="form-group" id="group-task-obs">
-                <label>Observação / Comentários (Para não se perder)</label>
-                <textarea id="task-notes" rows="3" placeholder="Contexto importante, links rápidos ou raciocínio em andamento..."></textarea>
-            </div>
-
-            <div class="form-group" id="group-task-days">
-                <label>Dias Fixos da Semana (Opcional para Hoje)</label>
-                <div class="days-checkbox-group">
-                    <label class="day-pill" onclick="toggleDayPill(this)"><input type="checkbox" value="Seg"> Seg</label>
-                    <label class="day-pill" onclick="toggleDayPill(this)"><input type="checkbox" value="Ter"> Ter</label>
-                    <label class="day-pill" onclick="toggleDayPill(this)"><input type="checkbox" value="Qua"> Qua</label>
-                    <label class="day-pill" onclick="toggleDayPill(this)"><input type="checkbox" value="Qui"> Qui</label>
-                    <label class="day-pill" onclick="toggleDayPill(this)"><input type="checkbox" value="Sex"> Sex</label>
-                    <label class="day-pill" onclick="toggleDayPill(this)"><input type="checkbox" value="Sáb"> Sáb</label>
-                    <label class="day-pill" onclick="toggleDayPill(this)"><input type="checkbox" value="Dom"> Dom</label>
-                </div>
-            </div>
-
-            <div style="display: flex; gap: 12px; flex-wrap: wrap;" id="group-task-interval">
-                <div class="form-group" style="flex: 1; min-width: 140px;">
-                    <label>Ciclo Relativo (dias - Opcional)</label>
-                    <input type="number" id="task-interval" placeholder="0 = Sem intervalo, 2 = A cada 2 dias" min="0">
-                </div>
-                <div class="form-group" style="flex: 1; min-width: 140px;">
-                    <label>Tags (separadas por vírgula)</label>
-                    <input type="text" id="task-tags" placeholder="Ex: Foco, Equipe, Estudo">
-                </div>
+            <div class="form-group">
+                <label>Tags (separadas por vírgula)</label>
+                <input type="text" id="task-tags" placeholder="Ex: Foco, Equipe, Estudo">
             </div>
 
             <div class="form-group" id="group-task-subtasks">
@@ -816,27 +918,30 @@
     </div>
 </div>
 
-<!-- MODAL ORÇAMENTO DIÁRIO (Substitui prompt) -->
-<div id="modalBudget" class="modal-overlay">
-    <div class="modal-box prompt-box">
-        <h3 style="font-size:16px; margin-bottom:12px; color:var(--azul);">🎯 Bolsa de Tempo Diária</h3>
-        <p style="font-size:13px; color:var(--texto-suave); margin-bottom:14px;">Defina quantos minutos você planeja disponibilizar para as atividades de hoje:</p>
-        <input type="number" id="inputDailyBudget" min="10" step="5" style="margin-bottom:16px; text-align:center; font-size:16px; font-weight:700;">
-        <div style="display:flex; justify-content:center; gap:10px;">
-            <button class="btn-add" style="background:var(--cinza);" onclick="closeBudgetModal()">Cancelar</button>
-            <button class="btn-add" onclick="saveDailyBudgetModal()">Salvar Orçamento</button>
+<!-- MODAL EXCLUSIVO DE OBSERVAÇÕES (POP-UP LIMPO) -->
+<div id="modalObs" class="modal-overlay">
+    <div class="modal-box" style="max-width: 520px;">
+        <h3 id="modal-obs-title" style="font-size:16px; margin-bottom:12px; color:var(--azul);">💬 Observações da Atividade</h3>
+        <input type="hidden" id="obs-task-id">
+        <div class="form-group">
+            <label id="modal-obs-task-name" style="color:var(--cinza); font-size:13px; font-weight:600; margin-bottom:8px;"></label>
+            <textarea id="obs-content" rows="7" placeholder="Escreva aqui anotações, contexto, links ou raciocínio em andamento..."></textarea>
+        </div>
+        <div class="modal-actions">
+            <button type="button" class="btn-add" style="background:var(--cinza);" onclick="closeObsModal()">Fechar</button>
+            <button type="button" class="btn-add" onclick="saveObsModal()">Salvar Observação</button>
         </div>
     </div>
 </div>
 
-<!-- MODAL CONFIRMAÇÃO DE EXCLUSÃO (Substitui confirm) -->
+<!-- MODAL CONFIRMAÇÃO (SEM ALERT/CONFIRM) -->
 <div id="modalConfirm" class="modal-overlay">
     <div class="modal-box prompt-box">
         <h3 id="confirm-title" style="font-size:16px; margin-bottom:10px; color:var(--vermelho);">Atenção</h3>
         <p id="confirm-message" style="font-size:13px; color:var(--texto-suave); margin-bottom:18px;"></p>
         <div style="display:flex; justify-content:center; gap:10px;">
             <button class="btn-add" style="background:var(--cinza);" onclick="closeConfirmModal(false)">Cancelar</button>
-            <button class="btn-add" style="background:var(--vermelho);" onclick="closeConfirmModal(true)">Confirmar</button>
+            <button class="btn-add" id="btn-confirm-action" style="background:var(--vermelho);" onclick="closeConfirmModal(true)">Confirmar</button>
         </div>
     </div>
 </div>
@@ -847,11 +952,9 @@
 
     let state = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
         tasks: [],
-        logs: [],
-        dailyTargetMinutes: 180
+        logs: []
     };
 
-    // Estado do Timer em execução (em memória durante a sessão)
     let activeTimerTaskId = null;
     let timerInterval = null;
     let confirmCallback = null;
@@ -884,25 +987,7 @@
     }
 
     function updateTabCounters() {
-        const todayYMD = getTodayYMD();
-        const todayDateObj = parseYMD(todayYMD);
-
-        // Contagem de Hoje (exclui tarefas que estão no período de descanso cíclico)
-        const countHoje = state.tasks.filter(t => {
-            if (t.type !== 'fazer_ja') return false;
-            if (t.intervalDays > 0 && t.lastCompletedYMD) {
-                const lastDateObj = parseYMD(t.lastCompletedYMD);
-                if (lastDateObj) {
-                    const nextDateObj = new Date(lastDateObj.getTime());
-                    nextDateObj.setDate(nextDateObj.getDate() + t.intervalDays);
-                    const diffTime = nextDateObj - todayDateObj;
-                    const daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                    if (daysRemaining > 0) return false;
-                }
-            }
-            return true;
-        }).length;
-
+        const countHoje = state.tasks.filter(t => t.type === 'fazer_ja').length;
         const countDelegado = state.tasks.filter(t => t.type === 'delegar').length;
         const countIdeias = state.tasks.filter(t => t.type === 'incubar').length;
 
@@ -926,25 +1011,6 @@
         return parts.length === 3 ? new Date(parts[0], parts[1] - 1, parts[2]) : null;
     }
 
-    function openBudgetModal() {
-        const modal = document.getElementById('modalBudget');
-        document.getElementById('inputDailyBudget').value = state.dailyTargetMinutes || 180;
-        modal.classList.add('active');
-    }
-
-    function closeBudgetModal() {
-        document.getElementById('modalBudget').classList.remove('active');
-    }
-
-    function saveDailyBudgetModal() {
-        const val = parseInt(document.getElementById('inputDailyBudget').value);
-        if (!isNaN(val) && val > 0) {
-            state.dailyTargetMinutes = val;
-            saveData();
-        }
-        closeBudgetModal();
-    }
-
     function showConfirmModal(title, msg, onConfirm) {
         document.getElementById('confirm-title').innerText = title;
         document.getElementById('confirm-message').innerText = msg;
@@ -960,19 +1026,63 @@
         confirmCallback = null;
     }
 
+    function promptResetToday() {
+        showConfirmModal(
+            'Reiniciar Progresso do Dia',
+            'Deseja redefinir todas as tarefas de hoje para "Sem Iniciar" e zerar os tempos gastos?',
+            () => {
+                if (activeTimerTaskId !== null) {
+                    clearInterval(timerInterval);
+                    activeTimerTaskId = null;
+                }
+                state.tasks.forEach(t => {
+                    if (t.type === 'fazer_ja') {
+                        t.status = 'pendente';
+                        t.spentSeconds = 0;
+                        if (t.subtasks) t.subtasks.forEach(s => s.done = false);
+                    }
+                });
+                saveData();
+            }
+        );
+    }
+
+    function openObsModal(taskId) {
+        const task = state.tasks.find(t => t.id === taskId);
+        if (!task) return;
+
+        document.getElementById('obs-task-id').value = task.id;
+        document.getElementById('modal-obs-task-name').innerText = `Atividade: ${task.name}`;
+        document.getElementById('obs-content').value = task.notes || '';
+        document.getElementById('modalObs').classList.add('active');
+    }
+
+    function closeObsModal() {
+        document.getElementById('modalObs').classList.remove('active');
+    }
+
+    function saveObsModal() {
+        const taskId = Number(document.getElementById('obs-task-id').value);
+        const text = document.getElementById('obs-content').value.trim();
+        const task = state.tasks.find(t => t.id === taskId);
+        if (task) {
+            task.notes = text;
+            saveData();
+        }
+        closeObsModal();
+    }
+
     function toggleTimer(taskId) {
         const task = state.tasks.find(t => t.id === taskId);
         if (!task) return;
 
         if (activeTimerTaskId === taskId) {
-            // Pausar timer atual
             clearInterval(timerInterval);
             activeTimerTaskId = null;
             saveData();
             return;
         }
 
-        // Se havia outro timer rodando, encerra ele
         if (activeTimerTaskId !== null) {
             clearInterval(timerInterval);
         }
@@ -998,53 +1108,21 @@
     }
 
     function updateTimerDisplay(task) {
-        const timerEl = document.getElementById(`timer-display-${task.id}`);
-        if (!timerEl) return;
+        const fillEl = document.getElementById(`timer-fill-${task.id}`);
+        const textEl = document.getElementById(`timer-text-${task.id}`);
+        if (!fillEl || !textEl) return;
 
         const totalMetaSec = (task.meta || 0) * 60;
         const spentSec = task.spentSeconds || 0;
-        const remainingSec = totalMetaSec - spentSec;
+        const minGastos = Math.floor(spentSec / 60);
 
-        let displayStr = '';
+        let pct = 0;
         if (totalMetaSec > 0) {
-            if (remainingSec >= 0) {
-                const m = Math.floor(remainingSec / 60);
-                const s = remainingSec % 60;
-                displayStr = `⏳ ${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-            } else {
-                const overSec = Math.abs(remainingSec);
-                const m = Math.floor(overSec / 60);
-                const s = overSec % 60;
-                displayStr = `⚠️ +${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-            }
-        } else {
-            // Sem meta, apenas conta o tempo transcorrido
-            const m = Math.floor(spentSec / 60);
-            const s = spentSec % 60;
-            displayStr = `⏱️ ${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+            pct = Math.min(100, Math.round((spentSec / totalMetaSec) * 100));
         }
 
-        timerEl.innerText = displayStr;
-
-        // Atualizar também o input de tempo real se estiver vazio ou manual
-        const timeInput = document.getElementById(`time-${task.id}`);
-        if (timeInput) {
-            const currentSpentMin = Math.ceil(spentSec / 60);
-            if (!timeInput.dataset.manualEdited) {
-                timeInput.value = currentSpentMin;
-            }
-        }
-    }
-
-    function resetTimer(taskId) {
-        const task = state.tasks.find(t => t.id === taskId);
-        if (!task) return;
-        if (activeTimerTaskId === taskId) {
-            clearInterval(timerInterval);
-            activeTimerTaskId = null;
-        }
-        task.spentSeconds = 0;
-        saveData();
+        fillEl.style.width = `${pct}%`;
+        textEl.innerText = `${minGastos} / ${task.meta || 0} min`;
     }
 
     function cycleTaskStatus(taskId) {
@@ -1055,7 +1133,6 @@
             task.status = 'em_progresso';
         } else if (task.status === 'em_progresso') {
             task.status = 'concluido';
-            // Se concluir pelo badge, faz check-in
             checkIn(taskId);
             return;
         } else {
@@ -1064,40 +1141,10 @@
         saveData();
     }
 
-    function toggleDayPill(labelEl) {
-        setTimeout(() => {
-            const chk = labelEl.querySelector('input');
-            if (chk.checked) labelEl.classList.add('selected');
-            else labelEl.classList.remove('selected');
-        }, 10);
-    }
-
-    function toggleFormFieldsByCategory() {
-        const cat = document.getElementById('task-type').value;
-        const groupDays = document.getElementById('group-task-days');
-        const groupInterval = document.getElementById('group-task-interval');
-        const groupMeta = document.getElementById('group-task-meta');
-
-        if (cat === 'incubar') {
-            if (groupDays) groupDays.style.display = 'none';
-            if (groupInterval) groupInterval.style.display = 'none';
-            if (groupMeta) groupMeta.style.display = 'none';
-        } else {
-            if (groupDays) groupDays.style.display = 'block';
-            if (groupInterval) groupInterval.style.display = 'flex';
-            if (groupMeta) groupMeta.style.display = 'block';
-        }
-    }
-
     function openTaskModal(taskId = null, defaultType = 'fazer_ja') {
         document.getElementById('formTask').reset();
         document.getElementById('subtasks-builder').innerHTML = '';
         document.getElementById('edit-task-id').value = '';
-
-        document.querySelectorAll('.day-pill').forEach(el => {
-            el.classList.remove('selected');
-            el.querySelector('input').checked = false;
-        });
 
         document.getElementById('task-type').value = defaultType;
         document.getElementById('task-status').value = 'pendente';
@@ -1111,26 +1158,11 @@
                 document.getElementById('task-type').value = task.type || 'fazer_ja';
                 document.getElementById('task-status').value = task.status || 'pendente';
                 document.getElementById('task-meta').value = task.meta || 0;
-                document.getElementById('task-notes').value = task.notes || '';
-                document.getElementById('task-interval').value = task.intervalDays || 0;
                 document.getElementById('task-tags').value = (task.tags || []).join(', ');
                 document.getElementById('task-link').value = task.link || '';
 
-                if (task.fixedDays && Array.isArray(task.fixedDays)) {
-                    document.querySelectorAll('.day-pill').forEach(el => {
-                        const val = el.querySelector('input').value;
-                        if (task.fixedDays.includes(val)) {
-                            el.classList.add('selected');
-                            el.querySelector('input').checked = true;
-                        }
-                    });
-                }
-
-                if (task.subtasks && Array.isArray(task.subtasks)) {
-                    task.subtasks.forEach(item => addSubtaskInput(item.text, item.done));
-                } else if (task.checklist && Array.isArray(task.checklist)) {
-                    task.checklist.forEach(item => addSubtaskInput(item.text, item.done));
-                }
+                const subList = task.subtasks || task.checklist || [];
+                subList.forEach(item => addSubtaskInput(item.text, item.done));
             }
         } else {
             document.getElementById('modal-title').innerText = defaultType === 'incubar' 
@@ -1138,7 +1170,6 @@
                 : (defaultType === 'delegar' ? 'Registrar Tarefa Delegada' : 'Cadastrar Nova Atividade');
         }
 
-        toggleFormFieldsByCategory();
         document.getElementById('modalTask').classList.add('active');
     }
 
@@ -1153,7 +1184,7 @@
         div.style.marginBottom = '6px';
         div.innerHTML = `
             <input type="checkbox" ${done ? 'checked' : ''} style="width: auto;">
-            <input type="text" placeholder="Nome da sub-tarefa..." value="${text}" style="padding: 6px 10px; font-size:12px;">
+            <input type="text" placeholder="Nome da sub-tarefa..." value="${text.replace(/"/g, '&quot;')}" style="padding: 6px 10px; font-size:12px;">
             <button type="button" class="btn-icon btn-delete" onclick="this.parentElement.remove()" style="font-size:12px;">✕</button>
         `;
         container.appendChild(div);
@@ -1166,12 +1197,7 @@
         const type = document.getElementById('task-type').value;
         const status = document.getElementById('task-status').value || 'pendente';
         const meta = parseInt(document.getElementById('task-meta').value) || 0;
-        const notes = document.getElementById('task-notes').value.trim();
-        const intervalDays = parseInt(document.getElementById('task-interval').value) || 0;
         
-        const fixedDays = [];
-        document.querySelectorAll('.day-pill input:checked').forEach(chk => fixedDays.push(chk.value));
-
         const tagsRaw = document.getElementById('task-tags').value.trim();
         const tags = tagsRaw ? tagsRaw.split(',').map(s => s.trim()).filter(Boolean) : [];
 
@@ -1191,12 +1217,8 @@
                 task.type = type;
                 task.status = status;
                 task.meta = meta;
-                task.notes = notes;
-                task.intervalDays = intervalDays;
-                task.fixedDays = fixedDays;
                 task.tags = tags;
                 task.subtasks = subtasks;
-                task.checklist = subtasks; // retrocompatibilidade
                 task.link = link;
             }
         } else {
@@ -1206,12 +1228,9 @@
                 type,
                 status,
                 meta,
-                notes,
-                intervalDays,
-                fixedDays,
+                notes: '',
                 tags,
                 subtasks,
-                checklist: subtasks,
                 link,
                 streak: 0,
                 spentSeconds: 0,
@@ -1234,14 +1253,10 @@
     }
 
     function checkIn(id) {
-        const timeInput = document.getElementById(`time-${id}`)?.value;
-        const noteInput = document.getElementById(`note-${id}`)?.value || '';
         const task = state.tasks.find(t => t.id === id);
-
         if (task) {
-            // Tempo gasto: valor do input, ou tempo do timer, ou a meta pré-definida
             const timerMinutes = task.spentSeconds ? Math.ceil(task.spentSeconds / 60) : 0;
-            const minutes = parseInt(timeInput) || timerMinutes || task.meta || 0;
+            const minutes = timerMinutes || task.meta || 0;
             
             const todayYMD = getTodayYMD();
             const todayBR = new Date().toLocaleDateString('pt-BR');
@@ -1261,11 +1276,10 @@
                 date: todayBR,
                 taskName: task.name,
                 minutes: minutes,
-                note: noteInput || task.notes || '',
+                note: task.notes || '',
                 tags: task.tags || []
             });
 
-            // Se for tarefa puxada de projeto, atualiza status no projeto
             if (task.projectId && task.projectTaskId) {
                 const projectsData = JSON.parse(localStorage.getItem(PROJECTS_KEY)) || {};
                 const project = projectsData[task.projectId];
@@ -1304,7 +1318,7 @@
     }
 
     function deleteLog(logId) {
-        showConfirmModal('Excluir Check-in', 'Deseja apagar este registro do histórico de sessões?', () => {
+        showConfirmModal('Excluir Registro', 'Deseja apagar este registro do histórico de sessões?', () => {
             state.logs = state.logs.filter(l => l.id !== logId);
             saveData();
             renderDashboard();
@@ -1349,8 +1363,6 @@
             status: 'pendente',
             meta: 30,
             spentSeconds: 0,
-            intervalDays: 0,
-            fixedDays: [],
             tags: ['Projeto'],
             subtasks: [],
             streak: 0,
@@ -1367,34 +1379,28 @@
     }
 
     function render() {
-        const todayYMD = getTodayYMD();
-        const todayDateObj = parseYMD(todayYMD);
-        const todayBR = new Date().toLocaleDateString('pt-BR');
-        const projectsData = JSON.parse(localStorage.getItem(PROJECTS_KEY)) || {};
+        const searchInput = (document.getElementById('filter-search-hoje')?.value || '').toLowerCase().trim();
+        const statusFilter = document.getElementById('filter-status-hoje')?.value || '';
 
         const tbodyFazerJa = document.getElementById('task-list-fazer-ja');
-        const tbodyCycling = document.getElementById('task-list-cycling');
         const tbodyDelegar = document.getElementById('task-list-delegar');
         const ideasContainer = document.getElementById('ideas-container');
 
         if (!tbodyFazerJa) return;
 
         tbodyFazerJa.innerHTML = '';
-        tbodyCycling.innerHTML = '';
         tbodyDelegar.innerHTML = '';
         if (ideasContainer) ideasContainer.innerHTML = '';
 
-        let totalMinutesToday = 0;
-        let countFazerJa = 0;
-        let countCycling = 0;
-        let countDelegar = 0;
-        let countIdeias = 0;
+        let countFazerJaTotal = 0;
+        let countConcluido = 0;
+        let countProgresso = 0;
+        let countPendente = 0;
+        let countRenderedHoje = 0;
 
         state.tasks.forEach(task => {
-            const todayLog = state.logs.find(l => (l.taskId === task.id || l.taskName === task.name) && l.date === todayBR);
             const docLinkHtml = task.link ? `<a href="${task.link}" target="_blank" style="color:var(--azul); font-weight:600; font-size:12px; text-decoration:none;">🔗 Link</a>` : '';
             const tagsHtml = (task.tags || []).map(tg => `<span class="tag-badge">${tg}</span>`).join('');
-            const daysHtml = (task.fixedDays || []).length > 0 ? (task.fixedDays || []).map(d => `<span class="tag-badge" style="background:#e0f2fe; color:#0369a1;">${d}</span>`).join('') : '';
 
             // Sub-tarefas HTML
             const subList = task.subtasks || task.checklist || [];
@@ -1417,115 +1423,73 @@
                 `;
             }
 
-            // Observações fixas
-            let obsHtml = '';
-            if (task.notes && task.notes.trim()) {
-                obsHtml = `<div class="task-obs-box">💬 <em>${task.notes}</em></div>`;
-            }
-
-            // Verificação de intervalo de descanso cíclico
-            let isResting = false;
-            let daysRemaining = 0;
-            let nextReturnStr = '';
-
-            if (task.intervalDays > 0 && task.lastCompletedYMD) {
-                const lastDateObj = parseYMD(task.lastCompletedYMD);
-                if (lastDateObj) {
-                    const nextDateObj = new Date(lastDateObj.getTime());
-                    nextDateObj.setDate(nextDateObj.getDate() + task.intervalDays);
-                    const diffTime = nextDateObj - todayDateObj;
-                    daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                    
-                    if (daysRemaining > 0) {
-                        isResting = true;
-                        nextReturnStr = nextDateObj.toLocaleDateString('pt-BR');
-                    }
-                }
-            }
-
             // SE TAREFA É DA ABA HOJE
             if (task.type === 'fazer_ja') {
-                if (isResting) {
-                    countCycling++;
-                    const lastBR = parseYMD(task.lastCompletedYMD).toLocaleDateString('pt-BR');
-                    tbodyCycling.innerHTML += `
-                        <tr>
-                            <td><strong>${task.name}</strong> ${tagsHtml}</td>
-                            <td><span class="tag-badge">A cada ${task.intervalDays}d</span></td>
-                            <td>${lastBR}</td>
-                            <td><span style="color:var(--amarelo); font-weight:700;">⏳ Volta em ${daysRemaining}d (${nextReturnStr})</span></td>
-                            <td>
-                                <button class="btn-add" style="padding:4px 8px; font-size:11px;" onclick="promoteToHoje(${task.id})">⚡ Antecipar p/ Hoje</button>
-                                <button class="btn-icon" onclick="openTaskModal(${task.id})">✏️</button>
-                                <button class="btn-icon btn-delete" onclick="deleteTask(${task.id})">🗑</button>
-                            </td>
-                        </tr>
-                    `;
-                } else {
-                    countFazerJa++;
-                    const isCompletedToday = task.lastCompletedYMD === todayYMD || task.status === 'concluido';
-                    if (isCompletedToday && todayLog) totalMinutesToday += todayLog.minutes;
+                countFazerJaTotal++;
+                const curStatus = task.status || 'pendente';
+                if (curStatus === 'concluido') countConcluido++;
+                else if (curStatus === 'em_progresso') countProgresso++;
+                else countPendente++;
 
-                    // Formatação do status
-                    const currentStatus = task.status || 'pendente';
-                    const statusLabel = currentStatus === 'concluido' ? '✔ Concluído' : (currentStatus === 'em_progresso' ? '⚡ Em Progresso' : '⏳ Pendente');
-                    const statusClass = `status-${currentStatus}`;
+                // Filtros de busca e status na tela
+                const matchesSearch = !searchInput || 
+                    task.name.toLowerCase().includes(searchInput) || 
+                    (task.notes && task.notes.toLowerCase().includes(searchInput)) ||
+                    (task.tags && task.tags.some(t => t.toLowerCase().includes(searchInput)));
+                const matchesStatus = !statusFilter || curStatus === statusFilter;
 
-                    // Timer e Meta
+                if (matchesSearch && matchesStatus) {
+                    countRenderedHoje++;
+
+                    const isCompleted = curStatus === 'concluido';
+                    const statusLabel = isCompleted ? '✔ Concluído' : (curStatus === 'em_progresso' ? '⚡ Em Processo' : '⏳ Sem Iniciar');
+                    const statusClass = `status-${curStatus}`;
+
                     const isTimerRunning = activeTimerTaskId === task.id;
                     const spentSec = task.spentSeconds || 0;
-                    const metaSec = (task.meta || 0) * 60;
-                    let initialTimerText = '';
-
-                    if (metaSec > 0) {
-                        const remSec = metaSec - spentSec;
-                        if (remSec >= 0) {
-                            initialTimerText = `⏳ ${String(Math.floor(remSec / 60)).padStart(2, '0')}:${String(remSec % 60).padStart(2, '0')}`;
-                        } else {
-                            initialTimerText = `⚠️ +${String(Math.floor(Math.abs(remSec) / 60)).padStart(2, '0')}:${String(Math.abs(remSec) % 60).padStart(2, '0')}`;
-                        }
-                    } else {
-                        initialTimerText = `⏱️ ${String(Math.floor(spentSec / 60)).padStart(2, '0')}:${String(spentSec % 60).padStart(2, '0')}`;
+                    const minGastos = Math.floor(spentSec / 60);
+                    const totalMetaSec = (task.meta || 0) * 60;
+                    let pctTimer = 0;
+                    if (totalMetaSec > 0) {
+                        pctTimer = Math.min(100, Math.round((spentSec / totalMetaSec) * 100));
                     }
 
+                    const hasNotes = task.notes && task.notes.trim().length > 0;
+
                     tbodyFazerJa.innerHTML += `
-                        <tr style="${isCompletedToday ? 'opacity: 0.8;' : ''}">
-                            <td>
-                                <div style="font-weight:700; font-size:14px; color:var(--texto);">${task.name} ${docLinkHtml}</div>
-                                <div style="margin-top:4px;">${tagsHtml} ${daysHtml}</div>
-                                ${obsHtml}
-                                ${subtasksHtml}
-                            </td>
+                        <tr style="${isCompleted ? 'opacity: 0.8;' : ''}">
                             <td>
                                 <span class="badge-status ${statusClass}" onclick="cycleTaskStatus(${task.id})" title="Clique para alternar o status">
                                     ${statusLabel}
                                 </span>
                             </td>
+                            <td>
+                                <div style="font-weight:700; font-size:14px; color:var(--texto);">${task.name} ${docLinkHtml}</div>
+                                <div style="margin-top:4px;">${tagsHtml}</div>
+                                ${subtasksHtml}
+                            </td>
                             <td><span class="badge-streak">🔥 ${task.streak || 0}</span></td>
                             <td>
-                                <div style="display:flex; flex-direction:column; gap:6px;">
-                                    <span style="font-size:12px; color:var(--texto-suave);">Meta: <strong>${task.meta ? task.meta + ' min' : '-'}</strong></span>
-                                    <div style="display:flex; align-items:center; gap:6px;">
-                                        <div class="timer-badge ${isTimerRunning ? 'running' : ''}" id="timer-display-${task.id}">
-                                            ${initialTimerText}
-                                        </div>
-                                        ${!isCompletedToday ? `
-                                            <button class="btn-timer ${isTimerRunning ? 'btn-timer-active' : ''}" onclick="toggleTimer(${task.id})" title="${isTimerRunning ? 'Pausar' : 'Iniciar'}">
-                                                ${isTimerRunning ? '⏸️' : '▶️'}
-                                            </button>
-                                            <button class="btn-timer" onclick="resetTimer(${task.id})" title="Zerar cronômetro">↺</button>
-                                        ` : ''}
+                                <div class="compact-timer-widget">
+                                    ${!isCompleted ? `
+                                        <button class="btn-timer-icon ${isTimerRunning ? 'running' : ''}" onclick="toggleTimer(${task.id})" title="${isTimerRunning ? 'Pausar' : 'Iniciar'}">
+                                            ${isTimerRunning ? '⏸' : '▶'}
+                                        </button>
+                                    ` : ''}
+                                    <div class="timer-progress-bg" onclick="openTaskModal(${task.id})" title="Meta: ${task.meta || 0} min">
+                                        <div id="timer-fill-${task.id}" class="timer-progress-fill ${isTimerRunning ? 'running' : ''}" style="width: ${pctTimer}%;"></div>
+                                        <div id="timer-text-${task.id}" class="timer-progress-text">${minGastos} / ${task.meta || 0} min</div>
                                     </div>
                                 </div>
                             </td>
                             <td>
-                                ${isCompletedToday 
-                                    ? `<strong>${todayLog ? todayLog.minutes : (task.spentSeconds ? Math.ceil(task.spentSeconds/60) : task.meta)} min</strong>` 
-                                    : `<input type="number" id="time-${task.id}" oninput="this.dataset.manualEdited='true'" style="width:65px; padding:6px;" placeholder="${task.meta || 0}" value="${task.spentSeconds ? Math.ceil(task.spentSeconds/60) : ''}"> min`}
+                                <button class="btn-obs-trigger ${hasNotes ? 'has-notes' : ''}" onclick="openObsModal(${task.id})">
+                                    💬 ${hasNotes ? 'Ver Nota' : '+ Nota'}
+                                </button>
                             </td>
                             <td>
                                 <div style="display:flex; align-items:center; gap:4px;">
-                                    ${isCompletedToday 
+                                    ${isCompleted 
                                         ? `<span style="color:var(--verde); font-weight:700; font-size:12px;">Concluída</span>` 
                                         : `<button class="btn-check" onclick="checkIn(${task.id})">Check-in</button>`}
                                     <button class="btn-icon" onclick="openTaskModal(${task.id})">✏️</button>
@@ -1535,10 +1499,10 @@
                         </tr>
                     `;
                 }
-            } 
+            }
             // SE TAREFA É DA ABA DELEGADO
             else if (task.type === 'delegar') {
-                countDelegar++;
+                const hasNotes = task.notes && task.notes.trim().length > 0;
                 tbodyDelegar.innerHTML += `
                     <tr>
                         <td>
@@ -1548,19 +1512,22 @@
                             </div>
                         </td>
                         <td>${tagsHtml || '-'}</td>
-                        <td>${obsHtml || '<span style="color:var(--cinza); font-size:12px;">Sem anotações</span>'}</td>
+                        <td>
+                            <button class="btn-obs-trigger ${hasNotes ? 'has-notes' : ''}" onclick="openObsModal(${task.id})">
+                                💬 ${hasNotes ? 'Ver Nota' : '+ Nota'}
+                            </button>
+                        </td>
                         <td>${docLinkHtml || '-'}</td>
                         <td>
-                            <button class="btn-add" style="padding:4px 8px; font-size:11px;" onclick="promoteToHoje(${task.id})">🚀 Mover p/ Hoje</button>
+                            <button class="btn-add" style="padding:4px 8px; font-size:11px;" onclick="promoteToHoje(${task.id})">🚀 Trazer p/ Hoje</button>
                             <button class="btn-icon" onclick="openTaskModal(${task.id})">✏️</button>
                             <button class="btn-icon btn-delete" onclick="deleteTask(${task.id})">🗑</button>
                         </td>
                     </tr>
                 `;
-            } 
+            }
             // SE TAREFA É DO MURAL DE IDEIAS
             else if (task.type === 'incubar') {
-                countIdeias++;
                 if (ideasContainer) {
                     ideasContainer.innerHTML += `
                         <div class="idea-card">
@@ -1573,6 +1540,7 @@
                                 <div>${docLinkHtml}</div>
                                 <div style="display:flex; gap:4px;">
                                     <button class="btn-add" style="padding:4px 8px; font-size:11px;" onclick="promoteToHoje(${task.id})">🚀 Ativar em Hoje</button>
+                                    <button class="btn-icon" onclick="openObsModal(${task.id})" title="Editar anotação">💬</button>
                                     <button class="btn-icon" onclick="openTaskModal(${task.id})">✏️</button>
                                     <button class="btn-icon btn-delete" onclick="deleteTask(${task.id})">🗑</button>
                                 </div>
@@ -1583,28 +1551,25 @@
             }
         });
 
-        // Mensagens de listas vazias
-        if (countFazerJa === 0) {
-            tbodyFazerJa.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:24px; color: var(--cinza);">Nenhuma tarefa ativa cadastrada para hoje.</td></tr>`;
+        // Atualização dos números e da barra de Progresso do Dia
+        document.getElementById('kpi-concluido-val').innerText = countConcluido;
+        document.getElementById('kpi-progresso-val').innerText = countProgresso;
+        document.getElementById('kpi-pendente-val').innerText = countPendente;
+
+        const pctGeral = countFazerJaTotal > 0 ? Math.round((countConcluido / countFazerJaTotal) * 100) : 0;
+        document.getElementById('pb-fill').style.width = `${pctGeral}%`;
+        document.getElementById('pb-subtitle').innerText = `${countConcluido} de ${countFazerJaTotal} montados hoje (${pctGeral}%)`;
+
+        // Mensagens vazias
+        if (countRenderedHoje === 0) {
+            tbodyFazerJa.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:24px; color: var(--cinza);">Nenhuma tarefa encontrada para os filtros selecionados.</td></tr>`;
         }
-        if (countCycling === 0) {
-            tbodyCycling.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:16px; color: var(--cinza);">Nenhum hábito cíclico em período de descanso.</td></tr>`;
-        }
-        if (countDelegar === 0) {
+        if (state.tasks.filter(t => t.type === 'delegar').length === 0) {
             tbodyDelegar.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:24px; color: var(--cinza);">Nenhuma demanda delegada no momento.</td></tr>`;
         }
-        if (countIdeias === 0 && ideasContainer) {
-            ideasContainer.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:32px; background:var(--card); border-radius:12px; border:1px dashed var(--border-color); color:var(--cinza);">Nenhuma ideia ou inspiração registrada ainda. Clique em "+ Nova Inspiração" para começar.</div>`;
+        if (state.tasks.filter(t => t.type === 'incubar').length === 0 && ideasContainer) {
+            ideasContainer.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:32px; background:var(--card); border-radius:12px; border:1px dashed var(--border-color); color:var(--cinza);">Nenhuma ideia ou inspiração cadastrada. Clique em "+ Nova Inspiração" para começar.</div>`;
         }
-
-        const cyclingCounterLabel = document.getElementById('cycling-counter-label');
-        if (cyclingCounterLabel) cyclingCounterLabel.innerText = `${countCycling} em descanso`;
-
-        // Barra de Orçamento de Tempo
-        const targetGlobal = state.dailyTargetMinutes || 180;
-        document.getElementById('budget-text').innerText = `${totalMinutesToday} min / ${targetGlobal} min`;
-        const pct = Math.min(100, Math.round((totalMinutesToday / targetGlobal) * 100));
-        document.getElementById('budget-fill').style.width = `${pct}%`;
 
         updateTabCounters();
         populateDashboardTagFilter();
@@ -1671,28 +1636,18 @@
                 const countThisMonth = thisMonthLogs.length;
                 const totalHistorical = state.logs.filter(l => l.taskId === task.id || l.taskName === task.name).length;
 
-                let monthlyTargetText = 'Sem meta fixa';
-                if (task.intervalDays > 0) {
-                    const estTarget = Math.round(30 / task.intervalDays);
-                    monthlyTargetText = `${estTarget} vezes/mês (${Math.round((countThisMonth / estTarget) * 100)}%)`;
-                } else if ((task.fixedDays || []).length > 0) {
-                    const estTarget = Math.round((task.fixedDays.length * 30) / 7);
-                    monthlyTargetText = `${estTarget} vezes/mês (${Math.round((countThisMonth / estTarget) * 100)}%)`;
-                }
-
                 monthlyBody.innerHTML += `
                     <tr>
                         <td><strong>${task.name}</strong></td>
                         <td>${startDateStr}</td>
                         <td><strong style="color:var(--azul);">${countThisMonth} vezes</strong></td>
-                        <td>${monthlyTargetText}</td>
                         <td>${totalHistorical} vezes</td>
                     </tr>
                 `;
             });
 
             if (state.tasks.length === 0) {
-                monthlyBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color: var(--cinza);">Nenhuma atividade cadastrada.</td></tr>`;
+                monthlyBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color: var(--cinza);">Nenhuma atividade cadastrada.</td></tr>`;
             }
         }
 
@@ -1730,11 +1685,9 @@
         
         state = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
             tasks: [],
-            logs: [],
-            dailyTargetMinutes: 180
+            logs: []
         };
 
-        // Assegurar compatibilidade de tarefas legadas
         state.tasks.forEach(t => {
             if (!t.status) t.status = 'pendente';
             if (t.spentSeconds === undefined) t.spentSeconds = 0;
