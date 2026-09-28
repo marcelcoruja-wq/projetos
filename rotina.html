@@ -44,7 +44,7 @@
 
         .container { width: min(1180px, 98%); }
 
-        /* Top Bar e Abas */
+        /* Top Bar e Navegação por Abas */
         .top-bar {
             display: flex;
             justify-content: space-between;
@@ -120,6 +120,7 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
+        /* Estilização de Cartões e Painel de Progresso */
         .card {
             background: var(--card);
             border-radius: 16px;
@@ -168,9 +169,7 @@
             transition: all 0.2s;
         }
 
-        .btn-reset-day:hover {
-            background: #fecaca;
-        }
+        .btn-reset-day:hover { background: #fecaca; }
 
         .pb-bar-track {
             background: #e2e8f0;
@@ -245,7 +244,7 @@
             letter-spacing: 0.5px;
         }
 
-        /* Linha de Busca e Filtros */
+        /* Linhas de Filtros e Ferramentas */
         .search-filter-row {
             display: flex;
             gap: 10px;
@@ -305,6 +304,7 @@
         .btn-add:hover { background: var(--azul-escuro); }
         .btn-add:active { transform: scale(0.98); }
 
+        /* Estilização de Tabelas */
         .table-responsive { overflow-x: auto; }
 
         table {
@@ -432,7 +432,7 @@
             white-space: nowrap;
         }
 
-        /* Botão para abrir modal de observação */
+        /* Botão para modal de observação */
         .btn-obs-trigger {
             background: #f8fafc;
             border: 1px solid #cbd5e1;
@@ -448,10 +448,7 @@
             transition: all 0.15s;
             white-space: nowrap;
         }
-        .btn-obs-trigger:hover {
-            background: #eff6ff;
-            border-color: #93c5fd;
-        }
+        .btn-obs-trigger:hover { background: #eff6ff; border-color: #93c5fd; }
         .btn-obs-trigger.has-notes {
             background: #eff6ff;
             border-color: #60a5fa;
@@ -474,6 +471,23 @@
             white-space: nowrap;
         }
         .btn-check:hover { background: var(--verde-escuro); }
+
+        .btn-reopen {
+            background: #e0e7ff;
+            color: #3730a3;
+            border: 1px solid #c7d2fe;
+            padding: 5px 10px;
+            font-weight: 700;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .btn-reopen:hover { background: #c7d2fe; }
 
         .btn-icon {
             background: none;
@@ -617,10 +631,7 @@
         .stat-number { font-size: 26px; font-weight: 800; color: var(--azul); }
         .stat-label { color: var(--cinza); font-size: 11px; font-weight: 700; text-transform: uppercase; }
 
-        .prompt-box {
-            max-width: 420px;
-            text-align: center;
-        }
+        .prompt-box { max-width: 420px; text-align: center; }
     </style>
 </head>
 <body>
@@ -631,6 +642,9 @@
             <a href="index.html" class="tab-btn btn-back">🏠 Painel</a>
             <button class="tab-btn active" id="btnTabHoje" onclick="switchTab('hoje')">
                 🔥 Hoje <span class="tab-badge-count" id="countTabHoje">0</span>
+            </button>
+            <button class="tab-btn" id="btnTabFeitos" onclick="switchTab('feitos')">
+                ✅ Feitos <span class="tab-badge-count" id="countTabFeitos">0</span>
             </button>
             <button class="tab-btn" id="btnTabDelegado" onclick="switchTab('delegado')">
                 🤝 Delegado <span class="tab-badge-count" id="countTabDelegado">0</span>
@@ -649,7 +663,7 @@
 
     <!-- ABA 1: HOJE -->
     <main id="tab-hoje" class="tab-content active">
-        <!-- Card de Progresso do Dia estilo Painel com KPIs de Faixas Coloridas -->
+        <!-- Card de Progresso do Dia com faixas superiores coloridas -->
         <div class="progress-box-card">
             <div class="pb-header">
                 <span class="pb-title">Progresso do Dia</span>
@@ -659,12 +673,12 @@
             <div class="pb-bar-track">
                 <div id="pb-fill" class="pb-bar-fill"></div>
             </div>
-            <div id="pb-subtitle" class="pb-subtitle">0 de 0 montados hoje (0%)</div>
+            <div id="pb-subtitle" class="pb-subtitle">0 de 0 feitos hoje (0%)</div>
 
             <div class="kpi-container">
                 <div class="kpi-card kpi-concluido">
                     <div id="kpi-concluido-val" class="kpi-number">0</div>
-                    <div class="kpi-label">Montados Hoje</div>
+                    <div class="kpi-label">Feitos Hoje</div>
                 </div>
                 <div class="kpi-card kpi-progresso">
                     <div id="kpi-progresso-val" class="kpi-number">0</div>
@@ -683,10 +697,9 @@
                 </div>
                 <div class="filter-select-box">
                     <select id="filter-status-hoje" onchange="render()">
-                        <option value="">📌 Todos os estados</option>
+                        <option value="">📌 Todos os estados ativos</option>
                         <option value="pendente">⏳ Sem Iniciar</option>
                         <option value="em_progresso">⚡ Em Processo</option>
-                        <option value="concluido">✔ Concluídos</option>
                     </select>
                 </div>
             </div>
@@ -704,9 +717,9 @@
 
         <div class="card">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                <h3 style="font-size: 16px;">🚀 Atividades de Hoje</h3>
+                <h3 style="font-size: 16px;">🚀 Atividades Ativas de Hoje</h3>
                 <div style="font-size:12px; color:var(--cinza);">
-                    Clique no <strong>Status</strong> para alternar entre Pendente, Em Processo e Concluído
+                    Clique no <strong>Status</strong> para alternar entre Sem Iniciar e Em Processo
                 </div>
             </div>
             <div class="table-responsive">
@@ -727,7 +740,66 @@
         </div>
     </main>
 
-    <!-- ABA 2: DELEGADO -->
+    <!-- ABA 2: FEITOS (HISTÓRICO DE FINALIZADOS COM FILTROS) -->
+    <main id="tab-feitos" class="tab-content">
+        <div class="card">
+            <div style="margin-bottom: 16px;">
+                <h2 style="font-size:18px; font-weight:800; color:var(--verde);">✅ Tarefas Feitas & Concluídas</h2>
+                <p style="font-size:13px; color:var(--cinza);">Histórico de itens finalizados com filtro por busca, ano, mês ou data exata.</p>
+            </div>
+
+            <!-- Barra de Filtros de Feitos -->
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px;">
+                <div style="flex:2; min-width:200px; position:relative;">
+                    <input type="text" id="filter-feitos-search" placeholder="🔍 Buscar por nome, anotação ou tag..." oninput="renderFeitos()">
+                </div>
+                <div style="flex:1; min-width:120px;">
+                    <select id="filter-feitos-year" onchange="renderFeitos()">
+                        <option value="">Todos os Anos</option>
+                    </select>
+                </div>
+                <div style="flex:1; min-width:130px;">
+                    <select id="filter-feitos-month" onchange="renderFeitos()">
+                        <option value="">Todos os Meses</option>
+                        <option value="1">Janeiro</option>
+                        <option value="2">Fevereiro</option>
+                        <option value="3">Março</option>
+                        <option value="4">Abril</option>
+                        <option value="5">Maio</option>
+                        <option value="6">Junho</option>
+                        <option value="7">Julho</option>
+                        <option value="8">Agosto</option>
+                        <option value="9">Setembro</option>
+                        <option value="10">Outubro</option>
+                        <option value="11">Novembro</option>
+                        <option value="12">Dezembro</option>
+                    </select>
+                </div>
+                <div style="flex:1; min-width:140px;">
+                    <input type="date" id="filter-feitos-day" onchange="renderFeitos()" title="Filtrar por dia específico">
+                </div>
+                <button class="btn-add" style="background:var(--cinza); padding:8px 14px;" onclick="clearFeitosFilters()">Limpar Filtros</button>
+            </div>
+
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="min-width: 110px;">Data Conclusão</th>
+                            <th style="min-width: 240px;">Atividade & Sub-tarefas</th>
+                            <th>Streak</th>
+                            <th style="min-width: 120px;">Tempo Registrado</th>
+                            <th style="min-width: 110px;">Observações</th>
+                            <th style="min-width: 130px;">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="task-list-feitos"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- ABA 3: DELEGADO -->
     <main id="tab-delegado" class="tab-content">
         <div class="action-bar">
             <div>
@@ -755,7 +827,7 @@
         </div>
     </main>
 
-    <!-- ABA 3: IDEIAS -->
+    <!-- ABA 4: IDEIAS -->
     <main id="tab-ideias" class="tab-content">
         <div class="action-bar">
             <div>
@@ -768,7 +840,7 @@
         <div id="ideas-container" class="ideas-grid"></div>
     </main>
 
-    <!-- ABA 4: DASHBOARD -->
+    <!-- ABA 5: DASHBOARD -->
     <main id="tab-dashboard" class="tab-content">
         <div class="stats-grid">
             <div class="stat-card">
@@ -835,25 +907,25 @@
         </div>
     </main>
 
-    <!-- ABA 5: LÓGICA -->
+    <!-- ABA 6: LÓGICA -->
     <main id="tab-logica" class="tab-content">
         <div class="card" style="line-height: 1.7;">
             <h2 style="font-size:20px; color:var(--azul); margin-bottom:12px;">🧠 Arquitetura do Planejador</h2>
-            <p style="margin-bottom: 20px; color:var(--texto-suave);">O sistema foi desenhado para sustentar a <strong>persistência e constância no longo prazo</strong>, separando claramente o que é foco diário, delegação e inspiração criativa.</p>
+            <p style="margin-bottom: 20px; color:var(--texto-suave);">O sistema foi desenhado para sustentar a <strong>persistência e constância no longo prazo</strong>, separando claramente o que é foco diário, tarefas concluídas, delegação e inspiração criativa.</p>
 
             <div style="background:var(--fundo); border-left:4px solid var(--verde); padding:14px; border-radius:6px; margin-bottom:12px;">
-                <strong>1. Panorama de Progresso Diário</strong><br>
-                Um visual consolidado de tudo o que está <em>Concluído</em>, <em>Em Processo</em> e <em>Sem Iniciar</em> no dia, com contagem e percentual em tempo real.
+                <strong>1. Panorama de Feitos Diários</strong><br>
+                Um visual consolidado de tudo o que está <em>Feito</em>, <em>Em Processo</em> e <em>Sem Iniciar</em> no dia, com contagem e percentual em tempo real.
             </div>
 
             <div style="background:var(--fundo); border-left:4px solid var(--azul); padding:14px; border-radius:6px; margin-bottom:12px;">
-                <strong>2. Timer Compacto & Meta em Minutos</strong><br>
-                Cada tarefa possui uma barra visual de tempo que se preenche gradualmente conforme você executa a atividade.
+                <strong>2. Timer Compacto & Zeramento Automático</strong><br>
+                Cada tarefa possui uma barra visual de tempo. Quando uma tarefa é revertida para <em>Sem Iniciar</em>, seu cronômetro é pausado e os minutos acumulados são zerados.
             </div>
 
             <div style="background:var(--fundo); border-left:4px solid var(--roxo); padding:14px; border-radius:6px; margin-bottom:12px;">
-                <strong>3. Observações em Pop-up Exclusivo</strong><br>
-                Mantenha anotações, links rápidos e histórico sem poluir o visual da sua tabela diária.
+                <strong>3. Aba Dedicada de Feitos & Streak Condicional</strong><br>
+                Tarefas finalizadas via check-in saem da tabela ativa de Hoje, vão para a aba Feitos e têm o streak incrementado.
             </div>
         </div>
     </main>
@@ -918,7 +990,7 @@
     </div>
 </div>
 
-<!-- MODAL EXCLUSIVO DE OBSERVAÇÕES (POP-UP LIMPO) -->
+<!-- MODAL EXCLUSIVO DE OBSERVAÇÕES -->
 <div id="modalObs" class="modal-overlay">
     <div class="modal-box" style="max-width: 520px;">
         <h3 id="modal-obs-title" style="font-size:16px; margin-bottom:12px; color:var(--azul);">💬 Observações da Atividade</h3>
@@ -934,7 +1006,7 @@
     </div>
 </div>
 
-<!-- MODAL CONFIRMAÇÃO (SEM ALERT/CONFIRM) -->
+<!-- MODAL DE CONFIRMAÇÃO (SEM ALERT/CONFIRM) -->
 <div id="modalConfirm" class="modal-overlay">
     <div class="modal-box prompt-box">
         <h3 id="confirm-title" style="font-size:16px; margin-bottom:10px; color:var(--vermelho);">Atenção</h3>
@@ -962,7 +1034,9 @@
     async function saveData() {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
         render();
+        renderFeitos();
         updateTabCounters();
+        populateFeitosYearsFilter();
         if (typeof cloudPush === 'function') {
             try {
                 await cloudPush();
@@ -983,19 +1057,23 @@
         if (targetBtn) targetBtn.classList.add('active');
 
         if (tabName === 'dashboard') renderDashboard();
+        if (tabName === 'feitos') renderFeitos();
         if (tabName === 'hoje' || tabName === 'delegado' || tabName === 'ideias') render();
     }
 
     function updateTabCounters() {
-        const countHoje = state.tasks.filter(t => t.type === 'fazer_ja').length;
+        const countHoje = state.tasks.filter(t => t.type === 'fazer_ja' && t.status !== 'concluido').length;
+        const countFeitos = state.tasks.filter(t => t.status === 'concluido').length;
         const countDelegado = state.tasks.filter(t => t.type === 'delegar').length;
         const countIdeias = state.tasks.filter(t => t.type === 'incubar').length;
 
         const elHoje = document.getElementById('countTabHoje');
+        const elFeitos = document.getElementById('countTabFeitos');
         const elDelegado = document.getElementById('countTabDelegado');
         const elIdeias = document.getElementById('countTabIdeias');
 
         if (elHoje) elHoje.innerText = countHoje;
+        if (elFeitos) elFeitos.innerText = countFeitos;
         if (elDelegado) elDelegado.innerText = countDelegado;
         if (elIdeias) elIdeias.innerText = countIdeias;
     }
@@ -1029,14 +1107,14 @@
     function promptResetToday() {
         showConfirmModal(
             'Reiniciar Progresso do Dia',
-            'Deseja redefinir todas as tarefas de hoje para "Sem Iniciar" e zerar os tempos gastos?',
+            'Deseja redefinir todas as tarefas ativas de hoje para "Sem Iniciar" e zerar os tempos gastos?',
             () => {
                 if (activeTimerTaskId !== null) {
                     clearInterval(timerInterval);
                     activeTimerTaskId = null;
                 }
                 state.tasks.forEach(t => {
-                    if (t.type === 'fazer_ja') {
+                    if (t.type === 'fazer_ja' && t.status !== 'concluido') {
                         t.status = 'pendente';
                         t.spentSeconds = 0;
                         if (t.subtasks) t.subtasks.forEach(s => s.done = false);
@@ -1132,11 +1210,13 @@
         if (task.status === 'pendente') {
             task.status = 'em_progresso';
         } else if (task.status === 'em_progresso') {
-            task.status = 'concluido';
-            checkIn(taskId);
-            return;
-        } else {
+            // Se volta de em_progresso para pendente: pausa o timer e zera o tempo
+            if (activeTimerTaskId === taskId) {
+                clearInterval(timerInterval);
+                activeTimerTaskId = null;
+            }
             task.status = 'pendente';
+            task.spentSeconds = 0;
         }
         saveData();
     }
@@ -1213,6 +1293,14 @@
         if (editId) {
             const task = state.tasks.find(t => t.id === Number(editId));
             if (task) {
+                // Se foi alterado para pendente, zera o tempo
+                if (status === 'pendente' && task.status === 'em_progresso') {
+                    if (activeTimerTaskId === task.id) {
+                        clearInterval(timerInterval);
+                        activeTimerTaskId = null;
+                    }
+                    task.spentSeconds = 0;
+                }
                 task.name = name;
                 task.type = type;
                 task.status = status;
@@ -1235,7 +1323,8 @@
                 streak: 0,
                 spentSeconds: 0,
                 createdAtYMD: getTodayYMD(),
-                lastCompletedYMD: null
+                lastCompletedYMD: null,
+                completedAtDate: null
             });
         }
 
@@ -1261,8 +1350,10 @@
             const todayYMD = getTodayYMD();
             const todayBR = new Date().toLocaleDateString('pt-BR');
 
+            // Streak incrementado estritamente na conclusão
             task.streak = (task.streak || 0) + 1;
             task.lastCompletedYMD = todayYMD;
+            task.completedAtDate = todayBR;
             task.status = 'concluido';
 
             if (activeTimerTaskId === id) {
@@ -1274,6 +1365,7 @@
                 id: Date.now(),
                 taskId: task.id,
                 date: todayBR,
+                dateYMD: todayYMD,
                 taskName: task.name,
                 minutes: minutes,
                 note: task.notes || '',
@@ -1296,11 +1388,27 @@
         loadProjectTasksDropdown();
     }
 
+    function reopenTask(taskId) {
+        const task = state.tasks.find(t => t.id === taskId);
+        if (task) {
+            task.status = 'pendente';
+            task.spentSeconds = 0;
+            // Se foi finalizado hoje, reverte o streak incrementado
+            if (task.lastCompletedYMD === getTodayYMD() && task.streak > 0) {
+                task.streak -= 1;
+            }
+            task.lastCompletedYMD = null;
+            task.completedAtDate = null;
+            saveData();
+        }
+    }
+
     function promoteToHoje(id) {
         const task = state.tasks.find(t => t.id === id);
         if (task) {
             task.type = 'fazer_ja';
             task.status = 'pendente';
+            task.spentSeconds = 0;
             saveData();
             switchTab('hoje');
         }
@@ -1368,6 +1476,7 @@
             streak: 0,
             createdAtYMD: getTodayYMD(),
             lastCompletedYMD: null,
+            completedAtDate: null,
             link: '',
             notes: task.description || '',
             projectId,
@@ -1376,6 +1485,138 @@
 
         saveData();
         loadProjectTasksDropdown();
+    }
+
+    function populateFeitosYearsFilter() {
+        const select = document.getElementById('filter-feitos-year');
+        if (!select) return;
+        const currentVal = select.value;
+        select.innerHTML = '<option value="">Todos os Anos</option>';
+
+        const years = new Set();
+        state.tasks.filter(t => t.status === 'concluido').forEach(t => {
+            if (t.lastCompletedYMD) {
+                const y = t.lastCompletedYMD.split('-')[0];
+                if (y) years.add(y);
+            }
+        });
+
+        // Inclui também anos dos logs para abrangência total
+        state.logs.forEach(l => {
+            if (l.dateYMD) {
+                const y = l.dateYMD.split('-')[0];
+                if (y) years.add(y);
+            } else if (l.date) {
+                const parts = l.date.split('/');
+                if (parts.length === 3) years.add(parts[2]);
+            }
+        });
+
+        Array.from(years).sort().reverse().forEach(yr => {
+            const opt = document.createElement('option');
+            opt.value = yr;
+            opt.textContent = yr;
+            if (yr === currentVal) opt.selected = true;
+            select.appendChild(opt);
+        });
+    }
+
+    function clearFeitosFilters() {
+        const searchInput = document.getElementById('filter-feitos-search');
+        const yearSelect = document.getElementById('filter-feitos-year');
+        const monthSelect = document.getElementById('filter-feitos-month');
+        const dayInput = document.getElementById('filter-feitos-day');
+
+        if (searchInput) searchInput.value = '';
+        if (yearSelect) yearSelect.value = '';
+        if (monthSelect) monthSelect.value = '';
+        if (dayInput) dayInput.value = '';
+
+        renderFeitos();
+    }
+
+    function renderFeitos() {
+        const tbodyFeitos = document.getElementById('task-list-feitos');
+        if (!tbodyFeitos) return;
+        tbodyFeitos.innerHTML = '';
+
+        const searchQuery = (document.getElementById('filter-feitos-search')?.value || '').toLowerCase().trim();
+        const yearFilter = document.getElementById('filter-feitos-year')?.value || '';
+        const monthFilter = document.getElementById('filter-feitos-month')?.value || '';
+        const dayFilter = document.getElementById('filter-feitos-day')?.value || '';
+
+        const feitosTasks = state.tasks.filter(t => t.status === 'concluido');
+        let countShown = 0;
+
+        feitosTasks.forEach(task => {
+            const ymd = task.lastCompletedYMD || '';
+            const dateParts = ymd ? ymd.split('-') : []; // [YYYY, MM, DD]
+
+            // Filtro por dia exato
+            if (dayFilter && ymd !== dayFilter) return;
+
+            // Filtro por ano
+            if (yearFilter && dateParts[0] && dateParts[0] !== yearFilter) return;
+
+            // Filtro por mês
+            if (monthFilter && dateParts[1] && parseInt(dateParts[1], 10) !== parseInt(monthFilter, 10)) return;
+
+            // Filtro de busca livre
+            const matchesSearch = !searchQuery || 
+                task.name.toLowerCase().includes(searchQuery) ||
+                (task.notes && task.notes.toLowerCase().includes(searchQuery)) ||
+                (task.tags && task.tags.some(tg => tg.toLowerCase().includes(searchQuery)));
+            if (!matchesSearch) return;
+
+            countShown++;
+
+            const dateDisplay = task.completedAtDate || (dateParts.length === 3 ? `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}` : 'Recente');
+            const spentMin = Math.round((task.spentSeconds || 0) / 60) || task.meta || 0;
+            const docLinkHtml = task.link ? `<a href="${task.link}" target="_blank" style="color:var(--azul); font-weight:600; font-size:12px; text-decoration:none;">🔗 Link</a>` : '';
+            const tagsHtml = (task.tags || []).map(tg => `<span class="tag-badge">${tg}</span>`).join('');
+            const hasNotes = task.notes && task.notes.trim().length > 0;
+
+            const subList = task.subtasks || task.checklist || [];
+            let subtasksHtml = '';
+            if (subList.length > 0) {
+                const completedCount = subList.filter(s => s.done).length;
+                subtasksHtml = `
+                    <div class="subtasks-wrapper">
+                        <div style="font-size:11px; font-weight:700; color:var(--cinza); margin-bottom:2px;">
+                            Sub-tarefas: ${completedCount}/${subList.length}
+                        </div>
+                    </div>
+                `;
+            }
+
+            tbodyFeitos.innerHTML += `
+                <tr>
+                    <td><strong style="color:var(--verde);">${dateDisplay}</strong></td>
+                    <td>
+                        <div style="font-weight:700; font-size:14px; color:var(--texto);">${task.name} ${docLinkHtml}</div>
+                        <div style="margin-top:4px;">${tagsHtml}</div>
+                        ${subtasksHtml}
+                    </td>
+                    <td><span class="badge-streak">🔥 ${task.streak || 0}</span></td>
+                    <td><strong style="color:var(--azul);">${spentMin} min</strong></td>
+                    <td>
+                        <button class="btn-obs-trigger ${hasNotes ? 'has-notes' : ''}" onclick="openObsModal(${task.id})">
+                            💬 ${hasNotes ? 'Ver Nota' : '+ Nota'}
+                        </button>
+                    </td>
+                    <td>
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            <button class="btn-reopen" onclick="reopenTask(${task.id})" title="Devolver para a lista de Hoje">↩ Reabrir</button>
+                            <button class="btn-icon btn-delete" onclick="deleteTask(${task.id})" title="Excluir">🗑</button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        });
+
+        if (countShown === 0) {
+            tbodyFeitos.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:28px; color:var(--cinza);">Nenhuma tarefa concluída encontrada para estes filtros.</td></tr>`;
+        }
     }
 
     function render() {
@@ -1393,10 +1634,12 @@
         if (ideasContainer) ideasContainer.innerHTML = '';
 
         let countFazerJaTotal = 0;
-        let countConcluido = 0;
+        let countFeitosHoje = 0;
         let countProgresso = 0;
         let countPendente = 0;
         let countRenderedHoje = 0;
+
+        const todayYMD = getTodayYMD();
 
         state.tasks.forEach(task => {
             const docLinkHtml = task.link ? `<a href="${task.link}" target="_blank" style="color:var(--azul); font-weight:600; font-size:12px; text-decoration:none;">🔗 Link</a>` : '';
@@ -1423,15 +1666,26 @@
                 `;
             }
 
-            // SE TAREFA É DA ABA HOJE
+            // SE TAREFA É DA CATEGORIA HOJE
             if (task.type === 'fazer_ja') {
-                countFazerJaTotal++;
                 const curStatus = task.status || 'pendente';
-                if (curStatus === 'concluido') countConcluido++;
-                else if (curStatus === 'em_progresso') countProgresso++;
-                else countPendente++;
 
-                // Filtros de busca e status na tela
+                if (curStatus === 'concluido') {
+                    if (task.lastCompletedYMD === todayYMD) {
+                        countFeitosHoje++;
+                        countFazerJaTotal++;
+                    }
+                    // Tarefas concluídas não são exibidas na tabela de execução de Hoje
+                    return;
+                } else if (curStatus === 'em_progresso') {
+                    countProgresso++;
+                    countFazerJaTotal++;
+                } else {
+                    countPendente++;
+                    countFazerJaTotal++;
+                }
+
+                // Filtros de busca e status na tela ativa
                 const matchesSearch = !searchInput || 
                     task.name.toLowerCase().includes(searchInput) || 
                     (task.notes && task.notes.toLowerCase().includes(searchInput)) ||
@@ -1441,8 +1695,7 @@
                 if (matchesSearch && matchesStatus) {
                     countRenderedHoje++;
 
-                    const isCompleted = curStatus === 'concluido';
-                    const statusLabel = isCompleted ? '✔ Concluído' : (curStatus === 'em_progresso' ? '⚡ Em Processo' : '⏳ Sem Iniciar');
+                    const statusLabel = curStatus === 'em_progresso' ? '⚡ Em Processo' : '⏳ Sem Iniciar';
                     const statusClass = `status-${curStatus}`;
 
                     const isTimerRunning = activeTimerTaskId === task.id;
@@ -1457,9 +1710,9 @@
                     const hasNotes = task.notes && task.notes.trim().length > 0;
 
                     tbodyFazerJa.innerHTML += `
-                        <tr style="${isCompleted ? 'opacity: 0.8;' : ''}">
+                        <tr>
                             <td>
-                                <span class="badge-status ${statusClass}" onclick="cycleTaskStatus(${task.id})" title="Clique para alternar o status">
+                                <span class="badge-status ${statusClass}" onclick="cycleTaskStatus(${task.id})" title="Alternar entre Sem Iniciar e Em Processo">
                                     ${statusLabel}
                                 </span>
                             </td>
@@ -1471,11 +1724,9 @@
                             <td><span class="badge-streak">🔥 ${task.streak || 0}</span></td>
                             <td>
                                 <div class="compact-timer-widget">
-                                    ${!isCompleted ? `
-                                        <button class="btn-timer-icon ${isTimerRunning ? 'running' : ''}" onclick="toggleTimer(${task.id})" title="${isTimerRunning ? 'Pausar' : 'Iniciar'}">
-                                            ${isTimerRunning ? '⏸' : '▶'}
-                                        </button>
-                                    ` : ''}
+                                    <button class="btn-timer-icon ${isTimerRunning ? 'running' : ''}" onclick="toggleTimer(${task.id})" title="${isTimerRunning ? 'Pausar' : 'Iniciar'}">
+                                        ${isTimerRunning ? '⏸' : '▶'}
+                                    </button>
                                     <div class="timer-progress-bg" onclick="openTaskModal(${task.id})" title="Meta: ${task.meta || 0} min">
                                         <div id="timer-fill-${task.id}" class="timer-progress-fill ${isTimerRunning ? 'running' : ''}" style="width: ${pctTimer}%;"></div>
                                         <div id="timer-text-${task.id}" class="timer-progress-text">${minGastos} / ${task.meta || 0} min</div>
@@ -1489,9 +1740,7 @@
                             </td>
                             <td>
                                 <div style="display:flex; align-items:center; gap:4px;">
-                                    ${isCompleted 
-                                        ? `<span style="color:var(--verde); font-weight:700; font-size:12px;">Concluída</span>` 
-                                        : `<button class="btn-check" onclick="checkIn(${task.id})">Check-in</button>`}
+                                    <button class="btn-check" onclick="checkIn(${task.id})">✔ Concluir</button>
                                     <button class="btn-icon" onclick="openTaskModal(${task.id})">✏️</button>
                                     <button class="btn-icon btn-delete" onclick="deleteTask(${task.id})">🗑</button>
                                 </div>
@@ -1552,17 +1801,17 @@
         });
 
         // Atualização dos números e da barra de Progresso do Dia
-        document.getElementById('kpi-concluido-val').innerText = countConcluido;
+        document.getElementById('kpi-concluido-val').innerText = countFeitosHoje;
         document.getElementById('kpi-progresso-val').innerText = countProgresso;
         document.getElementById('kpi-pendente-val').innerText = countPendente;
 
-        const pctGeral = countFazerJaTotal > 0 ? Math.round((countConcluido / countFazerJaTotal) * 100) : 0;
+        const pctGeral = countFazerJaTotal > 0 ? Math.round((countFeitosHoje / countFazerJaTotal) * 100) : 0;
         document.getElementById('pb-fill').style.width = `${pctGeral}%`;
-        document.getElementById('pb-subtitle').innerText = `${countConcluido} de ${countFazerJaTotal} montados hoje (${pctGeral}%)`;
+        document.getElementById('pb-subtitle').innerText = `${countFeitosHoje} de ${countFazerJaTotal} feitos hoje (${pctGeral}%)`;
 
         // Mensagens vazias
         if (countRenderedHoje === 0) {
-            tbodyFazerJa.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:24px; color: var(--cinza);">Nenhuma tarefa encontrada para os filtros selecionados.</td></tr>`;
+            tbodyFazerJa.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:24px; color: var(--cinza);">Nenhuma tarefa ativa encontrada para os filtros selecionados.</td></tr>`;
         }
         if (state.tasks.filter(t => t.type === 'delegar').length === 0) {
             tbodyDelegar.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:24px; color: var(--cinza);">Nenhuma demanda delegada no momento.</td></tr>`;
@@ -1698,6 +1947,7 @@
         loadProjectTasksDropdown();
         populateFeitosYearsFilter();
         render();
+        renderFeitos();
     };
 </script>
 </body>
