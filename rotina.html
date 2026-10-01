@@ -486,16 +486,19 @@
 
         .btn-icon {
             background: none;
-            border: none;
+            border: 1px solid var(--border-color);
             cursor: pointer;
-            font-size: 14px;
+            font-size: 12px;
             color: var(--cinza);
-            padding: 4px;
-            border-radius: 4px;
+            padding: 4px 7px;
+            border-radius: 6px;
             transition: color 0.15s, background 0.15s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
-        .btn-icon:hover { color: var(--azul); background: #f1f5f9; }
-        .btn-delete:hover { color: var(--vermelho); background: #fee2e2; }
+        .btn-icon:hover { color: var(--azul); background: #f1f5f9; border-color: #93c5fd; }
+        .btn-delete:hover { color: var(--vermelho); background: #fee2e2; border-color: #fca5a5; }
 
         .subtasks-wrapper {
             margin-top: 6px;
@@ -635,7 +638,6 @@
         }
         .zoom-btn:hover { background: #f1f5f9; color: var(--azul); }
 
-        /* Canvas Inspirador de Árvore */
         .wbs-canvas-viewport {
             width: 100%;
             min-height: 480px;
@@ -666,7 +668,6 @@
             justify-content: flex-start;
         }
 
-        /* Estrutura Orgânica e Minimalista da Árvore Visual */
         .vt-root {
             display: flex;
             flex-direction: column;
@@ -684,8 +685,8 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            min-width: 140px;
-            max-width: 290px;
+            min-width: 150px;
+            max-width: 340px;
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 2;
             cursor: default;
@@ -696,17 +697,23 @@
             box-shadow: 0 10px 22px -3px rgba(15, 23, 42, 0.09), 0 0 14px -1px var(--node-glow, rgba(59, 130, 246, 0.2));
         }
 
+        /* Cartão Raiz Principal: expandido com largura ideal para 2 linhas e texto espaçado */
         .vt-node-box.is-root-node {
             background: linear-gradient(135deg, #1e3a8a, #2563eb);
             border: none;
             color: #ffffff;
-            padding: 14px 26px;
-            min-width: 220px;
+            padding: 16px 28px;
+            min-width: 260px;
+            max-width: 540px;
+            width: fit-content;
             box-shadow: 0 10px 25px -4px rgba(37, 99, 235, 0.35);
             border-radius: 16px;
+            text-align: center;
+            justify-content: center;
+            display: flex;
+            position: relative;
         }
 
-        /* Nós de galhos secundários e folhas */
         .vt-node-box.is-leaf-node {
             background: #f8fafc;
             border-color: #cbd5e1;
@@ -737,15 +744,18 @@
             font-size: 13px;
             font-weight: 600;
             color: #1e293b;
-            line-height: 1.4;
+            line-height: 1.5;
             user-select: text;
+            word-break: break-word;
         }
 
         .vt-node-box.is-root-node .vt-node-title {
             color: #ffffff;
-            font-size: 16px;
-            font-weight: 800;
+            font-size: 15px;
+            font-weight: 700;
             letter-spacing: -0.2px;
+            line-height: 1.55;
+            padding: 0 4px;
         }
 
         .vt-node-box.is-leaf-node .vt-node-title {
@@ -757,7 +767,7 @@
         .vt-node-pill-count {
             font-size: 10px;
             font-weight: 700;
-            padding: 1px 6px;
+            padding: 1px 7px;
             border-radius: 999px;
             background: var(--node-light, #eff6ff);
             color: var(--node-color, #1d4ed8);
@@ -765,30 +775,47 @@
             flex-shrink: 0;
         }
 
+        .vt-node-box.is-root-node .vt-node-pill-count {
+            background: rgba(255, 255, 255, 0.22);
+            color: #ffffff;
+            margin-left: 10px;
+        }
+
         .vt-toggle-bubble {
             position: absolute;
             background: #ffffff;
             border: 1.5px solid var(--node-color, #3b82f6);
             color: var(--node-color, #1d4ed8);
-            width: 20px;
-            height: 20px;
+            width: 22px;
+            height: 22px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 10px;
+            font-size: 11px;
             font-weight: 900;
             cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.08);
-            z-index: 3;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+            z-index: 5;
             transition: transform 0.2s, background 0.15s;
         }
         .vt-toggle-bubble:hover {
-            transform: scale(1.15);
+            transform: scale(1.18);
             background: var(--node-light, #eff6ff);
         }
 
-        /* CONECTORES VERTICAIS SEQUENCIAIS (Espinha Dorsal 1 -> 2 -> 3 -> 4) */
+        /* Na raiz: bolinha fixada na parte inferior central exata para não colidir com o texto */
+        .orientation-vertical .vt-root > .vt-node-box.is-root-node .vt-toggle-bubble {
+            top: auto;
+            bottom: -11px;
+            left: 50%;
+            right: auto;
+            transform: translateX(-50%);
+        }
+        .orientation-vertical .vt-root > .vt-node-box.is-root-node .vt-toggle-bubble:hover {
+            transform: translateX(-50%) scale(1.18);
+        }
+
         .orientation-vertical .vt-spine-flow {
             display: flex;
             flex-direction: column;
@@ -842,7 +869,7 @@
         }
 
         .orientation-vertical .vt-spine-step-row .vt-toggle-bubble {
-            right: -10px;
+            right: -11px;
             top: 50%;
             transform: translateY(-50%);
         }
@@ -885,7 +912,6 @@
             transform: translateY(-50%);
         }
 
-        /* Conectores Horizontal (Mapa Mental puro) */
         .orientation-horizontal .vt-root {
             flex-direction: row;
             align-items: center;
@@ -954,7 +980,6 @@
             position: relative;
         }
 
-        /* Linhas conectores clássicas da árvore */
         .wbs-node-list::before {
             content: '';
             position: absolute;
@@ -980,7 +1005,6 @@
             background: var(--tree-line);
         }
 
-        /* Box do Nó da Árvore */
         .wbs-card-node {
             display: inline-flex;
             align-items: center;
@@ -1056,9 +1080,9 @@
         .wbs-node-actions {
             display: inline-flex;
             align-items: center;
-            gap: 3px;
-            margin-left: 6px;
-            opacity: 0.85;
+            gap: 4px;
+            margin-left: 8px;
+            opacity: 0.9;
         }
 
         .wbs-node-actions:hover { opacity: 1; }
@@ -1193,7 +1217,6 @@
         </div>
     </div>
 
-    <!-- ABA 1: HOJE -->
     <main id="tab-hoje" class="tab-content active">
         <div class="progress-box-card">
             <div class="pb-header">
@@ -1271,7 +1294,6 @@
         </div>
     </main>
 
-    <!-- ABA 2: WBS (DECOMPOSIÇÃO DE ATIVIDADES EM ÁRVORE) -->
     <main id="tab-wbs" class="tab-content">
         <div class="action-bar">
             <div>
@@ -1286,9 +1308,13 @@
 
         <div class="wbs-container">
             <div class="wbs-toolbar">
-                <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
                     <label style="font-size:12px; font-weight:700; color:var(--texto);">Árvore Ativa:</label>
-                    <select id="wbs-tree-selector" style="width: auto; min-width: 240px; font-weight:600;" onchange="switchWbsTree(this.value)"></select>
+                    <select id="wbs-tree-selector" style="width: auto; min-width: 230px; font-weight:600;" onchange="switchWbsTree(this.value)"></select>
+                    
+                    <!-- Botões de mover raiz para cima/baixo, editar e excluir -->
+                    <button class="btn-icon" onclick="moveWbsTree(-1)" title="Mover Árvore para Cima">⬆</button>
+                    <button class="btn-icon" onclick="moveWbsTree(1)" title="Mover Árvore para Baixo">⬇</button>
                     <button class="btn-icon" onclick="editCurrentWbsTreeName()" title="Renomear Raiz">✏️</button>
                     <button class="btn-icon btn-delete" onclick="deleteCurrentWbsTree()" title="Excluir Árvore">🗑</button>
                 </div>
@@ -1306,7 +1332,7 @@
 
                     <!-- Controles exclusivos do modo visual -->
                     <div id="wbs-visual-controls" style="display:flex; align-items:center; gap:8px;">
-                        <button class="btn-wbs-action" id="btnWbsOrientation" onclick="toggleWbsOrientation()" title="Alternar entre Organograma (Vertical) e Mapa Mental (Horizontal)">
+                        <button class="btn-wbs-action" id="btnWbsOrientation" onclick="toggleWbsOrientation()" title="Alternar entre Espinha Vertical e Mapa Horizontal">
                             ⬇️ Vertical
                         </button>
                         <div class="zoom-controls-group">
@@ -1328,7 +1354,6 @@
         </div>
     </main>
 
-    <!-- ABA 3: FEITOS -->
     <main id="tab-feitos" class="tab-content">
         <div class="card">
             <div style="margin-bottom: 16px;">
@@ -1386,7 +1411,6 @@
         </div>
     </main>
 
-    <!-- ABA 4: DELEGADO -->
     <main id="tab-delegado" class="tab-content">
         <div class="action-bar">
             <div>
@@ -1414,7 +1438,6 @@
         </div>
     </main>
 
-    <!-- ABA 5: IDEIAS -->
     <main id="tab-ideias" class="tab-content">
         <div class="action-bar">
             <div>
@@ -1427,7 +1450,6 @@
         <div id="ideas-container" class="ideas-grid"></div>
     </main>
 
-    <!-- ABA 6: DASHBOARD -->
     <main id="tab-dashboard" class="tab-content">
         <div class="stats-grid">
             <div class="stat-card">
@@ -1494,7 +1516,6 @@
         </div>
     </main>
 
-    <!-- ABA 7: LÓGICA -->
     <main id="tab-logica" class="tab-content">
         <div class="card" style="line-height: 1.7;">
             <h2 style="font-size:20px; color:var(--azul); margin-bottom:12px;">🧠 Arquitetura do Planejador & WBS</h2>
@@ -1523,7 +1544,6 @@
     </main>
 </div>
 
-<!-- MODAL CADASTRAR / EDITAR ATIVIDADE -->
 <div id="modalTask" class="modal-overlay">
     <div class="modal-box">
         <h2 id="modal-title" style="margin-bottom: 16px; font-size: 18px; color: var(--azul);">Cadastrar Atividade</h2>
@@ -1582,7 +1602,6 @@
     </div>
 </div>
 
-<!-- MODAL DE CRIAÇÃO / EDIÇÃO DE NÓ WBS (SEM PROMPT/ALERT) -->
 <div id="modalWbsNode" class="modal-overlay">
     <div class="modal-box" style="max-width: 480px;">
         <h3 id="modal-wbs-title" style="font-size:16px; margin-bottom:12px; color:var(--azul);">Adicionar Nó WBS</h3>
@@ -1601,7 +1620,6 @@
     </div>
 </div>
 
-<!-- MODAL EXCLUSIVO DE OBSERVAÇÕES -->
 <div id="modalObs" class="modal-overlay">
     <div class="modal-box" style="max-width: 520px;">
         <h3 id="modal-obs-title" style="font-size:16px; margin-bottom:12px; color:var(--azul);">💬 Observações da Atividade</h3>
@@ -1617,7 +1635,6 @@
     </div>
 </div>
 
-<!-- MODAL DE CONFIRMAÇÃO (SEM ALERT/CONFIRM) -->
 <div id="modalConfirm" class="modal-overlay">
     <div class="modal-box prompt-box">
         <h3 id="confirm-title" style="font-size:16px; margin-bottom:10px; color:var(--vermelho);">Atenção</h3>
@@ -1633,7 +1650,7 @@
     const STORAGE_KEY = 'persistence_engine_data_v1';
     const PROJECTS_KEY = 'projects_engine_data_v1';
 
-    // Modelo inicial de WBS baseado no exemplo do usuário
+    // Modelo inicial de WBS padrão para decomposição
     function getDefaultWbsTree() {
         return {
             id: 'tree_' + Date.now(),
@@ -1707,7 +1724,7 @@
     let wbsOrientation = 'vertical'; // 'vertical' | 'horizontal'
     let wbsZoom = 1.0;
 
-    // Paletas de cores inspiradoras por galho de 1º nível
+    // Paletas de cores harmônicas por ramo
     const WBS_PALETTES = [
         { color: '#10b981', light: '#ecfdf5', glow: 'rgba(16, 185, 129, 0.25)', label: 'Galho 1' },
         { color: '#0284c7', light: '#f0f9ff', glow: 'rgba(2, 132, 199, 0.25)', label: 'Galho 2' },
@@ -1827,6 +1844,40 @@
         saveData();
     }
 
+    function moveWbsTree(direction) {
+        if (!state.wbsTrees || state.wbsTrees.length <= 1) return;
+        const currentIndex = state.wbsTrees.findIndex(t => t.id === state.activeWbsTreeId);
+        if (currentIndex === -1) return;
+
+        const targetIndex = currentIndex + direction;
+        if (targetIndex < 0 || targetIndex >= state.wbsTrees.length) return;
+
+        const temp = state.wbsTrees[currentIndex];
+        state.wbsTrees[currentIndex] = state.wbsTrees[targetIndex];
+        state.wbsTrees[targetIndex] = temp;
+
+        saveData();
+    }
+
+    function moveWbsNode(nodeId, direction) {
+        const tree = getActiveTree();
+        const found = findNodeAndParent(tree, nodeId);
+        if (!found || !found.parent || !found.parent.children) return;
+
+        const siblings = found.parent.children;
+        const curIndex = siblings.findIndex(n => n.id === nodeId);
+        if (curIndex === -1) return;
+
+        const targetIndex = curIndex + direction;
+        if (targetIndex < 0 || targetIndex >= siblings.length) return;
+
+        const temp = siblings[curIndex];
+        siblings[curIndex] = siblings[targetIndex];
+        siblings[targetIndex] = temp;
+
+        saveData();
+    }
+
     function openNewWbsTreeModal() {
         document.getElementById('modal-wbs-title').innerText = 'Nova Árvore WBS (Objetivo Central)';
         document.getElementById('wbs-modal-label').innerText = 'Título do Projeto / Objetivo Raiz:';
@@ -1934,7 +1985,7 @@
                     done: false,
                     children: []
                 });
-                found.node.collapsed = false; // Garante que o galho abra
+                found.node.collapsed = false;
             }
         }
 
@@ -2064,7 +2115,6 @@
         switchTab('hoje');
     }
 
-    // Renderiza a Árvore Visual de forma limpa, com sequência cronológica vertical (1 -> 2 -> 3 -> 4)
     function renderVisualTreeNodeHtml(node, level = 0, branchIndex = 0, isRoot = false) {
         const hasChildren = node.children && node.children.length > 0;
         const isCollapsed = !!node.collapsed;
@@ -2086,7 +2136,7 @@
 
         const countBadge = hasChildren ? `<span class="vt-node-pill-count">${node.children.length}</span>` : '';
 
-        // ESTRUTURA VERTICAL SEQUENCIAL (Espinha Dorsal)
+        // ESTRUTURA VERTICAL SEQUENCIAL (Espinha Dorsal 1 -> 2 -> 3 -> 4)
         if (wbsOrientation === 'vertical') {
             if (isRoot) {
                 let stepsHtml = '';
@@ -2115,7 +2165,7 @@
                 `;
             }
 
-            // Para os nós filhos (nível 1 em diante)
+            // Para os nós filhos (etapas e sub-itens)
             let subBranchesHtml = '';
             if (hasChildren && !isCollapsed) {
                 subBranchesHtml = `
@@ -2198,6 +2248,12 @@
             `;
         }
 
+        // Botões de mover para cima e para baixo dentro do galho
+        const reorderButtonsHtml = !isRoot ? `
+            <button class="btn-icon" style="padding:2px 5px; font-size:10px;" onclick="moveWbsNode('${node.id}', -1)" title="Mover para cima">⬆</button>
+            <button class="btn-icon" style="padding:2px 5px; font-size:10px;" onclick="moveWbsNode('${node.id}', 1)" title="Mover para baixo">⬇</button>
+        ` : '';
+
         return `
             <li class="wbs-node-item ${isRoot ? 'wbs-root-node' : ''}">
                 <div class="wbs-card-node">
@@ -2207,10 +2263,11 @@
                     ${levelBadge}
 
                     <div class="wbs-node-actions">
+                        ${reorderButtonsHtml}
                         <button class="btn-wbs-action" onclick="promptAddWbsChild('${node.id}')" title="Adicionar Sub-ramo">+ Sub</button>
                         <button class="btn-wbs-action btn-wbs-hoje" onclick="sendWbsNodeToHoje('${node.id}')" title="Enviar para Hoje">🚀 Hoje</button>
-                        <button class="btn-icon" style="font-size:12px;" onclick="promptEditWbsNode('${node.id}')" title="Editar">✏️</button>
-                        <button class="btn-icon btn-delete" style="font-size:12px;" onclick="deleteWbsNode('${node.id}')" title="Excluir">🗑</button>
+                        <button class="btn-icon" style="font-size:12px; padding:3px 6px;" onclick="promptEditWbsNode('${node.id}')" title="Editar">✏️</button>
+                        <button class="btn-icon btn-delete" style="font-size:12px; padding:3px 6px;" onclick="deleteWbsNode('${node.id}')" title="Excluir">🗑</button>
                     </div>
                 </div>
                 ${childrenHtml}
