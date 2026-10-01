@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Planejador • Sistema de Tarefas & Ideias</title>
+    <title>Planejador • Sistema de Tarefas & WBS</title>
     <script src="cloud.js?v=11"></script>
     <style>
         :root {
@@ -17,6 +17,7 @@
             --amarelo-suave: #fffbeb;
             --laranja: #ea580c;
             --roxo: #8b5cf6;
+            --roxo-suave: #f5f3ff;
             --vermelho: #EF4444;
             --vermelho-suave: #fef2f2;
             --cinza: #64748B;
@@ -26,6 +27,7 @@
             --fundo: #F8FAFC;
             --card: #FFFFFF;
             --border-color: #e2e8f0;
+            --tree-line: #cbd5e1;
             --radius: 12px;
         }
 
@@ -44,7 +46,6 @@
 
         .container { width: min(1180px, 98%); }
 
-        /* Top Bar e Navegação por Abas */
         .top-bar {
             display: flex;
             justify-content: space-between;
@@ -120,7 +121,6 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        /* Estilização de Cartões e Painel de Progresso */
         .card {
             background: var(--card);
             border-radius: 16px;
@@ -194,7 +194,6 @@
             margin-bottom: 18px;
         }
 
-        /* Grade de KPIs com faixas superiores coloridas */
         .kpi-container {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -244,7 +243,6 @@
             letter-spacing: 0.5px;
         }
 
-        /* Linhas de Filtros e Ferramentas */
         .search-filter-row {
             display: flex;
             gap: 10px;
@@ -304,7 +302,6 @@
         .btn-add:hover { background: var(--azul-escuro); }
         .btn-add:active { transform: scale(0.98); }
 
-        /* Estilização de Tabelas */
         .table-responsive { overflow-x: auto; }
 
         table {
@@ -372,7 +369,6 @@
         .status-em_progresso { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
         .status-concluido { background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
 
-        /* Barra de tempo compacta por atividade */
         .compact-timer-widget {
             display: flex;
             align-items: center;
@@ -432,7 +428,6 @@
             white-space: nowrap;
         }
 
-        /* Botão para modal de observação */
         .btn-obs-trigger {
             background: #f8fafc;
             border: 1px solid #cbd5e1;
@@ -566,6 +561,540 @@
             gap: 8px;
         }
 
+        .wbs-container {
+            background: var(--card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
+            margin-bottom: 22px;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .wbs-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .view-pill-group {
+            display: inline-flex;
+            background: #f1f5f9;
+            padding: 3px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            gap: 4px;
+        }
+
+        .view-pill-btn {
+            border: none;
+            background: transparent;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--cinza);
+            border-radius: 7px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .view-pill-btn.active {
+            background: #ffffff;
+            color: var(--azul);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+        }
+
+        .zoom-controls-group {
+            display: inline-flex;
+            align-items: center;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+
+        .zoom-btn {
+            background: none;
+            border: none;
+            padding: 6px 10px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--texto-suave);
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .zoom-btn:hover { background: #f1f5f9; color: var(--azul); }
+
+        /* Canvas Inspirador de Árvore */
+        .wbs-canvas-viewport {
+            width: 100%;
+            min-height: 480px;
+            max-height: 720px;
+            overflow: auto;
+            border-radius: 12px;
+            background-color: #fafbfd;
+            background-image: radial-gradient(#cbd5e1 1.2px, transparent 1.2px);
+            background-size: 22px 22px;
+            border: 1px solid #e2e8f0;
+            padding: 40px 24px;
+            position: relative;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.02);
+        }
+
+        .wbs-zoom-stage {
+            transform-origin: top center;
+            transition: transform 0.2s ease-out;
+            min-width: max-content;
+            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+        }
+
+        .wbs-zoom-stage.orientation-horizontal {
+            transform-origin: top left;
+            margin: 0;
+            justify-content: flex-start;
+        }
+
+        /* Estrutura Orgânica e Minimalista da Árvore Visual */
+        .vt-root {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .vt-node-box {
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1.5px solid var(--node-color, #3b82f6);
+            padding: 10px 18px;
+            box-shadow: 0 4px 14px -2px rgba(15, 23, 42, 0.05), 0 0 0 1px rgba(255, 255, 255, 0.9);
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 140px;
+            max-width: 290px;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 2;
+            cursor: default;
+        }
+
+        .vt-node-box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 22px -3px rgba(15, 23, 42, 0.09), 0 0 14px -1px var(--node-glow, rgba(59, 130, 246, 0.2));
+        }
+
+        .vt-node-box.is-root-node {
+            background: linear-gradient(135deg, #1e3a8a, #2563eb);
+            border: none;
+            color: #ffffff;
+            padding: 14px 26px;
+            min-width: 220px;
+            box-shadow: 0 10px 25px -4px rgba(37, 99, 235, 0.35);
+            border-radius: 16px;
+        }
+
+        /* Nós de galhos secundários e folhas */
+        .vt-node-box.is-leaf-node {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+            padding: 7px 15px;
+            min-width: 100px;
+            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
+            border-radius: 999px;
+        }
+        .vt-node-box.is-leaf-node:hover {
+            background: #ffffff;
+            border-color: var(--node-color, #3b82f6);
+        }
+
+        .vt-node-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--node-color, #3b82f6);
+            flex-shrink: 0;
+            box-shadow: 0 0 6px var(--node-glow, rgba(59, 130, 246, 0.3));
+        }
+
+        .vt-node-box.is-root-node .vt-node-dot {
+            display: none;
+        }
+
+        .vt-node-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1e293b;
+            line-height: 1.4;
+            user-select: text;
+        }
+
+        .vt-node-box.is-root-node .vt-node-title {
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 800;
+            letter-spacing: -0.2px;
+        }
+
+        .vt-node-box.is-leaf-node .vt-node-title {
+            font-size: 12px;
+            font-weight: 500;
+            color: #334155;
+        }
+
+        .vt-node-pill-count {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 1px 6px;
+            border-radius: 999px;
+            background: var(--node-light, #eff6ff);
+            color: var(--node-color, #1d4ed8);
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+
+        .vt-toggle-bubble {
+            position: absolute;
+            background: #ffffff;
+            border: 1.5px solid var(--node-color, #3b82f6);
+            color: var(--node-color, #1d4ed8);
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+            z-index: 3;
+            transition: transform 0.2s, background 0.15s;
+        }
+        .vt-toggle-bubble:hover {
+            transform: scale(1.15);
+            background: var(--node-light, #eff6ff);
+        }
+
+        /* CONECTORES VERTICAIS SEQUENCIAIS (Espinha Dorsal 1 -> 2 -> 3 -> 4) */
+        .orientation-vertical .vt-spine-flow {
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+            position: relative;
+            padding-top: 36px;
+            padding-left: 36px;
+            margin-top: 4px;
+        }
+
+        /* Linha Tronco Central descendo da Raiz */
+        .orientation-vertical .vt-spine-flow::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 22px;
+            width: 2.5px;
+            background: linear-gradient(180deg, #93c5fd 0%, #cbd5e1 100%);
+            border-radius: 2px;
+        }
+
+        /* Linha conectora direta da Raiz até o início do tronco */
+        .orientation-vertical .vt-root > .vt-node-box.is-root-node::after {
+            content: '';
+            position: absolute;
+            bottom: -36px;
+            left: 50%;
+            width: 2px;
+            height: 36px;
+            background: #93c5fd;
+            transform: translateX(-50%);
+        }
+
+        .orientation-vertical .vt-spine-step-row {
+            display: flex;
+            align-items: flex-start;
+            position: relative;
+            gap: 20px;
+        }
+
+        /* Ramo conector do tronco central até a caixa do passo (1, 2, 3...) */
+        .orientation-vertical .vt-spine-step-row::before {
+            content: '';
+            position: absolute;
+            left: -36px;
+            top: 21px;
+            width: 36px;
+            height: 2px;
+            background: #cbd5e1;
+        }
+
+        .orientation-vertical .vt-spine-step-row .vt-toggle-bubble {
+            right: -10px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        /* Ramo lateral para os filhos de cada etapa */
+        .orientation-vertical .vt-sub-branches-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            position: relative;
+            padding-left: 24px;
+            justify-content: center;
+            align-self: center;
+        }
+
+        .orientation-vertical .vt-sub-branches-container::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 18px;
+            bottom: 18px;
+            width: 2px;
+            background: #cbd5e1;
+        }
+
+        .orientation-vertical .vt-sub-branch-item {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .orientation-vertical .vt-sub-branch-item::before {
+            content: '';
+            position: absolute;
+            left: -24px;
+            top: 50%;
+            width: 24px;
+            height: 2px;
+            background: #cbd5e1;
+            transform: translateY(-50%);
+        }
+
+        /* Conectores Horizontal (Mapa Mental puro) */
+        .orientation-horizontal .vt-root {
+            flex-direction: row;
+            align-items: center;
+        }
+        .orientation-horizontal .vt-toggle-bubble {
+            right: -11px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .orientation-horizontal .vt-children-row {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 18px;
+            position: relative;
+            padding-left: 36px;
+        }
+        .orientation-horizontal .vt-children-row::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            height: 2px;
+            width: 18px;
+            background: #cbd5e1;
+            transform: translateY(-50%);
+        }
+        .orientation-horizontal .vt-branch-col {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            position: relative;
+        }
+        .orientation-horizontal .vt-branch-col::before {
+            content: '';
+            position: absolute;
+            left: -18px;
+            top: 50%;
+            height: 2px;
+            width: 18px;
+            background: #cbd5e1;
+            transform: translateY(-50%);
+        }
+        .orientation-horizontal .vt-branch-col::after {
+            content: '';
+            position: absolute;
+            left: -18px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #cbd5e1;
+        }
+        .orientation-horizontal .vt-branch-col:first-child::after { top: 50%; }
+        .orientation-horizontal .vt-branch-col:last-child::after { bottom: 50%; }
+        .orientation-horizontal .vt-branch-col:only-child::after { display: none; }
+
+        .wbs-tree-root {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .wbs-node-list {
+            list-style: none;
+            padding-left: 28px;
+            position: relative;
+        }
+
+        /* Linhas conectores clássicas da árvore */
+        .wbs-node-list::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 10px;
+            bottom: 14px;
+            width: 2px;
+            background: var(--tree-line);
+        }
+
+        .wbs-node-item {
+            position: relative;
+            margin: 6px 0;
+        }
+
+        .wbs-node-item::before {
+            content: '';
+            position: absolute;
+            top: 18px;
+            left: -18px;
+            width: 18px;
+            height: 2px;
+            background: var(--tree-line);
+        }
+
+        /* Box do Nó da Árvore */
+        .wbs-card-node {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #ffffff;
+            border: 1.5px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px 12px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+            transition: all 0.2s ease;
+            max-width: 100%;
+        }
+
+        .wbs-card-node:hover {
+            border-color: var(--azul);
+            box-shadow: 0 4px 10px rgba(47, 95, 208, 0.08);
+        }
+
+        .wbs-root-node > .wbs-card-node {
+            background: #f0f7ff;
+            border-color: #93c5fd;
+            padding: 10px 16px;
+        }
+
+        .wbs-root-node > .wbs-card-node .wbs-node-title {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--azul-escuro);
+        }
+
+        .wbs-toggle-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            color: var(--cinza);
+            width: 18px;
+            height: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: transform 0.2s;
+        }
+
+        .wbs-toggle-btn:hover { background: #e2e8f0; color: var(--texto); }
+
+        .wbs-toggle-btn.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .wbs-node-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--texto);
+            user-select: text;
+        }
+
+        .wbs-node-title.is-done {
+            text-decoration: line-through;
+            color: var(--cinza);
+        }
+
+        .wbs-badge-level {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 1px 6px;
+            border-radius: 4px;
+            background: #f1f5f9;
+            color: var(--cinza);
+        }
+
+        .wbs-node-actions {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            margin-left: 6px;
+            opacity: 0.85;
+        }
+
+        .wbs-node-actions:hover { opacity: 1; }
+
+        .btn-wbs-action {
+            background: none;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 3px 6px;
+            font-size: 11px;
+            cursor: pointer;
+            color: var(--texto-suave);
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            transition: all 0.15s;
+        }
+
+        .btn-wbs-action:hover {
+            background: #eff6ff;
+            color: var(--azul);
+            border-color: #93c5fd;
+        }
+
+        .btn-wbs-hoje {
+            background: #ecfdf5;
+            color: #047857;
+            border-color: #a7f3d0;
+            font-weight: 700;
+        }
+        .btn-wbs-hoje:hover {
+            background: #d1fae5;
+            color: #065f46;
+            border-color: #6ee7b7;
+        }
+
         .modal-overlay {
             display: none;
             position: fixed;
@@ -643,6 +1172,9 @@
             <button class="tab-btn active" id="btnTabHoje" onclick="switchTab('hoje')">
                 🔥 Hoje <span class="tab-badge-count" id="countTabHoje">0</span>
             </button>
+            <button class="tab-btn" id="btnTabWbs" onclick="switchTab('wbs')">
+                🌳 WBS <span class="tab-badge-count" id="countTabWbs">0</span>
+            </button>
             <button class="tab-btn" id="btnTabFeitos" onclick="switchTab('feitos')">
                 ✅ Feitos <span class="tab-badge-count" id="countTabFeitos">0</span>
             </button>
@@ -663,7 +1195,6 @@
 
     <!-- ABA 1: HOJE -->
     <main id="tab-hoje" class="tab-content active">
-        <!-- Card de Progresso do Dia com faixas superiores coloridas -->
         <div class="progress-box-card">
             <div class="pb-header">
                 <span class="pb-title">Progresso do Dia</span>
@@ -740,7 +1271,64 @@
         </div>
     </main>
 
-    <!-- ABA 2: FEITOS (HISTÓRICO DE FINALIZADOS COM FILTROS) -->
+    <!-- ABA 2: WBS (DECOMPOSIÇÃO DE ATIVIDADES EM ÁRVORE) -->
+    <main id="tab-wbs" class="tab-content">
+        <div class="action-bar">
+            <div>
+                <h2 style="font-size:18px; font-weight:800; color:var(--azul);">🌳 WBS • Estrutura de Decomposição do Trabalho</h2>
+                <p style="font-size:13px; color:var(--cinza);">Fatie qualquer objetivo grande em galhos claros e envie os passos práticos diretamente para o Hoje.</p>
+            </div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <button class="btn-add" style="background:#0284c7;" onclick="openNewWbsTreeModal()">+ Nova Árvore WBS</button>
+                <button class="btn-add" style="background:var(--cinza);" onclick="resetWbsToDefault()">🔄 Carregar Exemplo Padrão</button>
+            </div>
+        </div>
+
+        <div class="wbs-container">
+            <div class="wbs-toolbar">
+                <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                    <label style="font-size:12px; font-weight:700; color:var(--texto);">Árvore Ativa:</label>
+                    <select id="wbs-tree-selector" style="width: auto; min-width: 240px; font-weight:600;" onchange="switchWbsTree(this.value)"></select>
+                    <button class="btn-icon" onclick="editCurrentWbsTreeName()" title="Renomear Raiz">✏️</button>
+                    <button class="btn-icon btn-delete" onclick="deleteCurrentWbsTree()" title="Excluir Árvore">🗑</button>
+                </div>
+
+                <!-- Seletor de Modo: Árvore Visual x Lista Analítica -->
+                <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                    <div class="view-pill-group">
+                        <button id="btnWbsModeVisual" class="view-pill-btn active" onclick="setWbsViewMode('visual')">
+                            🌿 Árvore Visual
+                        </button>
+                        <button id="btnWbsModeOutline" class="view-pill-btn" onclick="setWbsViewMode('outline')">
+                            📋 Lista Analítica
+                        </button>
+                    </div>
+
+                    <!-- Controles exclusivos do modo visual -->
+                    <div id="wbs-visual-controls" style="display:flex; align-items:center; gap:8px;">
+                        <button class="btn-wbs-action" id="btnWbsOrientation" onclick="toggleWbsOrientation()" title="Alternar entre Organograma (Vertical) e Mapa Mental (Horizontal)">
+                            ⬇️ Vertical
+                        </button>
+                        <div class="zoom-controls-group">
+                            <button class="zoom-btn" onclick="changeWbsZoom(-0.1)" title="Diminuir Zoom">🔍 -</button>
+                            <button class="zoom-btn" onclick="resetWbsZoom()" id="wbs-zoom-level-text" title="Resetar">100%</button>
+                            <button class="zoom-btn" onclick="changeWbsZoom(0.1)" title="Aumentar Zoom">🔍 +</button>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; gap:6px;">
+                        <button class="btn-wbs-action" onclick="toggleAllWbs(false)">📂 Expandir</button>
+                        <button class="btn-wbs-action" onclick="toggleAllWbs(true)">📁 Recolher</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alvo de Renderização -->
+            <div id="wbs-tree-render-target"></div>
+        </div>
+    </main>
+
+    <!-- ABA 3: FEITOS -->
     <main id="tab-feitos" class="tab-content">
         <div class="card">
             <div style="margin-bottom: 16px;">
@@ -748,7 +1336,6 @@
                 <p style="font-size:13px; color:var(--cinza);">Histórico de itens finalizados com filtro por busca, ano, mês ou data exata.</p>
             </div>
 
-            <!-- Barra de Filtros de Feitos -->
             <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px;">
                 <div style="flex:2; min-width:200px; position:relative;">
                     <input type="text" id="filter-feitos-search" placeholder="🔍 Buscar por nome, anotação ou tag..." oninput="renderFeitos()">
@@ -799,7 +1386,7 @@
         </div>
     </main>
 
-    <!-- ABA 3: DELEGADO -->
+    <!-- ABA 4: DELEGADO -->
     <main id="tab-delegado" class="tab-content">
         <div class="action-bar">
             <div>
@@ -827,7 +1414,7 @@
         </div>
     </main>
 
-    <!-- ABA 4: IDEIAS -->
+    <!-- ABA 5: IDEIAS -->
     <main id="tab-ideias" class="tab-content">
         <div class="action-bar">
             <div>
@@ -840,7 +1427,7 @@
         <div id="ideas-container" class="ideas-grid"></div>
     </main>
 
-    <!-- ABA 5: DASHBOARD -->
+    <!-- ABA 6: DASHBOARD -->
     <main id="tab-dashboard" class="tab-content">
         <div class="stats-grid">
             <div class="stat-card">
@@ -907,24 +1494,29 @@
         </div>
     </main>
 
-    <!-- ABA 6: LÓGICA -->
+    <!-- ABA 7: LÓGICA -->
     <main id="tab-logica" class="tab-content">
         <div class="card" style="line-height: 1.7;">
-            <h2 style="font-size:20px; color:var(--azul); margin-bottom:12px;">🧠 Arquitetura do Planejador</h2>
-            <p style="margin-bottom: 20px; color:var(--texto-suave);">O sistema foi desenhado para sustentar a <strong>persistência e constância no longo prazo</strong>, separando claramente o que é foco diário, tarefas concluídas, delegação e inspiração criativa.</p>
+            <h2 style="font-size:20px; color:var(--azul); margin-bottom:12px;">🧠 Arquitetura do Planejador & WBS</h2>
+            <p style="margin-bottom: 20px; color:var(--texto-suave);">O sistema foi desenhado para sustentar a <strong>persistência e constância no longo prazo</strong>, unindo decomposição em árvore analítica (WBS) e execução simplificada no dia a dia.</p>
+
+            <div style="background:var(--fundo); border-left:4px solid var(--azul); padding:14px; border-radius:6px; margin-bottom:12px;">
+                <strong>1. Decomposição WBS Integrada</strong><br>
+                Permite organizar qualquer projeto em múltiplos níveis hierárquicos verticais. Qualquer nó final ou intermediário pode ser disparado para a lista do <em>Hoje</em> em um único clique, levando consigo o contexto da árvore.
+            </div>
 
             <div style="background:var(--fundo); border-left:4px solid var(--verde); padding:14px; border-radius:6px; margin-bottom:12px;">
-                <strong>1. Panorama de Feitos Diários</strong><br>
+                <strong>2. Panorama de Feitos Diários</strong><br>
                 Um visual consolidado de tudo o que está <em>Feito</em>, <em>Em Processo</em> e <em>Sem Iniciar</em> no dia, com contagem e percentual em tempo real.
             </div>
 
-            <div style="background:var(--fundo); border-left:4px solid var(--azul); padding:14px; border-radius:6px; margin-bottom:12px;">
-                <strong>2. Timer Compacto & Zeramento Automático</strong><br>
+            <div style="background:var(--fundo); border-left:4px solid var(--laranja); padding:14px; border-radius:6px; margin-bottom:12px;">
+                <strong>3. Timer Compacto & Zeramento Automático</strong><br>
                 Cada tarefa possui uma barra visual de tempo. Quando uma tarefa é revertida para <em>Sem Iniciar</em>, seu cronômetro é pausado e os minutos acumulados são zerados.
             </div>
 
             <div style="background:var(--fundo); border-left:4px solid var(--roxo); padding:14px; border-radius:6px; margin-bottom:12px;">
-                <strong>3. Aba Dedicada de Feitos & Streak Condicional</strong><br>
+                <strong>4. Aba Dedicada de Feitos & Streak Condicional</strong><br>
                 Tarefas finalizadas via check-in saem da tabela ativa de Hoje, vão para a aba Feitos e têm o streak incrementado.
             </div>
         </div>
@@ -990,6 +1582,25 @@
     </div>
 </div>
 
+<!-- MODAL DE CRIAÇÃO / EDIÇÃO DE NÓ WBS (SEM PROMPT/ALERT) -->
+<div id="modalWbsNode" class="modal-overlay">
+    <div class="modal-box" style="max-width: 480px;">
+        <h3 id="modal-wbs-title" style="font-size:16px; margin-bottom:12px; color:var(--azul);">Adicionar Nó WBS</h3>
+        <input type="hidden" id="wbs-modal-target-node-id">
+        <input type="hidden" id="wbs-modal-mode"> <!-- 'add-child' | 'edit-node' | 'new-tree' -->
+
+        <div class="form-group">
+            <label id="wbs-modal-label">Título do Item / Ramo:</label>
+            <input type="text" id="wbs-node-input" placeholder="Ex: 1. Definir o que será comparado" required autocomplete="off">
+        </div>
+
+        <div class="modal-actions">
+            <button type="button" class="btn-add" style="background:var(--cinza);" onclick="closeWbsNodeModal()">Cancelar</button>
+            <button type="button" class="btn-add" onclick="saveWbsNodeModal()">Confirmar</button>
+        </div>
+    </div>
+</div>
+
 <!-- MODAL EXCLUSIVO DE OBSERVAÇÕES -->
 <div id="modalObs" class="modal-overlay">
     <div class="modal-box" style="max-width: 520px;">
@@ -1022,10 +1633,89 @@
     const STORAGE_KEY = 'persistence_engine_data_v1';
     const PROJECTS_KEY = 'projects_engine_data_v1';
 
+    // Modelo inicial de WBS baseado no exemplo do usuário
+    function getDefaultWbsTree() {
+        return {
+            id: 'tree_' + Date.now(),
+            text: 'Comparar tarifas',
+            collapsed: false,
+            done: false,
+            children: [
+                {
+                    id: 'node_1',
+                    text: '1. Definir o que será comparado',
+                    collapsed: false,
+                    done: false,
+                    children: [
+                        { id: 'node_1_1', text: 'destino', collapsed: false, done: false, children: [] },
+                        { id: 'node_1_2', text: 'produto', collapsed: false, done: false, children: [] },
+                        { id: 'node_1_3', text: 'categoria', collapsed: false, done: false, children: [] },
+                        { id: 'node_1_4', text: 'tarifa', collapsed: false, done: false, children: [] }
+                    ]
+                },
+                {
+                    id: 'node_2',
+                    text: '2. Localizar os dados',
+                    collapsed: false,
+                    done: false,
+                    children: [
+                        { id: 'node_2_1', text: 'arquivo', collapsed: false, done: false, children: [] },
+                        { id: 'node_2_2', text: 'Excel', collapsed: false, done: false, children: [] }
+                    ]
+                },
+                {
+                    id: 'node_3',
+                    text: '3. Comparar',
+                    collapsed: false,
+                    done: false,
+                    children: [
+                        { id: 'node_3_1', text: 'corresponde', collapsed: false, done: false, children: [] },
+                        { id: 'node_3_2', text: 'diferente', collapsed: false, done: false, children: [] },
+                        { id: 'node_3_3', text: 'não localizado', collapsed: false, done: false, children: [] }
+                    ]
+                },
+                {
+                    id: 'node_4',
+                    text: '4. Tratar diferenças',
+                    collapsed: false,
+                    done: false,
+                    children: [
+                        { id: 'node_4_1', text: 'confirmar', collapsed: false, done: false, children: [] },
+                        { id: 'node_4_2', text: 'corrigir', collapsed: false, done: false, children: [] },
+                        { id: 'node_4_3', text: 'registrar', collapsed: false, done: false, children: [] }
+                    ]
+                }
+            ]
+        };
+    }
+
     let state = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
         tasks: [],
-        logs: []
+        logs: [],
+        wbsTrees: [getDefaultWbsTree()],
+        activeWbsTreeId: null
     };
+
+    if (!state.wbsTrees || state.wbsTrees.length === 0) {
+        state.wbsTrees = [getDefaultWbsTree()];
+    }
+    if (!state.activeWbsTreeId) {
+        state.activeWbsTreeId = state.wbsTrees[0].id;
+    }
+
+    let wbsViewMode = 'visual'; // 'visual' | 'outline'
+    let wbsOrientation = 'vertical'; // 'vertical' | 'horizontal'
+    let wbsZoom = 1.0;
+
+    // Paletas de cores inspiradoras por galho de 1º nível
+    const WBS_PALETTES = [
+        { color: '#10b981', light: '#ecfdf5', glow: 'rgba(16, 185, 129, 0.25)', label: 'Galho 1' },
+        { color: '#0284c7', light: '#f0f9ff', glow: 'rgba(2, 132, 199, 0.25)', label: 'Galho 2' },
+        { color: '#f59e0b', light: '#fffbeb', glow: 'rgba(245, 158, 11, 0.25)', label: 'Galho 3' },
+        { color: '#8b5cf6', light: '#f5f3ff', glow: 'rgba(139, 92, 246, 0.25)', label: 'Galho 4' },
+        { color: '#ec4899', light: '#fdf2f8', glow: 'rgba(236, 72, 153, 0.25)', label: 'Galho 5' },
+        { color: '#14b8a6', light: '#f0fdfa', glow: 'rgba(20, 184, 166, 0.25)', label: 'Galho 6' }
+    ];
 
     let activeTimerTaskId = null;
     let timerInterval = null;
@@ -1035,6 +1725,7 @@
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
         render();
         renderFeitos();
+        renderWbs();
         updateTabCounters();
         populateFeitosYearsFilter();
         if (typeof cloudPush === 'function') {
@@ -1058,6 +1749,7 @@
 
         if (tabName === 'dashboard') renderDashboard();
         if (tabName === 'feitos') renderFeitos();
+        if (tabName === 'wbs') renderWbs();
         if (tabName === 'hoje' || tabName === 'delegado' || tabName === 'ideias') render();
     }
 
@@ -1066,16 +1758,19 @@
         const countFeitos = state.tasks.filter(t => t.status === 'concluido').length;
         const countDelegado = state.tasks.filter(t => t.type === 'delegar').length;
         const countIdeias = state.tasks.filter(t => t.type === 'incubar').length;
+        const countWbs = (state.wbsTrees || []).length;
 
         const elHoje = document.getElementById('countTabHoje');
         const elFeitos = document.getElementById('countTabFeitos');
         const elDelegado = document.getElementById('countTabDelegado');
         const elIdeias = document.getElementById('countTabIdeias');
+        const elWbs = document.getElementById('countTabWbs');
 
         if (elHoje) elHoje.innerText = countHoje;
         if (elFeitos) elFeitos.innerText = countFeitos;
         if (elDelegado) elDelegado.innerText = countDelegado;
         if (elIdeias) elIdeias.innerText = countIdeias;
+        if (elWbs) elWbs.innerText = countWbs;
     }
 
     function getTodayYMD() {
@@ -1102,6 +1797,464 @@
             confirmCallback();
         }
         confirmCallback = null;
+    }
+
+    function findNodeAndParent(root, targetId, parent = null) {
+        if (root.id === targetId) return { node: root, parent };
+        if (root.children && root.children.length > 0) {
+            for (let child of root.children) {
+                const found = findNodeAndParent(child, targetId, root);
+                if (found) return found;
+            }
+        }
+        return null;
+    }
+
+    function getActiveTree() {
+        if (!state.wbsTrees || state.wbsTrees.length === 0) {
+            state.wbsTrees = [getDefaultWbsTree()];
+        }
+        let tree = state.wbsTrees.find(t => t.id === state.activeWbsTreeId);
+        if (!tree) {
+            tree = state.wbsTrees[0];
+            state.activeWbsTreeId = tree.id;
+        }
+        return tree;
+    }
+
+    function switchWbsTree(treeId) {
+        state.activeWbsTreeId = treeId;
+        saveData();
+    }
+
+    function openNewWbsTreeModal() {
+        document.getElementById('modal-wbs-title').innerText = 'Nova Árvore WBS (Objetivo Central)';
+        document.getElementById('wbs-modal-label').innerText = 'Título do Projeto / Objetivo Raiz:';
+        document.getElementById('wbs-node-input').value = '';
+        document.getElementById('wbs-modal-mode').value = 'new-tree';
+        document.getElementById('modalWbsNode').classList.add('active');
+        setTimeout(() => document.getElementById('wbs-node-input').focus(), 80);
+    }
+
+    function resetWbsToDefault() {
+        showConfirmModal('Carregar Exemplo WBS', 'Deseja adicionar o exemplo padrão "Comparar tarifas" ao seu rol de árvores?', () => {
+            const defTree = getDefaultWbsTree();
+            state.wbsTrees.push(defTree);
+            state.activeWbsTreeId = defTree.id;
+            saveData();
+        });
+    }
+
+    function deleteCurrentWbsTree() {
+        const tree = getActiveTree();
+        if (!tree) return;
+        showConfirmModal('Excluir Árvore WBS', `Deseja realmente apagar a árvore "${tree.text}"?`, () => {
+            state.wbsTrees = state.wbsTrees.filter(t => t.id !== tree.id);
+            if (state.wbsTrees.length === 0) {
+                state.wbsTrees = [getDefaultWbsTree()];
+            }
+            state.activeWbsTreeId = state.wbsTrees[0].id;
+            saveData();
+        });
+    }
+
+    function editCurrentWbsTreeName() {
+        const tree = getActiveTree();
+        if (!tree) return;
+        document.getElementById('modal-wbs-title').innerText = 'Renomear Objetivo Raiz';
+        document.getElementById('wbs-modal-label').innerText = 'Nome do Objetivo:';
+        document.getElementById('wbs-node-input').value = tree.text;
+        document.getElementById('wbs-modal-target-node-id').value = tree.id;
+        document.getElementById('wbs-modal-mode').value = 'edit-node';
+        document.getElementById('modalWbsNode').classList.add('active');
+        setTimeout(() => document.getElementById('wbs-node-input').focus(), 80);
+    }
+
+    function promptAddWbsChild(parentId) {
+        const tree = getActiveTree();
+        const found = findNodeAndParent(tree, parentId);
+        const parentName = found ? found.node.text : 'Nó';
+
+        document.getElementById('modal-wbs-title').innerText = `Adicionar Sub-ramo em "${parentName}"`;
+        document.getElementById('wbs-modal-label').innerText = 'Nome do sub-item:';
+        document.getElementById('wbs-node-input').value = '';
+        document.getElementById('wbs-modal-target-node-id').value = parentId;
+        document.getElementById('wbs-modal-mode').value = 'add-child';
+        document.getElementById('modalWbsNode').classList.add('active');
+        setTimeout(() => document.getElementById('wbs-node-input').focus(), 80);
+    }
+
+    function promptEditWbsNode(nodeId) {
+        const tree = getActiveTree();
+        const found = findNodeAndParent(tree, nodeId);
+        if (!found) return;
+
+        document.getElementById('modal-wbs-title').innerText = 'Editar Ramo WBS';
+        document.getElementById('wbs-modal-label').innerText = 'Título do Ramo:';
+        document.getElementById('wbs-node-input').value = found.node.text;
+        document.getElementById('wbs-modal-target-node-id').value = nodeId;
+        document.getElementById('wbs-modal-mode').value = 'edit-node';
+        document.getElementById('modalWbsNode').classList.add('active');
+        setTimeout(() => document.getElementById('wbs-node-input').focus(), 80);
+    }
+
+    function closeWbsNodeModal() {
+        document.getElementById('modalWbsNode').classList.remove('active');
+    }
+
+    function saveWbsNodeModal() {
+        const val = document.getElementById('wbs-node-input').value.trim();
+        const mode = document.getElementById('wbs-modal-mode').value;
+        const targetId = document.getElementById('wbs-modal-target-node-id').value;
+
+        if (!val) return;
+
+        if (mode === 'new-tree') {
+            const newTree = {
+                id: 'tree_' + Date.now(),
+                text: val,
+                collapsed: false,
+                done: false,
+                children: []
+            };
+            state.wbsTrees.push(newTree);
+            state.activeWbsTreeId = newTree.id;
+        } else {
+            const tree = getActiveTree();
+            const found = findNodeAndParent(tree, targetId);
+
+            if (mode === 'edit-node' && found) {
+                found.node.text = val;
+            } else if (mode === 'add-child' && found) {
+                if (!found.node.children) found.node.children = [];
+                found.node.children.push({
+                    id: 'node_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+                    text: val,
+                    collapsed: false,
+                    done: false,
+                    children: []
+                });
+                found.node.collapsed = false; // Garante que o galho abra
+            }
+        }
+
+        saveData();
+        closeWbsNodeModal();
+    }
+
+    function deleteWbsNode(nodeId) {
+        const tree = getActiveTree();
+        if (nodeId === tree.id) {
+            deleteCurrentWbsTree();
+            return;
+        }
+
+        const found = findNodeAndParent(tree, nodeId);
+        if (!found || !found.parent) return;
+
+        showConfirmModal('Excluir Ramo WBS', `Deseja remover "${found.node.text}" e todas as suas ramificações?`, () => {
+            found.parent.children = found.parent.children.filter(c => c.id !== nodeId);
+            saveData();
+        });
+    }
+
+    function toggleWbsNodeCollapse(nodeId) {
+        const tree = getActiveTree();
+        const found = findNodeAndParent(tree, nodeId);
+        if (found) {
+            found.node.collapsed = !found.node.collapsed;
+            saveData();
+        }
+    }
+
+    function toggleWbsNodeDone(nodeId) {
+        const tree = getActiveTree();
+        const found = findNodeAndParent(tree, nodeId);
+        if (found) {
+            found.node.done = !found.node.done;
+            saveData();
+        }
+    }
+
+    function toggleAllWbs(collapseState) {
+        const tree = getActiveTree();
+        function recurse(n) {
+            n.collapsed = collapseState;
+            if (n.children) n.children.forEach(recurse);
+        }
+        recurse(tree);
+        saveData();
+    }
+
+    function setWbsViewMode(mode) {
+        wbsViewMode = mode;
+        const btnV = document.getElementById('btnWbsModeVisual');
+        const btnO = document.getElementById('btnWbsModeOutline');
+        const visualControls = document.getElementById('wbs-visual-controls');
+
+        if (btnV && btnO) {
+            if (mode === 'visual') {
+                btnV.classList.add('active');
+                btnO.classList.remove('active');
+                if (visualControls) visualControls.style.display = 'flex';
+            } else {
+                btnO.classList.add('active');
+                btnV.classList.remove('active');
+                if (visualControls) visualControls.style.display = 'none';
+            }
+        }
+        renderWbs();
+    }
+
+    function toggleWbsOrientation() {
+        wbsOrientation = wbsOrientation === 'vertical' ? 'horizontal' : 'vertical';
+        const btn = document.getElementById('btnWbsOrientation');
+        if (btn) {
+            btn.innerHTML = wbsOrientation === 'vertical' ? '⬇️ Vertical' : '➡️ Horizontal';
+        }
+        renderWbs();
+    }
+
+    function changeWbsZoom(delta) {
+        wbsZoom = Math.min(1.8, Math.max(0.5, Math.round((wbsZoom + delta) * 10) / 10));
+        updateZoomDisplay();
+    }
+
+    function resetWbsZoom() {
+        wbsZoom = 1.0;
+        updateZoomDisplay();
+    }
+
+    function updateZoomDisplay() {
+        const textEl = document.getElementById('wbs-zoom-level-text');
+        if (textEl) textEl.innerText = `${Math.round(wbsZoom * 100)}%`;
+        const stage = document.getElementById('wbs-visual-stage');
+        if (stage) stage.style.transform = `scale(${wbsZoom})`;
+    }
+
+    function sendWbsNodeToHoje(nodeId) {
+        const tree = getActiveTree();
+        const found = findNodeAndParent(tree, nodeId);
+        if (!found) return;
+
+        const node = found.node;
+        const subtasks = (node.children || []).map(child => ({
+            text: child.text,
+            done: !!child.done
+        }));
+
+        state.tasks.push({
+            id: Date.now(),
+            name: `[WBS] ${node.text}`,
+            type: 'fazer_ja',
+            status: 'pendente',
+            meta: 30,
+            spentSeconds: 0,
+            tags: ['WBS', tree.text.slice(0, 14)],
+            subtasks: subtasks,
+            streak: 0,
+            createdAtYMD: getTodayYMD(),
+            lastCompletedYMD: null,
+            completedAtDate: null,
+            link: '',
+            notes: `Origem: WBS "${tree.text}"`
+        });
+
+        saveData();
+        switchTab('hoje');
+    }
+
+    // Renderiza a Árvore Visual de forma limpa, com sequência cronológica vertical (1 -> 2 -> 3 -> 4)
+    function renderVisualTreeNodeHtml(node, level = 0, branchIndex = 0, isRoot = false) {
+        const hasChildren = node.children && node.children.length > 0;
+        const isCollapsed = !!node.collapsed;
+        const isLeaf = !hasChildren && !isRoot;
+
+        const palette = WBS_PALETTES[branchIndex % WBS_PALETTES.length];
+        const nodeColor = isRoot ? '#2563eb' : palette.color;
+        const nodeLight = isRoot ? '#eff6ff' : palette.light;
+        const nodeGlow = palette.glow;
+
+        let toggleBtnHtml = '';
+        if (hasChildren) {
+            toggleBtnHtml = `
+                <div class="vt-toggle-bubble" onclick="toggleWbsNodeCollapse('${node.id}')" title="${isCollapsed ? 'Expandir' : 'Recolher'}">
+                    ${isCollapsed ? '+' : '−'}
+                </div>
+            `;
+        }
+
+        const countBadge = hasChildren ? `<span class="vt-node-pill-count">${node.children.length}</span>` : '';
+
+        // ESTRUTURA VERTICAL SEQUENCIAL (Espinha Dorsal)
+        if (wbsOrientation === 'vertical') {
+            if (isRoot) {
+                let stepsHtml = '';
+                if (hasChildren && !isCollapsed) {
+                    stepsHtml = `
+                        <div class="vt-spine-flow">
+                            ${node.children.map((stepNode, idx) => `
+                                <div class="vt-spine-step-row">
+                                    ${renderVisualTreeNodeHtml(stepNode, 1, idx, false)}
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div class="vt-root">
+                        <div class="vt-node-box is-root-node" 
+                             style="--node-color: ${nodeColor}; --node-light: ${nodeLight}; --node-glow: ${nodeGlow};">
+                            <span class="vt-node-title">${node.text}</span>
+                            ${countBadge}
+                            ${toggleBtnHtml}
+                        </div>
+                        ${stepsHtml}
+                    </div>
+                `;
+            }
+
+            // Para os nós filhos (nível 1 em diante)
+            let subBranchesHtml = '';
+            if (hasChildren && !isCollapsed) {
+                subBranchesHtml = `
+                    <div class="vt-sub-branches-container">
+                        ${node.children.map(child => `
+                            <div class="vt-sub-branch-item">
+                                ${renderVisualTreeNodeHtml(child, level + 1, branchIndex, false)}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            return `
+                <div style="display:flex; align-items:center;">
+                    <div class="vt-node-box ${isLeaf ? 'is-leaf-node' : ''}" 
+                         style="--node-color: ${nodeColor}; --node-light: ${nodeLight}; --node-glow: ${nodeGlow};">
+                        <span class="vt-node-dot"></span>
+                        <span class="vt-node-title">${node.text}</span>
+                        ${countBadge}
+                        ${toggleBtnHtml}
+                    </div>
+                    ${subBranchesHtml}
+                </div>
+            `;
+        }
+
+        // MODO HORIZONTAL (Mapa Mental)
+        let childrenHtml = '';
+        if (hasChildren && !isCollapsed) {
+            childrenHtml = `
+                <div class="vt-children-row">
+                    ${node.children.map((child, idx) => `
+                        <div class="vt-branch-col">
+                            ${renderVisualTreeNodeHtml(child, level + 1, level === 0 ? idx : branchIndex, false)}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        return `
+            <div class="vt-root">
+                <div class="vt-node-box ${isRoot ? 'is-root-node' : ''} ${isLeaf ? 'is-leaf-node' : ''}" 
+                     style="--node-color: ${nodeColor}; --node-light: ${nodeLight}; --node-glow: ${nodeGlow};">
+                    <span class="vt-node-dot"></span>
+                    <span class="vt-node-title">${node.text}</span>
+                    ${countBadge}
+                    ${toggleBtnHtml}
+                </div>
+                ${childrenHtml}
+            </div>
+        `;
+    }
+
+    function renderWbsNodeHtml(node, level = 0, isRoot = false) {
+        const hasChildren = node.children && node.children.length > 0;
+        const isCollapsed = !!node.collapsed;
+        const isDone = !!node.done;
+
+        let toggleBtnHtml = '';
+        if (hasChildren) {
+            toggleBtnHtml = `
+                <button class="wbs-toggle-btn ${isCollapsed ? 'collapsed' : ''}" onclick="toggleWbsNodeCollapse('${node.id}')" title="${isCollapsed ? 'Expandir' : 'Recolher'}">
+                    ▼
+                </button>
+            `;
+        } else {
+            toggleBtnHtml = `<span style="width:18px; display:inline-block;"></span>`;
+        }
+
+        const levelBadge = !isRoot ? `<span class="wbs-badge-level">Nível ${level}</span>` : `<span class="wbs-badge-level" style="background:#dbeafe; color:#1e40af;">Raiz</span>`;
+
+        let childrenHtml = '';
+        if (hasChildren && !isCollapsed) {
+            childrenHtml = `
+                <ul class="wbs-node-list">
+                    ${node.children.map(child => renderWbsNodeHtml(child, level + 1, false)).join('')}
+                </ul>
+            `;
+        }
+
+        return `
+            <li class="wbs-node-item ${isRoot ? 'wbs-root-node' : ''}">
+                <div class="wbs-card-node">
+                    ${toggleBtnHtml}
+                    <input type="checkbox" ${isDone ? 'checked' : ''} onchange="toggleWbsNodeDone('${node.id}')" style="width:auto; cursor:pointer;" title="Marcar concluído">
+                    <span class="wbs-node-title ${isDone ? 'is-done' : ''}">${node.text}</span>
+                    ${levelBadge}
+
+                    <div class="wbs-node-actions">
+                        <button class="btn-wbs-action" onclick="promptAddWbsChild('${node.id}')" title="Adicionar Sub-ramo">+ Sub</button>
+                        <button class="btn-wbs-action btn-wbs-hoje" onclick="sendWbsNodeToHoje('${node.id}')" title="Enviar para Hoje">🚀 Hoje</button>
+                        <button class="btn-icon" style="font-size:12px;" onclick="promptEditWbsNode('${node.id}')" title="Editar">✏️</button>
+                        <button class="btn-icon btn-delete" style="font-size:12px;" onclick="deleteWbsNode('${node.id}')" title="Excluir">🗑</button>
+                    </div>
+                </div>
+                ${childrenHtml}
+            </li>
+        `;
+    }
+
+    function renderWbs() {
+        const selector = document.getElementById('wbs-tree-selector');
+        const target = document.getElementById('wbs-tree-render-target');
+        if (!target) return;
+
+        if (selector) {
+            selector.innerHTML = '';
+            (state.wbsTrees || []).forEach(t => {
+                const opt = document.createElement('option');
+                opt.value = t.id;
+                opt.textContent = t.text;
+                if (t.id === state.activeWbsTreeId) opt.selected = true;
+                selector.appendChild(opt);
+            });
+        }
+
+        const activeTree = getActiveTree();
+        if (!activeTree) {
+            target.innerHTML = `<div style="padding:20px; color:var(--cinza);">Nenhuma árvore cadastrada.</div>`;
+            return;
+        }
+
+        if (wbsViewMode === 'visual') {
+            target.innerHTML = `
+                <div class="wbs-canvas-viewport">
+                    <div id="wbs-visual-stage" class="wbs-zoom-stage orientation-${wbsOrientation}" style="transform: scale(${wbsZoom});">
+                        ${renderVisualTreeNodeHtml(activeTree, 0, 0, true)}
+                    </div>
+                </div>
+            `;
+        } else {
+            target.innerHTML = `
+                <ul class="wbs-tree-root">
+                    ${renderWbsNodeHtml(activeTree, 0, true)}
+                </ul>
+            `;
+        }
     }
 
     function promptResetToday() {
@@ -1210,7 +2363,6 @@
         if (task.status === 'pendente') {
             task.status = 'em_progresso';
         } else if (task.status === 'em_progresso') {
-            // Se volta de em_progresso para pendente: pausa o timer e zera o tempo
             if (activeTimerTaskId === taskId) {
                 clearInterval(timerInterval);
                 activeTimerTaskId = null;
@@ -1293,7 +2445,6 @@
         if (editId) {
             const task = state.tasks.find(t => t.id === Number(editId));
             if (task) {
-                // Se foi alterado para pendente, zera o tempo
                 if (status === 'pendente' && task.status === 'em_progresso') {
                     if (activeTimerTaskId === task.id) {
                         clearInterval(timerInterval);
@@ -1350,7 +2501,6 @@
             const todayYMD = getTodayYMD();
             const todayBR = new Date().toLocaleDateString('pt-BR');
 
-            // Streak incrementado estritamente na conclusão
             task.streak = (task.streak || 0) + 1;
             task.lastCompletedYMD = todayYMD;
             task.completedAtDate = todayBR;
@@ -1393,7 +2543,6 @@
         if (task) {
             task.status = 'pendente';
             task.spentSeconds = 0;
-            // Se foi finalizado hoje, reverte o streak incrementado
             if (task.lastCompletedYMD === getTodayYMD() && task.streak > 0) {
                 task.streak -= 1;
             }
@@ -1501,7 +2650,6 @@
             }
         });
 
-        // Inclui também anos dos logs para abrangência total
         state.logs.forEach(l => {
             if (l.dateYMD) {
                 const y = l.dateYMD.split('-')[0];
@@ -1550,18 +2698,12 @@
 
         feitosTasks.forEach(task => {
             const ymd = task.lastCompletedYMD || '';
-            const dateParts = ymd ? ymd.split('-') : []; // [YYYY, MM, DD]
+            const dateParts = ymd ? ymd.split('-') : [];
 
-            // Filtro por dia exato
             if (dayFilter && ymd !== dayFilter) return;
-
-            // Filtro por ano
             if (yearFilter && dateParts[0] && dateParts[0] !== yearFilter) return;
-
-            // Filtro por mês
             if (monthFilter && dateParts[1] && parseInt(dateParts[1], 10) !== parseInt(monthFilter, 10)) return;
 
-            // Filtro de busca livre
             const matchesSearch = !searchQuery || 
                 task.name.toLowerCase().includes(searchQuery) ||
                 (task.notes && task.notes.toLowerCase().includes(searchQuery)) ||
@@ -1645,7 +2787,6 @@
             const docLinkHtml = task.link ? `<a href="${task.link}" target="_blank" style="color:var(--azul); font-weight:600; font-size:12px; text-decoration:none;">🔗 Link</a>` : '';
             const tagsHtml = (task.tags || []).map(tg => `<span class="tag-badge">${tg}</span>`).join('');
 
-            // Sub-tarefas HTML
             const subList = task.subtasks || task.checklist || [];
             let subtasksHtml = '';
             if (subList.length > 0) {
@@ -1666,7 +2807,6 @@
                 `;
             }
 
-            // SE TAREFA É DA CATEGORIA HOJE
             if (task.type === 'fazer_ja') {
                 const curStatus = task.status || 'pendente';
 
@@ -1675,7 +2815,6 @@
                         countFeitosHoje++;
                         countFazerJaTotal++;
                     }
-                    // Tarefas concluídas não são exibidas na tabela de execução de Hoje
                     return;
                 } else if (curStatus === 'em_progresso') {
                     countProgresso++;
@@ -1685,7 +2824,6 @@
                     countFazerJaTotal++;
                 }
 
-                // Filtros de busca e status na tela ativa
                 const matchesSearch = !searchInput || 
                     task.name.toLowerCase().includes(searchInput) || 
                     (task.notes && task.notes.toLowerCase().includes(searchInput)) ||
@@ -1748,9 +2886,7 @@
                         </tr>
                     `;
                 }
-            }
-            // SE TAREFA É DA ABA DELEGADO
-            else if (task.type === 'delegar') {
+            } else if (task.type === 'delegar') {
                 const hasNotes = task.notes && task.notes.trim().length > 0;
                 tbodyDelegar.innerHTML += `
                     <tr>
@@ -1774,9 +2910,7 @@
                         </td>
                     </tr>
                 `;
-            }
-            // SE TAREFA É DO MURAL DE IDEIAS
-            else if (task.type === 'incubar') {
+            } else if (task.type === 'incubar') {
                 if (ideasContainer) {
                     ideasContainer.innerHTML += `
                         <div class="idea-card">
@@ -1800,7 +2934,6 @@
             }
         });
 
-        // Atualização dos números e da barra de Progresso do Dia
         document.getElementById('kpi-concluido-val').innerText = countFeitosHoje;
         document.getElementById('kpi-progresso-val').innerText = countProgresso;
         document.getElementById('kpi-pendente-val').innerText = countPendente;
@@ -1809,7 +2942,6 @@
         document.getElementById('pb-fill').style.width = `${pctGeral}%`;
         document.getElementById('pb-subtitle').innerText = `${countFeitosHoje} de ${countFazerJaTotal} feitos hoje (${pctGeral}%)`;
 
-        // Mensagens vazias
         if (countRenderedHoje === 0) {
             tbodyFazerJa.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:24px; color: var(--cinza);">Nenhuma tarefa ativa encontrada para os filtros selecionados.</td></tr>`;
         }
@@ -1934,8 +3066,17 @@
         
         state = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
             tasks: [],
-            logs: []
+            logs: [],
+            wbsTrees: [getDefaultWbsTree()],
+            activeWbsTreeId: null
         };
+
+        if (!state.wbsTrees || state.wbsTrees.length === 0) {
+            state.wbsTrees = [getDefaultWbsTree()];
+        }
+        if (!state.activeWbsTreeId) {
+            state.activeWbsTreeId = state.wbsTrees[0].id;
+        }
 
         state.tasks.forEach(t => {
             if (!t.status) t.status = 'pendente';
@@ -1948,6 +3089,7 @@
         populateFeitosYearsFilter();
         render();
         renderFeitos();
+        renderWbs();
     };
 </script>
 </body>
