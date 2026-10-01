@@ -1119,6 +1119,152 @@
             border-color: #6ee7b7;
         }
 
+        /* Estilos do Mapa Mental */
+        .mindmap-container {
+            background: var(--card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
+            margin-bottom: 22px;
+            position: relative;
+        }
+
+        .mindmap-viewport {
+            width: 100%;
+            height: 620px;
+            overflow: auto;
+            position: relative;
+            background-color: #fdfefe;
+            background-image: radial-gradient(#cbd5e1 1.2px, transparent 1.2px);
+            background-size: 24px 24px;
+            border-radius: 14px;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: grab;
+            user-select: none;
+        }
+
+        .mindmap-viewport:active {
+            cursor: grabbing;
+        }
+
+        .mindmap-stage {
+            position: relative;
+            min-width: 1800px;
+            min-height: 1200px;
+            transform-origin: center center;
+            transition: transform 0.15s ease-out;
+        }
+
+        .mindmap-svg-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .mindmap-curve {
+            fill: none;
+            stroke-linecap: round;
+            transition: stroke 0.2s, stroke-width 0.2s;
+        }
+
+        /* Nós do Mapa Mental */
+        .mm-node {
+            position: absolute;
+            z-index: 2;
+            transform: translate(-50%, -50%);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 600;
+            background: #ffffff;
+            border: 2px solid var(--node-color, #3b82f6);
+            color: #1e293b;
+            box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.06), 0 0 10px -2px var(--node-glow, rgba(59, 130, 246, 0.2));
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            max-width: 280px;
+            white-space: normal;
+            word-break: break-word;
+        }
+
+        .mm-node:hover {
+            transform: translate(-50%, -50%) scale(1.05);
+            box-shadow: 0 8px 20px -3px rgba(15, 23, 42, 0.12), 0 0 16px -1px var(--node-glow, rgba(59, 130, 246, 0.35));
+            z-index: 10;
+        }
+
+        .mm-node.is-root {
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 800;
+            padding: 16px 30px;
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px -4px rgba(37, 99, 235, 0.4);
+            max-width: 360px;
+            text-align: center;
+        }
+
+        .mm-node.is-active {
+            border-width: 3px;
+            box-shadow: 0 0 0 4px var(--node-light, #eff6ff), 0 8px 20px rgba(0,0,0,0.12);
+        }
+
+        .mm-node-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--node-color, #3b82f6);
+            flex-shrink: 0;
+        }
+
+        .mm-node-tools {
+            display: none;
+            position: absolute;
+            bottom: -32px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 2px 6px;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+            gap: 4px;
+            z-index: 20;
+            white-space: nowrap;
+        }
+
+        .mm-node:hover .mm-node-tools {
+            display: inline-flex;
+        }
+
+        .mm-tool-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 11px;
+            padding: 3px 6px;
+            border-radius: 4px;
+            color: var(--texto-suave);
+            transition: all 0.15s;
+        }
+        .mm-tool-btn:hover {
+            background: #f1f5f9;
+            color: var(--azul);
+        }
+
         .modal-overlay {
             display: none;
             position: fixed;
@@ -1198,6 +1344,9 @@
             </button>
             <button class="tab-btn" id="btnTabWbs" onclick="switchTab('wbs')">
                 🌳 WBS <span class="tab-badge-count" id="countTabWbs">0</span>
+            </button>
+            <button class="tab-btn" id="btnTabMindmap" onclick="switchTab('mindmap')">
+                🧠 Mapa Mental <span class="tab-badge-count" id="countTabMindmap">0</span>
             </button>
             <button class="tab-btn" id="btnTabFeitos" onclick="switchTab('feitos')">
                 ✅ Feitos <span class="tab-badge-count" id="countTabFeitos">0</span>
@@ -1294,63 +1443,51 @@
         </div>
     </main>
 
-    <main id="tab-wbs" class="tab-content">
+    <!-- ABA: MAPA MENTAL RADIAL -->
+    <main id="tab-mindmap" class="tab-content">
         <div class="action-bar">
             <div>
-                <h2 style="font-size:18px; font-weight:800; color:var(--azul);">🌳 WBS • Estrutura de Decomposição do Trabalho</h2>
-                <p style="font-size:13px; color:var(--cinza);">Fatie qualquer objetivo grande em galhos claros e envie os passos práticos diretamente para o Hoje.</p>
+                <h2 style="font-size:18px; font-weight:800; color:var(--azul);">🧠 Mapa Mental • Conexão Orgânica de Conceitos</h2>
+                <p style="font-size:13px; color:var(--cinza);">Conecte ideias, pensamentos e ramificações conceituais que irradiam de um núcleo comum.</p>
             </div>
             <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                <button class="btn-add" style="background:#0284c7;" onclick="openNewWbsTreeModal()">+ Nova Árvore WBS</button>
-                <button class="btn-add" style="background:var(--cinza);" onclick="resetWbsToDefault()">🔄 Carregar Exemplo Padrão</button>
+                <button class="btn-add" style="background:#6366f1;" onclick="openNewMindMapModal()">+ Novo Mapa Mental</button>
+                <button class="btn-add" style="background:var(--cinza);" onclick="resetMindMapToDefault()">🔄 Carregar Exemplo</button>
             </div>
         </div>
 
-        <div class="wbs-container">
+        <div class="mindmap-container">
             <div class="wbs-toolbar">
                 <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                    <label style="font-size:12px; font-weight:700; color:var(--texto);">Árvore Ativa:</label>
-                    <select id="wbs-tree-selector" style="width: auto; min-width: 230px; font-weight:600;" onchange="switchWbsTree(this.value)"></select>
+                    <label style="font-size:12px; font-weight:700; color:var(--texto);">Mapa Ativo:</label>
+                    <select id="mindmap-selector" style="width: auto; min-width: 230px; font-weight:600;" onchange="switchMindMap(this.value)"></select>
                     
-                    <!-- Botões de mover raiz para cima/baixo, editar e excluir -->
-                    <button class="btn-icon" onclick="moveWbsTree(-1)" title="Mover Árvore para Cima">⬆</button>
-                    <button class="btn-icon" onclick="moveWbsTree(1)" title="Mover Árvore para Baixo">⬇</button>
-                    <button class="btn-icon" onclick="editCurrentWbsTreeName()" title="Renomear Raiz">✏️</button>
-                    <button class="btn-icon btn-delete" onclick="deleteCurrentWbsTree()" title="Excluir Árvore">🗑</button>
+                    <button class="btn-icon" onclick="moveMindMap(-1)" title="Mover Mapa para Cima">⬆</button>
+                    <button class="btn-icon" onclick="moveMindMap(1)" title="Mover Mapa para Baixo">⬇</button>
+                    <button class="btn-icon" onclick="editCurrentMindMapRoot()" title="Renomear Conceito Central">✏️</button>
+                    <button class="btn-icon btn-delete" onclick="deleteCurrentMindMap()" title="Excluir Mapa Mental">🗑</button>
                 </div>
 
-                <!-- Seletor de Modo: Árvore Visual x Lista Analítica -->
                 <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-                    <div class="view-pill-group">
-                        <button id="btnWbsModeVisual" class="view-pill-btn active" onclick="setWbsViewMode('visual')">
-                            🌿 Árvore Visual
-                        </button>
-                        <button id="btnWbsModeOutline" class="view-pill-btn" onclick="setWbsViewMode('outline')">
-                            📋 Lista Analítica
-                        </button>
+                    <div class="zoom-controls-group">
+                        <button class="zoom-btn" onclick="changeMindMapZoom(-0.1)" title="Diminuir Zoom">🔍 -</button>
+                        <button class="zoom-btn" onclick="resetMindMapZoom()" id="mm-zoom-level-text" title="Resetar">100%</button>
+                        <button class="zoom-btn" onclick="changeMindMapZoom(0.1)" title="Aumentar Zoom">🔍 +</button>
                     </div>
 
-                    <!-- Controles exclusivos do modo visual -->
-                    <div id="wbs-visual-controls" style="display:flex; align-items:center; gap:8px;">
-                        <button class="btn-wbs-action" id="btnWbsOrientation" onclick="toggleWbsOrientation()" title="Alternar entre Espinha Vertical e Mapa Horizontal">
-                            ⬇️ Vertical
-                        </button>
-                        <div class="zoom-controls-group">
-                            <button class="zoom-btn" onclick="changeWbsZoom(-0.1)" title="Diminuir Zoom">🔍 -</button>
-                            <button class="zoom-btn" onclick="resetWbsZoom()" id="wbs-zoom-level-text" title="Resetar">100%</button>
-                            <button class="zoom-btn" onclick="changeWbsZoom(0.1)" title="Aumentar Zoom">🔍 +</button>
-                        </div>
-                    </div>
-
-                    <div style="display:flex; gap:6px;">
-                        <button class="btn-wbs-action" onclick="toggleAllWbs(false)">📂 Expandir</button>
-                        <button class="btn-wbs-action" onclick="toggleAllWbs(true)">📁 Recolher</button>
-                    </div>
+                    <button class="btn-wbs-action" onclick="centerMindMapViewport()" title="Centralizar visualização">
+                        🎯 Centralizar
+                    </button>
                 </div>
             </div>
 
-            <!-- Alvo de Renderização -->
-            <div id="wbs-tree-render-target"></div>
+            <!-- Canvas Viewport Interativo do Mapa Mental -->
+            <div class="mindmap-viewport" id="mindmap-viewport-el">
+                <div id="mindmap-stage-el" class="mindmap-stage">
+                    <svg id="mindmap-svg-el" class="mindmap-svg-layer"></svg>
+                    <div id="mindmap-nodes-container"></div>
+                </div>
+            </div>
         </div>
     </main>
 
@@ -1620,6 +1757,25 @@
     </div>
 </div>
 
+<!-- MODAL DE NÓS DO MAPA MENTAL -->
+<div id="modalMmNode" class="modal-overlay">
+    <div class="modal-box" style="max-width: 480px;">
+        <h3 id="modal-mm-title" style="font-size:16px; margin-bottom:12px; color:var(--azul);">Novo Conceito do Mapa Mental</h3>
+        <input type="hidden" id="mm-modal-target-node-id">
+        <input type="hidden" id="mm-modal-mode"> <!-- 'add-child' | 'edit-node' | 'new-map' -->
+
+        <div class="form-group">
+            <label id="mm-modal-label">Ideia / Conceito:</label>
+            <input type="text" id="mm-node-input" placeholder="Ex: Metas de expansão, Referências visuais..." required autocomplete="off">
+        </div>
+
+        <div class="modal-actions">
+            <button type="button" class="btn-add" style="background:var(--cinza);" onclick="closeMmNodeModal()">Cancelar</button>
+            <button type="button" class="btn-add" onclick="saveMmNodeModal()">Confirmar</button>
+        </div>
+    </div>
+</div>
+
 <div id="modalObs" class="modal-overlay">
     <div class="modal-box" style="max-width: 520px;">
         <h3 id="modal-obs-title" style="font-size:16px; margin-bottom:12px; color:var(--azul);">💬 Observações da Atividade</h3>
@@ -1706,11 +1862,57 @@
         };
     }
 
+    // Modelo inicial de Mapa Mental padrão para livre associação de ideias
+    function getDefaultMindMap() {
+        return {
+            id: 'mm_' + Date.now(),
+            text: 'Planejamento Estratégico',
+            children: [
+                {
+                    id: 'mm_1',
+                    text: '🎯 Objetivos Centrais',
+                    children: [
+                        { id: 'mm_1_1', text: 'Consolidar rotina matinal', children: [] },
+                        { id: 'mm_1_2', text: 'Aprender novo idioma', children: [] },
+                        { id: 'mm_1_3', text: 'Saúde & Disposição', children: [] }
+                    ]
+                },
+                {
+                    id: 'mm_2',
+                    text: '💡 Projetos Criativos',
+                    children: [
+                        { id: 'mm_2_1', text: 'Escrita de ensaios', children: [] },
+                        { id: 'mm_2_2', text: 'Design de interfaces', children: [] }
+                    ]
+                },
+                {
+                    id: 'mm_3',
+                    text: '📚 Leituras & Pesquisa',
+                    children: [
+                        { id: 'mm_3_1', text: 'Modelos Mentais', children: [] },
+                        { id: 'mm_3_2', text: 'Economia Comportamental', children: [] },
+                        { id: 'mm_3_3', text: 'Filosofia Prática', children: [] }
+                    ]
+                },
+                {
+                    id: 'mm_4',
+                    text: '⚡ Hábitos & Disciplina',
+                    children: [
+                        { id: 'mm_4_1', text: 'Timer de foco 30min', children: [] },
+                        { id: 'mm_4_2', text: 'Zero telas após as 22h', children: [] }
+                    ]
+                }
+            ]
+        };
+    }
+
     let state = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
         tasks: [],
         logs: [],
         wbsTrees: [getDefaultWbsTree()],
-        activeWbsTreeId: null
+        activeWbsTreeId: null,
+        mindMaps: [getDefaultMindMap()],
+        activeMindMapId: null
     };
 
     if (!state.wbsTrees || state.wbsTrees.length === 0) {
@@ -1719,10 +1921,18 @@
     if (!state.activeWbsTreeId) {
         state.activeWbsTreeId = state.wbsTrees[0].id;
     }
+    if (!state.mindMaps || state.mindMaps.length === 0) {
+        state.mindMaps = [getDefaultMindMap()];
+    }
+    if (!state.activeMindMapId) {
+        state.activeMindMapId = state.mindMaps[0].id;
+    }
 
     let wbsViewMode = 'visual'; // 'visual' | 'outline'
     let wbsOrientation = 'vertical'; // 'vertical' | 'horizontal'
     let wbsZoom = 1.0;
+
+    let mmZoom = 1.0;
 
     // Paletas de cores harmônicas por ramo
     const WBS_PALETTES = [
@@ -1743,6 +1953,7 @@
         render();
         renderFeitos();
         renderWbs();
+        renderMindMap();
         updateTabCounters();
         populateFeitosYearsFilter();
         if (typeof cloudPush === 'function') {
@@ -1767,6 +1978,10 @@
         if (tabName === 'dashboard') renderDashboard();
         if (tabName === 'feitos') renderFeitos();
         if (tabName === 'wbs') renderWbs();
+        if (tabName === 'mindmap') {
+            renderMindMap();
+            setTimeout(centerMindMapViewport, 40);
+        }
         if (tabName === 'hoje' || tabName === 'delegado' || tabName === 'ideias') render();
     }
 
@@ -1776,18 +1991,21 @@
         const countDelegado = state.tasks.filter(t => t.type === 'delegar').length;
         const countIdeias = state.tasks.filter(t => t.type === 'incubar').length;
         const countWbs = (state.wbsTrees || []).length;
+        const countMindmap = (state.mindMaps || []).length;
 
         const elHoje = document.getElementById('countTabHoje');
         const elFeitos = document.getElementById('countTabFeitos');
         const elDelegado = document.getElementById('countTabDelegado');
         const elIdeias = document.getElementById('countTabIdeias');
         const elWbs = document.getElementById('countTabWbs');
+        const elMindmap = document.getElementById('countTabMindmap');
 
         if (elHoje) elHoje.innerText = countHoje;
         if (elFeitos) elFeitos.innerText = countFeitos;
         if (elDelegado) elDelegado.innerText = countDelegado;
         if (elIdeias) elIdeias.innerText = countIdeias;
         if (elWbs) elWbs.innerText = countWbs;
+        if (elMindmap) elMindmap.innerText = countMindmap;
     }
 
     function getTodayYMD() {
@@ -2066,252 +2284,389 @@
         renderWbs();
     }
 
-    function changeWbsZoom(delta) {
-        wbsZoom = Math.min(1.8, Math.max(0.5, Math.round((wbsZoom + delta) * 10) / 10));
-        updateZoomDisplay();
+    // ==========================================
+    // LÓGICA DO MAPA MENTAL RADIAL BILATERAL
+    // ==========================================
+    function getActiveMindMap() {
+        if (!state.mindMaps || state.mindMaps.length === 0) {
+            state.mindMaps = [getDefaultMindMap()];
+        }
+        let map = state.mindMaps.find(m => m.id === state.activeMindMapId);
+        if (!map) {
+            map = state.mindMaps[0];
+            state.activeMindMapId = map.id;
+        }
+        return map;
     }
 
-    function resetWbsZoom() {
-        wbsZoom = 1.0;
-        updateZoomDisplay();
+    function switchMindMap(mapId) {
+        state.activeMindMapId = mapId;
+        saveData();
     }
 
-    function updateZoomDisplay() {
-        const textEl = document.getElementById('wbs-zoom-level-text');
-        if (textEl) textEl.innerText = `${Math.round(wbsZoom * 100)}%`;
-        const stage = document.getElementById('wbs-visual-stage');
-        if (stage) stage.style.transform = `scale(${wbsZoom})`;
+    function moveMindMap(direction) {
+        if (!state.mindMaps || state.mindMaps.length <= 1) return;
+        const currentIndex = state.mindMaps.findIndex(m => m.id === state.activeMindMapId);
+        if (currentIndex === -1) return;
+
+        const targetIndex = currentIndex + direction;
+        if (targetIndex < 0 || targetIndex >= state.mindMaps.length) return;
+
+        const temp = state.mindMaps[currentIndex];
+        state.mindMaps[currentIndex] = state.mindMaps[targetIndex];
+        state.mindMaps[targetIndex] = temp;
+
+        saveData();
     }
 
-    function sendWbsNodeToHoje(nodeId) {
-        const tree = getActiveTree();
-        const found = findNodeAndParent(tree, nodeId);
+    function openNewMindMapModal() {
+        document.getElementById('modal-mm-title').innerText = 'Novo Mapa Mental (Conceito Central)';
+        document.getElementById('mm-modal-label').innerText = 'Tema / Ideia Central:';
+        document.getElementById('mm-node-input').value = '';
+        document.getElementById('mm-modal-mode').value = 'new-map';
+        document.getElementById('modalMmNode').classList.add('active');
+        setTimeout(() => document.getElementById('mm-node-input').focus(), 80);
+    }
+
+    function resetMindMapToDefault() {
+        showConfirmModal('Carregar Exemplo de Mapa Mental', 'Deseja adicionar o exemplo padrão "Planejamento Estratégico" aos seus mapas?', () => {
+            const defMap = getDefaultMindMap();
+            state.mindMaps.push(defMap);
+            state.activeMindMapId = defMap.id;
+            saveData();
+        });
+    }
+
+    function deleteCurrentMindMap() {
+        const map = getActiveMindMap();
+        if (!map) return;
+        showConfirmModal('Excluir Mapa Mental', `Deseja realmente apagar o mapa mental "${map.text}"?`, () => {
+            state.mindMaps = state.mindMaps.filter(m => m.id !== map.id);
+            if (state.mindMaps.length === 0) {
+                state.mindMaps = [getDefaultMindMap()];
+            }
+            state.activeMindMapId = state.mindMaps[0].id;
+            saveData();
+        });
+    }
+
+    function editCurrentMindMapRoot() {
+        const map = getActiveMindMap();
+        if (!map) return;
+        document.getElementById('modal-mm-title').innerText = 'Renomear Conceito Central';
+        document.getElementById('mm-modal-label').innerText = 'Novo Título do Conceito Central:';
+        document.getElementById('mm-node-input').value = map.text;
+        document.getElementById('mm-modal-target-node-id').value = map.id;
+        document.getElementById('mm-modal-mode').value = 'edit-node';
+        document.getElementById('modalMmNode').classList.add('active');
+        setTimeout(() => document.getElementById('mm-node-input').focus(), 80);
+    }
+
+    function promptAddMmChild(parentId) {
+        const map = getActiveMindMap();
+        const found = findNodeAndParent(map, parentId);
+        const parentName = found ? found.node.text : 'Conceito';
+
+        document.getElementById('modal-mm-title').innerText = `Adicionar Ideia a partir de "${parentName}"`;
+        document.getElementById('mm-modal-label').innerText = 'Novo Conceito / Ideia Conectada:';
+        document.getElementById('mm-node-input').value = '';
+        document.getElementById('mm-modal-target-node-id').value = parentId;
+        document.getElementById('mm-modal-mode').value = 'add-child';
+        document.getElementById('modalMmNode').classList.add('active');
+        setTimeout(() => document.getElementById('mm-node-input').focus(), 80);
+    }
+
+    function promptEditMmNode(nodeId) {
+        const map = getActiveMindMap();
+        const found = findNodeAndParent(map, nodeId);
         if (!found) return;
 
-        const node = found.node;
-        const subtasks = (node.children || []).map(child => ({
-            text: child.text,
-            done: !!child.done
-        }));
+        document.getElementById('modal-mm-title').innerText = 'Editar Conceito';
+        document.getElementById('mm-modal-label').innerText = 'Texto da Ideia:';
+        document.getElementById('mm-node-input').value = found.node.text;
+        document.getElementById('mm-modal-target-node-id').value = nodeId;
+        document.getElementById('mm-modal-mode').value = 'edit-node';
+        document.getElementById('modalMmNode').classList.add('active');
+        setTimeout(() => document.getElementById('mm-node-input').focus(), 80);
+    }
+
+    function closeMmNodeModal() {
+        document.getElementById('modalMmNode').classList.remove('active');
+    }
+
+    function saveMmNodeModal() {
+        const val = document.getElementById('mm-node-input').value.trim();
+        const mode = document.getElementById('mm-modal-mode').value;
+        const targetId = document.getElementById('mm-modal-target-node-id').value;
+
+        if (!val) return;
+
+        if (mode === 'new-map') {
+            const newMap = {
+                id: 'mm_' + Date.now(),
+                text: val,
+                children: []
+            };
+            state.mindMaps.push(newMap);
+            state.activeMindMapId = newMap.id;
+        } else {
+            const map = getActiveMindMap();
+            const found = findNodeAndParent(map, targetId);
+
+            if (mode === 'edit-node' && found) {
+                found.node.text = val;
+            } else if (mode === 'add-child' && found) {
+                if (!found.node.children) found.node.children = [];
+                found.node.children.push({
+                    id: 'mm_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+                    text: val,
+                    children: []
+                });
+            }
+        }
+
+        saveData();
+        closeMmNodeModal();
+    }
+
+    function deleteMmNode(nodeId) {
+        const map = getActiveMindMap();
+        if (nodeId === map.id) {
+            deleteCurrentMindMap();
+            return;
+        }
+
+        const found = findNodeAndParent(map, nodeId);
+        if (!found || !found.parent) return;
+
+        showConfirmModal('Excluir Conceito', `Deseja remover "${found.node.text}" e suas ramificações do mapa mental?`, () => {
+            found.parent.children = found.parent.children.filter(c => c.id !== nodeId);
+            saveData();
+        });
+    }
+
+    function sendMmNodeToIdeias(nodeId) {
+        const map = getActiveMindMap();
+        const found = findNodeAndParent(map, nodeId);
+        if (!found) return;
 
         state.tasks.push({
             id: Date.now(),
-            name: `[WBS] ${node.text}`,
-            type: 'fazer_ja',
+            name: found.node.text,
+            type: 'incubar',
             status: 'pendente',
-            meta: 30,
+            meta: 0,
             spentSeconds: 0,
-            tags: ['WBS', tree.text.slice(0, 14)],
-            subtasks: subtasks,
+            tags: ['MapaMental', map.text.slice(0, 12)],
+            subtasks: (found.node.children || []).map(c => ({ text: c.text, done: false })),
             streak: 0,
             createdAtYMD: getTodayYMD(),
             lastCompletedYMD: null,
             completedAtDate: null,
             link: '',
-            notes: `Origem: WBS "${tree.text}"`
+            notes: `Originado do Mapa Mental: "${map.text}"`
+        });
+
+        saveData();
+        switchTab('ideias');
+    }
+
+    function sendMmNodeToHoje(nodeId) {
+        const map = getActiveMindMap();
+        const found = findNodeAndParent(map, nodeId);
+        if (!found) return;
+
+        state.tasks.push({
+            id: Date.now(),
+            name: `[Mapa] ${found.node.text}`,
+            type: 'fazer_ja',
+            status: 'pendente',
+            meta: 30,
+            spentSeconds: 0,
+            tags: ['MapaMental'],
+            subtasks: (found.node.children || []).map(c => ({ text: c.text, done: false })),
+            streak: 0,
+            createdAtYMD: getTodayYMD(),
+            lastCompletedYMD: null,
+            completedAtDate: null,
+            link: '',
+            notes: `Ideia central: "${map.text}"`
         });
 
         saveData();
         switchTab('hoje');
     }
 
-    function renderVisualTreeNodeHtml(node, level = 0, branchIndex = 0, isRoot = false) {
-        const hasChildren = node.children && node.children.length > 0;
-        const isCollapsed = !!node.collapsed;
-        const isLeaf = !hasChildren && !isRoot;
-
-        const palette = WBS_PALETTES[branchIndex % WBS_PALETTES.length];
-        const nodeColor = isRoot ? '#2563eb' : palette.color;
-        const nodeLight = isRoot ? '#eff6ff' : palette.light;
-        const nodeGlow = palette.glow;
-
-        let toggleBtnHtml = '';
-        if (hasChildren) {
-            toggleBtnHtml = `
-                <div class="vt-toggle-bubble" onclick="toggleWbsNodeCollapse('${node.id}')" title="${isCollapsed ? 'Expandir' : 'Recolher'}">
-                    ${isCollapsed ? '+' : '−'}
-                </div>
-            `;
-        }
-
-        const countBadge = hasChildren ? `<span class="vt-node-pill-count">${node.children.length}</span>` : '';
-
-        // ESTRUTURA VERTICAL SEQUENCIAL (Espinha Dorsal 1 -> 2 -> 3 -> 4)
-        if (wbsOrientation === 'vertical') {
-            if (isRoot) {
-                let stepsHtml = '';
-                if (hasChildren && !isCollapsed) {
-                    stepsHtml = `
-                        <div class="vt-spine-flow">
-                            ${node.children.map((stepNode, idx) => `
-                                <div class="vt-spine-step-row">
-                                    ${renderVisualTreeNodeHtml(stepNode, 1, idx, false)}
-                                </div>
-                            `).join('')}
-                        </div>
-                    `;
-                }
-
-                return `
-                    <div class="vt-root">
-                        <div class="vt-node-box is-root-node" 
-                             style="--node-color: ${nodeColor}; --node-light: ${nodeLight}; --node-glow: ${nodeGlow};">
-                            <span class="vt-node-title">${node.text}</span>
-                            ${countBadge}
-                            ${toggleBtnHtml}
-                        </div>
-                        ${stepsHtml}
-                    </div>
-                `;
-            }
-
-            // Para os nós filhos (etapas e sub-itens)
-            let subBranchesHtml = '';
-            if (hasChildren && !isCollapsed) {
-                subBranchesHtml = `
-                    <div class="vt-sub-branches-container">
-                        ${node.children.map(child => `
-                            <div class="vt-sub-branch-item">
-                                ${renderVisualTreeNodeHtml(child, level + 1, branchIndex, false)}
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-            }
-
-            return `
-                <div style="display:flex; align-items:center;">
-                    <div class="vt-node-box ${isLeaf ? 'is-leaf-node' : ''}" 
-                         style="--node-color: ${nodeColor}; --node-light: ${nodeLight}; --node-glow: ${nodeGlow};">
-                        <span class="vt-node-dot"></span>
-                        <span class="vt-node-title">${node.text}</span>
-                        ${countBadge}
-                        ${toggleBtnHtml}
-                    </div>
-                    ${subBranchesHtml}
-                </div>
-            `;
-        }
-
-        // MODO HORIZONTAL (Mapa Mental)
-        let childrenHtml = '';
-        if (hasChildren && !isCollapsed) {
-            childrenHtml = `
-                <div class="vt-children-row">
-                    ${node.children.map((child, idx) => `
-                        <div class="vt-branch-col">
-                            ${renderVisualTreeNodeHtml(child, level + 1, level === 0 ? idx : branchIndex, false)}
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-        }
-
-        return `
-            <div class="vt-root">
-                <div class="vt-node-box ${isRoot ? 'is-root-node' : ''} ${isLeaf ? 'is-leaf-node' : ''}" 
-                     style="--node-color: ${nodeColor}; --node-light: ${nodeLight}; --node-glow: ${nodeGlow};">
-                    <span class="vt-node-dot"></span>
-                    <span class="vt-node-title">${node.text}</span>
-                    ${countBadge}
-                    ${toggleBtnHtml}
-                </div>
-                ${childrenHtml}
-            </div>
-        `;
+    function changeMindMapZoom(delta) {
+        mmZoom = Math.min(1.8, Math.max(0.4, Math.round((mmZoom + delta) * 10) / 10));
+        updateMindMapZoomDisplay();
     }
 
-    function renderWbsNodeHtml(node, level = 0, isRoot = false) {
-        const hasChildren = node.children && node.children.length > 0;
-        const isCollapsed = !!node.collapsed;
-        const isDone = !!node.done;
-
-        let toggleBtnHtml = '';
-        if (hasChildren) {
-            toggleBtnHtml = `
-                <button class="wbs-toggle-btn ${isCollapsed ? 'collapsed' : ''}" onclick="toggleWbsNodeCollapse('${node.id}')" title="${isCollapsed ? 'Expandir' : 'Recolher'}">
-                    ▼
-                </button>
-            `;
-        } else {
-            toggleBtnHtml = `<span style="width:18px; display:inline-block;"></span>`;
-        }
-
-        const levelBadge = !isRoot ? `<span class="wbs-badge-level">Nível ${level}</span>` : `<span class="wbs-badge-level" style="background:#dbeafe; color:#1e40af;">Raiz</span>`;
-
-        let childrenHtml = '';
-        if (hasChildren && !isCollapsed) {
-            childrenHtml = `
-                <ul class="wbs-node-list">
-                    ${node.children.map(child => renderWbsNodeHtml(child, level + 1, false)).join('')}
-                </ul>
-            `;
-        }
-
-        // Botões de mover para cima e para baixo dentro do galho
-        const reorderButtonsHtml = !isRoot ? `
-            <button class="btn-icon" style="padding:2px 5px; font-size:10px;" onclick="moveWbsNode('${node.id}', -1)" title="Mover para cima">⬆</button>
-            <button class="btn-icon" style="padding:2px 5px; font-size:10px;" onclick="moveWbsNode('${node.id}', 1)" title="Mover para baixo">⬇</button>
-        ` : '';
-
-        return `
-            <li class="wbs-node-item ${isRoot ? 'wbs-root-node' : ''}">
-                <div class="wbs-card-node">
-                    ${toggleBtnHtml}
-                    <input type="checkbox" ${isDone ? 'checked' : ''} onchange="toggleWbsNodeDone('${node.id}')" style="width:auto; cursor:pointer;" title="Marcar concluído">
-                    <span class="wbs-node-title ${isDone ? 'is-done' : ''}">${node.text}</span>
-                    ${levelBadge}
-
-                    <div class="wbs-node-actions">
-                        ${reorderButtonsHtml}
-                        <button class="btn-wbs-action" onclick="promptAddWbsChild('${node.id}')" title="Adicionar Sub-ramo">+ Sub</button>
-                        <button class="btn-wbs-action btn-wbs-hoje" onclick="sendWbsNodeToHoje('${node.id}')" title="Enviar para Hoje">🚀 Hoje</button>
-                        <button class="btn-icon" style="font-size:12px; padding:3px 6px;" onclick="promptEditWbsNode('${node.id}')" title="Editar">✏️</button>
-                        <button class="btn-icon btn-delete" style="font-size:12px; padding:3px 6px;" onclick="deleteWbsNode('${node.id}')" title="Excluir">🗑</button>
-                    </div>
-                </div>
-                ${childrenHtml}
-            </li>
-        `;
+    function resetMindMapZoom() {
+        mmZoom = 1.0;
+        updateMindMapZoomDisplay();
     }
 
-    function renderWbs() {
-        const selector = document.getElementById('wbs-tree-selector');
-        const target = document.getElementById('wbs-tree-render-target');
-        if (!target) return;
+    function updateMindMapZoomDisplay() {
+        const textEl = document.getElementById('mm-zoom-level-text');
+        if (textEl) textEl.innerText = `${Math.round(mmZoom * 100)}%`;
+        const stage = document.getElementById('mindmap-stage-el');
+        if (stage) stage.style.transform = `scale(${mmZoom})`;
+    }
+
+    function centerMindMapViewport() {
+        const viewport = document.getElementById('mindmap-viewport-el');
+        if (!viewport) return;
+        const stage = document.getElementById('mindmap-stage-el');
+        if (!stage) return;
+
+        const centerX = (stage.offsetWidth - viewport.clientWidth) / 2;
+        const centerY = (stage.offsetHeight - viewport.clientHeight) / 2;
+        viewport.scrollTo({ left: centerX, top: centerY, behavior: 'smooth' });
+    }
+
+    function renderMindMap() {
+        const selector = document.getElementById('mindmap-selector');
+        const container = document.getElementById('mindmap-nodes-container');
+        const svg = document.getElementById('mindmap-svg-el');
+        if (!container || !svg) return;
 
         if (selector) {
             selector.innerHTML = '';
-            (state.wbsTrees || []).forEach(t => {
+            (state.mindMaps || []).forEach(m => {
                 const opt = document.createElement('option');
-                opt.value = t.id;
-                opt.textContent = t.text;
-                if (t.id === state.activeWbsTreeId) opt.selected = true;
+                opt.value = m.id;
+                opt.textContent = m.text;
+                if (m.id === state.activeMindMapId) opt.selected = true;
                 selector.appendChild(opt);
             });
         }
 
-        const activeTree = getActiveTree();
-        if (!activeTree) {
-            target.innerHTML = `<div style="padding:20px; color:var(--cinza);">Nenhuma árvore cadastrada.</div>`;
-            return;
+        const map = getActiveMindMap();
+        container.innerHTML = '';
+        svg.innerHTML = '';
+
+        if (!map) return;
+
+        // Posição central da lona (1800 x 1200)
+        const stageX = 900;
+        const stageY = 600;
+
+        // Renderiza o nó raiz
+        const rootDiv = document.createElement('div');
+        rootDiv.className = 'mm-node is-root';
+        rootDiv.style.left = `${stageX}px`;
+        rootDiv.style.top = `${stageY}px`;
+        rootDiv.innerHTML = `
+            <span>${map.text}</span>
+            <div class="mm-node-tools">
+                <button class="mm-tool-btn" onclick="promptAddMmChild('${map.id}')" title="Nova Conexão">+ Ramo</button>
+                <button class="mm-tool-btn" onclick="editCurrentMindMapRoot()" title="Renomear">✏️</button>
+            </div>
+        `;
+        container.appendChild(rootDiv);
+
+        const children = map.children || [];
+        if (children.length === 0) return;
+
+        // Divisão bilateral orgânica: Metade para a direita, metade para a esquerda
+        const half = Math.ceil(children.length / 2);
+        const rightChildren = children.slice(0, half);
+        const leftChildren = children.slice(half);
+
+        function layoutBranchSide(list, sideMultiplier, startColorIdx) {
+            const count = list.length;
+            const verticalSpread = Math.max(120, count * 90);
+            const stepY = verticalSpread / (count > 1 ? count - 1 : 1);
+            const startY = count > 1 ? stageY - verticalSpread / 2 : stageY;
+
+            list.forEach((childNode, idx) => {
+                const palette = WBS_PALETTES[(startColorIdx + idx) % WBS_PALETTES.length];
+                const childX = stageX + (sideMultiplier * 260);
+                const childY = count > 1 ? startY + (idx * stepY) : stageY;
+
+                // Cria o nó de primeiro nível
+                createMindMapNodeElement(childNode, childX, childY, palette, false);
+
+                // Desenha a curva de Bézier da raiz para este nó
+                drawBezierConnector(stageX, stageY, childX, childY, palette.color, 3.2);
+
+                // Ramifica os sub-itens deste galho
+                const subChildren = childNode.children || [];
+                if (subChildren.length > 0) {
+                    const subSpread = Math.max(50, subChildren.length * 48);
+                    const subStepY = subSpread / (subChildren.length > 1 ? subChildren.length - 1 : 1);
+                    const subStartY = subChildren.length > 1 ? childY - subSpread / 2 : childY;
+
+                    subChildren.forEach((subNode, sIdx) => {
+                        const subX = childX + (sideMultiplier * 220);
+                        const subY = subChildren.length > 1 ? subStartY + (sIdx * subStepY) : childY;
+
+                        createMindMapNodeElement(subNode, subX, subY, palette, true);
+                        drawBezierConnector(childX, childY, subX, subY, palette.color, 2);
+
+                        // Terceiro nível (se houver)
+                        const thirdChildren = subNode.children || [];
+                        if (thirdChildren.length > 0) {
+                            thirdChildren.forEach((tNode, tIdx) => {
+                                const tX = subX + (sideMultiplier * 180);
+                                const tY = subY + ((tIdx - (thirdChildren.length - 1) / 2) * 40);
+                                createMindMapNodeElement(tNode, tX, tY, palette, true);
+                                drawBezierConnector(subX, subY, tX, tY, palette.color, 1.5);
+                            });
+                        }
+                    });
+                }
+            });
         }
 
-        if (wbsViewMode === 'visual') {
-            target.innerHTML = `
-                <div class="wbs-canvas-viewport">
-                    <div id="wbs-visual-stage" class="wbs-zoom-stage orientation-${wbsOrientation}" style="transform: scale(${wbsZoom});">
-                        ${renderVisualTreeNodeHtml(activeTree, 0, 0, true)}
-                    </div>
-                </div>
-            `;
-        } else {
-            target.innerHTML = `
-                <ul class="wbs-tree-root">
-                    ${renderWbsNodeHtml(activeTree, 0, true)}
-                </ul>
-            `;
-        }
+        // Lado Direito (multiplier = 1)
+        layoutBranchSide(rightChildren, 1, 0);
+
+        // Lado Esquerdo (multiplier = -1)
+        layoutBranchSide(leftChildren, -1, rightChildren.length);
+    }
+
+    function createMindMapNodeElement(node, x, y, palette, isLeaf = false) {
+        const container = document.getElementById('mindmap-nodes-container');
+        const div = document.createElement('div');
+        div.className = `mm-node ${isLeaf ? 'is-leaf' : ''}`;
+        div.style.left = `${x}px`;
+        div.style.top = `${y}px`;
+        div.style.setProperty('--node-color', palette.color);
+        div.style.setProperty('--node-light', palette.light);
+        div.style.setProperty('--node-glow', palette.glow);
+
+        div.innerHTML = `
+            <span class="mm-node-dot"></span>
+            <span>${node.text}</span>
+            <div class="mm-node-tools">
+                <button class="mm-tool-btn" onclick="promptAddMmChild('${node.id}')" title="Adicionar sub-ideia">+ Sub</button>
+                <button class="mm-tool-btn" onclick="sendMmNodeToIdeias('${node.id}')" title="Enviar para Ideias">💡 Ideia</button>
+                <button class="mm-tool-btn" onclick="sendMmNodeToHoje('${node.id}')" title="Enviar para Hoje">🚀 Hoje</button>
+                <button class="mm-tool-btn" onclick="promptEditMmNode('${node.id}')" title="Editar">✏️</button>
+                <button class="mm-tool-btn" style="color:var(--vermelho);" onclick="deleteMmNode('${node.id}')" title="Excluir">🗑</button>
+            </div>
+        `;
+
+        container.appendChild(div);
+    }
+
+    function drawBezierConnector(x1, y1, x2, y2, color, strokeWidth = 2.5) {
+        const svg = document.getElementById('mindmap-svg-el');
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('class', 'mindmap-curve');
+
+        // Ponto de controle horizontal orgânico
+        const dx = (x2 - x1) * 0.55;
+        const d = `M ${x1} ${y1} C ${x1 + dx} ${y1}, ${x2 - dx} ${y2}, ${x2} ${y2}`;
+
+        path.setAttribute('d', d);
+        path.setAttribute('stroke', color);
+        path.setAttribute('stroke-width', strokeWidth);
+        path.setAttribute('opacity', '0.7');
+
+        svg.appendChild(path);
     }
 
     function promptResetToday() {
@@ -3147,6 +3502,7 @@
         render();
         renderFeitos();
         renderWbs();
+        renderMindMap();
     };
 </script>
 </body>
