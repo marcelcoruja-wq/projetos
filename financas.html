@@ -351,7 +351,6 @@
         }
 
         function renderCategories() {
-            // Lista para gerenciamento
             const list = document.getElementById('categories-list');
             list.innerHTML = state.categories.map(c => `
                 <div class="flex justify-between items-center p-2 bg-slate-50 rounded-lg text-sm border border-slate-100">
@@ -363,7 +362,6 @@
                 </div>
             `).join('');
 
-            // Barras de Progresso
             const progressList = document.getElementById('budget-progress-list');
             progressList.innerHTML = state.categories.map(c => {
                 const spent = state.transactions.filter(t => t.categoryId === c.id).reduce((acc, t) => acc + t.amount, 0);
@@ -394,7 +392,6 @@
                 return matchesSearch && matchesTag;
             });
 
-            // Filtragem por Aba Ativa
             if (activeTab === 'travel') {
                 filtered = filtered.filter(t => t.tag.toLowerCase() === 'viagem' || (state.categories.find(c => c.id === t.categoryId)?.name.toLowerCase().includes('viag')));
             } else if (activeTab === 'leisure') {
