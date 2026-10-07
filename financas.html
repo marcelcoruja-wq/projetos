@@ -22,6 +22,7 @@
       --success: #10B981; 
       --warning: #F59E0B; 
       --danger: #EF4444; 
+      --essential: #D97706;
       --radius: 16px;
     }
 
@@ -64,6 +65,7 @@
     /* SEÇÃO DE FILAS KPIS DO DASHBOARD */
     .kpi-section-title { font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; letter-spacing: 0.5px; }
     .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+    .kpi-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px; }
     .kpi-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
     .kpi-card .label { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
     .kpi-card .num { font-size: 24px; font-weight: 800; line-height: 1.2; }
@@ -85,7 +87,7 @@
 
     .badge-income { background: #D1FAE5; color: #065F46; padding: 4px 8px; border-radius: 4px; font-weight: 700; font-size: 11px; }
     .badge-expense { background: #FEF2F2; color: #991B1B; padding: 4px 8px; border-radius: 4px; font-weight: 700; font-size: 11px; }
-    .task-mini-tag { background-color: #F1F5F9; color: #475569; font-size: 10px; font-weight: 700; padding: 3px 6px; border-radius: 4px; border: 1px solid #E2E8F0; text-transform: uppercase; display: inline-block; }
+    .task-mini-tag { background-color: #F1F5F9; color: #475569; font-size: 10px; font-weight: 700; padding: 3px 6px; border-radius: 4px; border: 1px solid #E2E8F0; text-transform: uppercase; display: inline-block; margin: 1px; }
 
     .savings-area-card { background: #FFFFFF; border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-top: 10px; }
 
@@ -95,7 +97,7 @@
     .modal-box { 
       background: var(--card-bg); 
       width: 100%; 
-      max-width: 500px; 
+      max-width: 520px; 
       max-height: 88vh; 
       overflow-y: auto; 
       border-radius: var(--radius); 
@@ -113,16 +115,21 @@
     .form-input { width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; outline: none; background: #FFFFFF; }
     .form-input:focus { border-color: var(--focus-blue); }
 
+    .category-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .cat-pill { padding: 6px 12px; background: #F1F5F9; border: 1px solid var(--border-color); border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--text-dark); transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; }
+    .cat-pill:hover { background: #E2E8F0; }
+    .cat-pill.selected { background: var(--focus-blue); color: #FFFFFF; border-color: var(--focus-blue); }
+
     .progress-bar-track { background-color: #E2E8F0; height: 12px; border-radius: 20px; overflow: hidden; margin-top: 8px; }
     .progress-bar-fill { height: 100%; background-color: var(--success); width: 0%; transition: width 0.3s; }
 
     @media (max-width: 900px) {
-      .kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+      .kpi-grid, .kpi-grid-3 { grid-template-columns: repeat(2, 1fr); gap: 12px; }
     }
 
     @media (max-width: 600px) {
       body { padding: 10px; }
-      .kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      .kpi-grid, .kpi-grid-3 { grid-template-columns: repeat(2, 1fr); gap: 10px; }
       .kpi-card { padding: 14px; }
       .kpi-card .num { font-size: 18px; }
       .kpi-card .label { font-size: 10px; }
@@ -147,7 +154,7 @@
     }
 
     @media (max-width: 400px) {
-      .kpi-grid { grid-template-columns: 1fr; }
+      .kpi-grid, .kpi-grid-3 { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -163,12 +170,12 @@
       <button class="tab-btn" id="btnTabGastosFixos" onclick="switchTab('gastosFixos')">📌 Gastos Fixos</button>
       <button class="tab-btn" id="btnTabPoupanca" onclick="switchTab('poupanca')">🐷 Poupança & Metas</button>
       <button class="tab-btn" id="btnTabDividas" onclick="switchTab('dividas')">🤝 Empréstimos</button>
-      <button class="tab-btn" id="btnTabApe" onclick="switchTab('ape')">🏢 Contas do Apê</button>
       <button class="tab-btn" id="btnTabFavores" onclick="switchTab('favores')">🎁 Favores</button>
     </div>
 
-    <!-- MOEDA & AÇÕES DE BACKUP -->
+    <!-- MOEDA, CATEGORIAS & AÇÕES DE BACKUP -->
     <div style="margin-left: auto; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+      <button class="btn-outline" style="padding: 6px 12px; font-size: 12px; font-weight: 700; color: var(--focus-blue); border-color: var(--focus-blue);" onclick="openModal('modalManageCategories')" title="Gerenciar Etiquetas Fixas de Categorias">🏷️ Categorias</button>
       <span style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Moeda:</span>
       <select id="currencySelect" class="form-input" style="width: auto; padding: 6px 10px; font-weight: 700; cursor: pointer;" onchange="updateCurrency(this.value)">
         <option value="€">€ (EUR)</option>
@@ -191,7 +198,7 @@
     <button class="btn-outline" style="padding: 6px 12px; font-size: 12px;" onclick="clearDateFilters()">Todas as Datas</button>
   </div>
 
-  <!-- PESTAÑA 1: DASHBOARD -->
+  <!-- TAB 1: DASHBOARD -->
   <div id="viewDash" class="tab-content active">
     <div class="kpi-section-title">💵 CAIXA REAL & PLANEJAMENTO</div>
     <div class="kpi-grid">
@@ -221,11 +228,11 @@
     </div>
 
     <div class="kpi-section-title" style="margin-top: 24px;">👥 COMPROMISSOS & ACERTOS</div>
-    <div class="kpi-grid">
-      <div class="kpi-card" style="border-top: 4px solid var(--warning);">
-        <div class="label">🏢 Contas do Apê</div>
-        <div class="num" id="kpiApeSaldo" style="color: var(--primary);">€ 0,00</div>
-        <div class="sub" id="kpiApeStatus">Tudo quitado</div>
+    <div class="kpi-grid-3">
+      <div class="kpi-card" style="border-top: 4px solid var(--essential);">
+        <div class="label">⚡ Gastos Essenciais</div>
+        <div class="num" id="kpiEssentialExpenses" style="color: var(--essential);">€ 0,00</div>
+        <div class="sub" id="kpiEssentialSub">0% das despesas totais</div>
       </div>
 
       <div class="kpi-card" style="border-top: 4px solid #EC4899;">
@@ -311,7 +318,7 @@
     </div>
   </div>
 
-  <!-- PESTAÑA 2: LANÇAMENTOS -->
+  <!-- TAB 2: LANÇAMENTOS -->
   <div id="viewLancamentos" class="tab-content">
     <div class="white-box">
       <div class="box-header">
@@ -338,13 +345,13 @@
     </div>
   </div>
 
-  <!-- PESTAÑA 3: GASTOS FIXOS -->
+  <!-- TAB 3: GASTOS FIXOS -->
   <div id="viewGastosFixos" class="tab-content">
     <div class="white-box">
       <div class="box-header">
         <div>
           <div class="box-title">📌 Gastos Fixos Mensais</div>
-          <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Lançamentos e contas do Apê marcados como "Gasto Fixo" aparecem automaticamente nesta aba.</p>
+          <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Lançamentos marcados como "Gasto Fixo" aparecem automaticamente nesta aba.</p>
         </div>
         <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
           <span style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Estimativa Média Mensal:</span>
@@ -359,8 +366,8 @@
               <th>Data</th>
               <th>Descrição</th>
               <th>Categoria</th>
-              <th>Subcategoria / Divisão</th>
-              <th>Sua Parte</th>
+              <th>Subcategoria</th>
+              <th>Valor</th>
               <th style="text-align: center;">Ações</th>
             </tr>
           </thead>
@@ -370,7 +377,7 @@
     </div>
   </div>
 
-  <!-- PESTAÑA 4: POUPANÇA & METAS -->
+  <!-- TAB 4: POUPANÇA & METAS -->
   <div id="viewPoupanca" class="tab-content">
     <div class="white-box">
       <div class="box-header">
@@ -385,7 +392,7 @@
     </div>
   </div>
 
-  <!-- PESTAÑA 5: EMPRÉSTIMOS -->
+  <!-- TAB 5: EMPRÉSTIMOS -->
   <div id="viewDividas" class="tab-content">
     <div class="white-box">
       <div class="box-header">
@@ -420,37 +427,7 @@
     </div>
   </div>
 
-  <!-- PESTAÑA 6: CONTAS DO APÊ -->
-  <div id="viewApe" class="tab-content">
-    <div class="white-box">
-      <div class="box-header">
-        <div>
-          <div class="box-title">🏢 Contas do Apê (No Período)</div>
-          <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;" id="apeSettlementSummary">Calculando acerto de contas...</p>
-        </div>
-        <button class="btn-add" onclick="openModal('modalApe')">➕ Nova Despesa do Apê</button>
-      </div>
-
-      <div style="overflow-x: auto;">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Data</th>
-              <th>Descrição / Conta</th>
-              <th>Quem Pagou</th>
-              <th>Divisão</th>
-              <th>Valor Total</th>
-              <th>Sua Parte</th>
-              <th style="text-align: center;">Status / Ações</th>
-            </tr>
-          </thead>
-          <tbody id="tableApe"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- PESTAÑA 7: FAVORES -->
+  <!-- TAB 6: FAVORES -->
   <div id="viewFavores" class="tab-content">
     <div class="white-box">
       <div class="box-header">
@@ -480,6 +457,54 @@
   </div>
 </div>
 
+<!-- MODAL GERENCIAR CATEGORIAS / ETIQUETAS FIXAS -->
+<div id="modalManageCategories" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="box-title">🏷️ ETIQUETAS FIXAS DE CATEGORIAS</div>
+      <button type="button" class="btn-close-modal" onclick="closeModal('modalManageCategories')">✕</button>
+    </div>
+    
+    <div style="margin-bottom: 16px; background: #F8FAFC; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color);">
+      <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">Adicione novas etiquetas para categorizar rapidamente seus lançamentos.</p>
+      <form onsubmit="addNewCategoryTag(event)" style="display: flex; gap: 8px;">
+        <input type="text" id="newCategoryInput" class="form-input" placeholder="Ex: Mercado, Assinaturas, Pet..." required>
+        <button type="submit" class="btn-add" style="white-space: nowrap;">➕ Adicionar</button>
+      </form>
+    </div>
+
+    <div style="margin-top: 12px;">
+      <label style="font-size: 11px; font-weight: 700; color: var(--text-dark); text-transform: uppercase; display: block; margin-bottom: 8px;">Categorias Cadastradas:</label>
+      <div id="categoriesListContainer" style="display: flex; flex-direction: column; gap: 8px; max-height: 250px; overflow-y: auto;"></div>
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+      <button type="button" class="btn-outline" onclick="closeModal('modalManageCategories')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR CATEGORIA -->
+<div id="modalEditCategory" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="box-title">✏️ EDITAR ETIQUETA DE CATEGORIA</div>
+      <button type="button" class="btn-close-modal" onclick="closeModal('modalEditCategory')">✕</button>
+    </div>
+    <form onsubmit="saveEditedCategoryTag(event)">
+      <input type="hidden" id="editCatOldName">
+      <div class="form-group">
+        <label>Nome da Categoria</label>
+        <input type="text" id="editCatNewName" class="form-input" required>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+        <button type="button" class="btn-outline" onclick="closeModal('modalEditCategory')">Cancelar</button>
+        <button type="submit" class="btn-add">Salvar Alterações</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <!-- MODAL LANÇAMENTO -->
 <div id="modalLancamento" class="modal-overlay">
   <div class="modal-box">
@@ -504,13 +529,18 @@
           <option value="INCOME">🟢 Receita (Entrada)</option>
         </select>
       </div>
+
+      <!-- SELEÇÃO DE CATEGORIAS COM FIXAS E BOTÃO DE GERENCIAR -->
       <div class="form-group">
-        <label>Categoria Principal</label>
-        <input type="text" id="lCat" class="form-input" placeholder="Ex: Moradia, Alimentação, Lazer..." required list="catList">
-        <datalist id="catList">
-          <option value="Moradia"><option value="Alimentação"><option value="Lazer"><option value="Transporte"><option value="Saúde">
-        </datalist>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <label style="margin-bottom: 0;">Categoria Principal</label>
+          <button type="button" style="background: none; border: none; font-size: 11px; font-weight: 700; color: var(--focus-blue); cursor: pointer;" onclick="openModal('modalManageCategories')">⚙️ Gerenciar Etiquetas</button>
+        </div>
+        <input type="text" id="lCat" class="form-input" placeholder="Selecione ou digite..." required list="catList">
+        <datalist id="catList"></datalist>
+        <div class="category-pills" id="modalCategoryPills"></div>
       </div>
+
       <div class="form-group">
         <label>Subcategoria / Item (Opcional)</label>
         <input type="text" id="lSubCat" class="form-input" placeholder="Ex: Luz, Internet, Feira, Gasolina..." list="subCatList">
@@ -522,10 +552,19 @@
         <label>Data</label>
         <input type="date" id="lData" class="form-input" required>
       </div>
-      <div class="form-group" style="display: flex; align-items: center; gap: 8px; margin-top: 12px; background: #F8FAFC; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color);">
-        <input type="checkbox" id="lIsFixed" style="width: 18px; height: 18px; cursor: pointer;">
-        <label for="lIsFixed" style="margin-bottom: 0; cursor: pointer; text-transform: none; font-size: 12px; font-weight: 700; color: var(--primary);">📌 Marcar como Gasto Fixo Mensal</label>
+
+      <!-- CHECKBOXES DE CONFIGURAÇÃO (GASTO FIXO E GASTO ESSENCIAL) -->
+      <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px; background: #F8FAFC; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color);">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <input type="checkbox" id="lIsEssential" style="width: 18px; height: 18px; cursor: pointer;">
+          <label for="lIsEssential" style="margin-bottom: 0; cursor: pointer; text-transform: none; font-size: 12px; font-weight: 700; color: var(--essential);">⚡ Marcar como Gasto Essencial</label>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <input type="checkbox" id="lIsFixed" style="width: 18px; height: 18px; cursor: pointer;">
+          <label for="lIsFixed" style="margin-bottom: 0; cursor: pointer; text-transform: none; font-size: 12px; font-weight: 700; color: var(--primary);">📌 Marcar como Gasto Fixo Mensal</label>
+        </div>
       </div>
+
       <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
         <button type="button" class="btn-outline" onclick="closeModal('modalLancamento')">Cancelar</button>
         <button type="submit" class="btn-add">Salvar Lançamento</button>
@@ -628,50 +667,6 @@
   </div>
 </div>
 
-<!-- MODAL CONTAS DO APÊ -->
-<div id="modalApe" class="modal-overlay">
-  <div class="modal-box">
-    <div class="modal-header">
-      <div class="box-title" id="modalApeTitle">NOVA DESPESA DO APÊ</div>
-      <button type="button" class="btn-close-modal" onclick="closeModal('modalApe')">✕</button>
-    </div>
-    <form onsubmit="saveApe(event)">
-      <input type="hidden" id="aEditId">
-      <div class="form-group">
-        <label>Descrição / Conta (Ex: Luz, Internet, Aluguel)</label>
-        <input type="text" id="aDesc" class="form-input" placeholder="Ex: Luz, Internet, Água, Aluguel..." required>
-      </div>
-      <div class="form-group">
-        <label>Valor Total da Conta</label>
-        <input type="number" step="0.01" id="aValor" class="form-input" placeholder="0.00" required>
-      </div>
-      <div class="form-group">
-        <label>Quem Pagou Total?</label>
-        <select id="aQuem" class="form-input" required>
-          <option value="VOCE">🙋‍♂️ Eu paguei total</option>
-          <option value="COLEGA">🧑‍🤝‍🧑 Colega pagou total</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Pessoas a Dividir (Ex: 2 = Você + 1 colega)</label>
-        <input type="number" min="2" max="50" id="aPessoas" class="form-input" value="2" required>
-      </div>
-      <div class="form-group">
-        <label>Data</label>
-        <input type="date" id="aData" class="form-input" required>
-      </div>
-      <div class="form-group" style="display: flex; align-items: center; gap: 8px; margin-top: 12px; background: #F8FAFC; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color);">
-        <input type="checkbox" id="aIsFixed" style="width: 18px; height: 18px; cursor: pointer;">
-        <label for="aIsFixed" style="margin-bottom: 0; cursor: pointer; text-transform: none; font-size: 12px; font-weight: 700; color: var(--primary);">📌 Marcar como Gasto Fixo Mensal</label>
-      </div>
-      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
-        <button type="button" class="btn-outline" onclick="closeModal('modalApe')">Cancelar</button>
-        <button type="submit" class="btn-add">Salvar Registro</button>
-      </div>
-    </form>
-  </div>
-</div>
-
 <!-- MODAL FAVOR -->
 <div id="modalFavor" class="modal-overlay">
   <div class="modal-box">
@@ -716,17 +711,142 @@
   let financeData = {
     currency: "€",
     fixedEstimate: 0,
+    categories: ["Moradia", "Alimentação", "Lazer", "Transporte", "Saúde", "Educação", "Outros"],
     transactions: [],
     savings: [],
     debts: [],
-    apeExpenses: [],
     favors: []
   };
 
   let historyChartInstance = null;
   let categoryChartInstance = null;
 
-  // VERSÃO COM DIAGNÓSTICO DE ERROS
+  function openModal(id) {
+    const el = document.getElementById(id);
+    if (el) {
+      el.classList.add('active');
+      document.body.classList.add('modal-open');
+    }
+  }
+
+  function closeModal(id) {
+    const el = document.getElementById(id);
+    if (el) {
+      el.classList.remove('active');
+      document.body.classList.remove('modal-open');
+    }
+  }
+
+  function formatCurr(val) {
+    const curr = financeData.currency || "€";
+    const num = parseFloat(val) || 0;
+    return `${curr} ${num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  }
+
+  // GERENCIAMENTO DE ETIQUETAS FIXAS DE CATEGORIAS
+  function renderCategoriesManager() {
+    const container = document.getElementById('categoriesListContainer');
+    const datalist = document.getElementById('catList');
+    const pills = document.getElementById('modalCategoryPills');
+
+    if (!financeData.categories || !Array.isArray(financeData.categories)) {
+      financeData.categories = ["Moradia", "Alimentação", "Lazer", "Transporte", "Saúde", "Educação", "Outros"];
+    }
+
+    // Render na modal de gerenciamento
+    if (container) {
+      container.innerHTML = '';
+      financeData.categories.forEach(cat => {
+        const item = document.createElement('div');
+        item.style.cssText = 'display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; border: 1px solid var(--border-color); padding: 8px 12px; border-radius: 8px;';
+        item.innerHTML = `
+          <span style="font-weight: 600; font-size: 13px;">🏷️ ${cat}</span>
+          <div>
+            <button type="button" class="btn-icon" onclick="openEditCategoryModal('${cat}')" title="Editar">✏️</button>
+            <button type="button" class="btn-danger" style="padding: 2px 6px; font-size: 11px;" onclick="deleteCategoryTag('${cat}')">X</button>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    // Render datalist e pills para escolha rápida no formulário
+    if (datalist) {
+      datalist.innerHTML = '';
+      financeData.categories.forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat;
+        datalist.appendChild(opt);
+      });
+    }
+
+    if (pills) {
+      pills.innerHTML = '';
+      financeData.categories.forEach(cat => {
+        const pill = document.createElement('span');
+        pill.className = 'cat-pill';
+        pill.textContent = cat;
+        pill.onclick = () => {
+          document.getElementById('lCat').value = cat;
+          document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('selected'));
+          pill.classList.add('selected');
+        };
+        pills.appendChild(pill);
+      });
+    }
+  }
+
+  function addNewCategoryTag(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    const input = document.getElementById('newCategoryInput');
+    const val = input.value.trim();
+
+    if (val) {
+      if (!financeData.categories.includes(val)) {
+        financeData.categories.push(val);
+        input.value = '';
+        saveData();
+        renderCategoriesManager();
+      } else {
+        alert("Esta categoria já existe!");
+      }
+    }
+  }
+
+  function openEditCategoryModal(oldName) {
+    document.getElementById('editCatOldName').value = oldName;
+    document.getElementById('editCatNewName').value = oldName;
+    openModal('modalEditCategory');
+  }
+
+  function saveEditedCategoryTag(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    const oldName = document.getElementById('editCatOldName').value;
+    const newName = document.getElementById('editCatNewName').value.trim();
+
+    if (newName && newName !== oldName) {
+      const index = financeData.categories.indexOf(oldName);
+      if (index !== -1) {
+        financeData.categories[index] = newName;
+        // Atualiza lançamentos existentes com essa categoria
+        (financeData.transactions || []).forEach(t => {
+          if (t.category === oldName) t.category = newName;
+        });
+        saveData();
+        renderCategoriesManager();
+      }
+    }
+    closeModal('modalEditCategory');
+  }
+
+  function deleteCategoryTag(catName) {
+    if (confirm(`Deseja excluir a categoria "${catName}"?`)) {
+      financeData.categories = financeData.categories.filter(c => c !== catName);
+      saveData();
+      renderCategoriesManager();
+    }
+  }
+
   async function saveData() {
     try {
       localStorage.setItem('personalFinanceData', JSON.stringify(financeData));
@@ -738,19 +858,11 @@
     refreshAll();
 
     if (typeof cloudPush === 'function') {
-      const enviado = await cloudPush();
-      if (enviado) {
-        alert("✅ Sucesso: Dados das finanças enviados para o GitHub!");
-      } else {
-        alert("⚠️ Falha no envio: O Token ou Gist ID estão ausentes ou incorretos.");
-      }
-    } else {
-      alert("❌ Erro: O financas.html não encontrou o arquivo cloud.js!");
+      await cloudPush();
     }
   }
 
   window.onload = async function() {
-    // 1. Carrega dados do armazenamento local
     const saved = localStorage.getItem('personalFinanceData');
     if (saved) {
       try { 
@@ -758,16 +870,15 @@
         financeData = {
           currency: parsed.currency || "€",
           fixedEstimate: parseFloat(parsed.fixedEstimate) || 0,
+          categories: Array.isArray(parsed.categories) ? parsed.categories : ["Moradia", "Alimentação", "Lazer", "Transporte", "Saúde", "Educação", "Outros"],
           transactions: Array.isArray(parsed.transactions) ? parsed.transactions : [],
           savings: Array.isArray(parsed.savings) ? parsed.savings : [],
           debts: Array.isArray(parsed.debts) ? parsed.debts : [],
-          apeExpenses: Array.isArray(parsed.apeExpenses) ? parsed.apeExpenses : [],
           favors: Array.isArray(parsed.favors) ? parsed.favors : []
         };
       } catch(e) {}
     }
 
-    // 2. Busca na nuvem ao abrir a página
     if (typeof cloudPull === 'function') {
       const pulled = await cloudPull();
       if (pulled) {
@@ -783,7 +894,6 @@
     
     const today = new Date().toISOString().split('T')[0];
     if (document.getElementById('lData')) document.getElementById('lData').value = today;
-    if (document.getElementById('aData')) document.getElementById('aData').value = today;
     if (document.getElementById('fData')) document.getElementById('fData').value = today;
 
     document.querySelectorAll('.modal-overlay').forEach(overlay => {
@@ -793,13 +903,10 @@
     });
 
     initDateFilters();
+    renderCategoriesManager();
     refreshAll();
   };
 
-  // ---------------------------------------------------------------------
-  // ALARME DE DESPERTADOR (Para Celulares e Abas inativas)
-  // Toda vez que você voltar para a aba do App, ele puxa os dados novos
-  // ---------------------------------------------------------------------
   document.addEventListener("visibilitychange", async () => {
     if (document.visibilityState === 'visible') {
       if (typeof cloudPull === 'function') {
@@ -874,10 +981,10 @@
           financeData = {
             currency: parsed.currency || "€",
             fixedEstimate: parseFloat(parsed.fixedEstimate) || 0,
+            categories: Array.isArray(parsed.categories) ? parsed.categories : ["Moradia", "Alimentação", "Lazer", "Transporte", "Saúde", "Educação", "Outros"],
             transactions: Array.isArray(parsed.transactions) ? parsed.transactions : [],
             savings: Array.isArray(parsed.savings) ? parsed.savings : [],
             debts: Array.isArray(parsed.debts) ? parsed.debts : [],
-            apeExpenses: Array.isArray(parsed.apeExpenses) ? parsed.apeExpenses : [],
             favors: Array.isArray(parsed.favors) ? parsed.favors : []
           };
           document.getElementById('fixedEstimateInput').value = financeData.fixedEstimate || '';
@@ -902,11 +1009,11 @@
       renderSavingsList();
       renderDebtsList();
       renderDividasQuitadasTable();
-      renderApeTable();
       renderFavoresTable();
       renderGastosFixosTable();
       renderSettlementStatsSummary();
       populateCategoryFilters();
+      renderCategoriesManager();
       initOrUpdateCharts();
     } catch(err) {
       console.error("Erro na atualização da interface:", err);
@@ -932,9 +1039,6 @@
     } else if(tabKey === 'dividas') {
       document.getElementById('viewDividas').classList.add('active');
       document.getElementById('btnTabDividas').classList.add('active');
-    } else if(tabKey === 'ape') {
-      document.getElementById('viewApe').classList.add('active');
-      document.getElementById('btnTabApe').classList.add('active');
     } else if(tabKey === 'favores') {
       document.getElementById('viewFavores').classList.add('active');
       document.getElementById('btnTabFavores').classList.add('active');
@@ -944,10 +1048,18 @@
   function renderKPIs() {
     let monthIncome = 0;
     let monthExpense = 0;
+    let essentialExpense = 0;
 
     (financeData.transactions || []).filter(t => isDateInRange(t.date)).forEach(t => {
-      if (t.type === 'INCOME') monthIncome += parseFloat(t.amount || 0);
-      else monthExpense += parseFloat(t.amount || 0);
+      const amt = parseFloat(t.amount || 0);
+      if (t.type === 'INCOME') {
+        monthIncome += amt;
+      } else {
+        monthExpense += amt;
+        if (t.isEssential) {
+          essentialExpense += amt;
+        }
+      }
     });
 
     const netMonth = monthIncome - monthExpense;
@@ -990,14 +1102,15 @@
     (financeData.transactions || []).filter(t => t.type === 'EXPENSE' && t.isFixed && isDateInRange(t.date)).forEach(t => {
       totalFixos += parseFloat(t.amount || 0);
     });
-    (financeData.apeExpenses || []).filter(a => a.isFixed && isDateInRange(a.date)).forEach(a => {
-      const count = parseInt(a.peopleCount) || 2;
-      totalFixos += parseFloat(a.amount || 0) / count;
-    });
 
     const estVal = parseFloat(financeData.fixedEstimate || 0);
     document.getElementById('kpiGastosFixos').textContent = formatCurr(totalFixos);
     document.getElementById('kpiGastosFixosStatus').textContent = `Estimativa: ${formatCurr(estVal)}`;
+
+    // KPI GASTOS ESSENCIAIS
+    const essentialPct = monthExpense > 0 ? Math.round((essentialExpense / monthExpense) * 100) : 0;
+    document.getElementById('kpiEssentialExpenses').textContent = formatCurr(essentialExpense);
+    document.getElementById('kpiEssentialSub').textContent = `${essentialPct}% do total de gastos`;
 
     let dividaBancariaPendente = 0;
     let contratosBancariosAtivos = 0;
@@ -1012,31 +1125,6 @@
 
     document.getElementById('kpiDividaBancaria').textContent = formatCurr(dividaBancariaPendente);
     document.getElementById('kpiDividasBancariaStatus').textContent = `${contratosBancariosAtivos} empréstimo(s) ativo(s)`;
-
-    let apeNetBalance = 0;
-    (financeData.apeExpenses || []).filter(a => isDateInRange(a.date)).forEach(a => {
-      if (a.settled) return;
-      const val = parseFloat(a.amount || 0);
-      const count = parseInt(a.peopleCount) || 2;
-      const yourShare = val / count;
-      if (a.paidBy === 'VOCE') apeNetBalance += (val - yourShare);
-      else apeNetBalance -= yourShare;
-    });
-
-    const kpiApeEl = document.getElementById('kpiApeSaldo');
-    if (apeNetBalance > 0) {
-      kpiApeEl.textContent = `+ ${formatCurr(apeNetBalance)}`;
-      kpiApeEl.style.color = "var(--success)";
-      document.getElementById('kpiApeStatus').textContent = "Outros devem te pagar este valor";
-    } else if (apeNetBalance < 0) {
-      kpiApeEl.textContent = formatCurr(apeNetBalance);
-      kpiApeEl.style.color = "var(--danger)";
-      document.getElementById('kpiApeStatus').textContent = "Você deve pagar este valor no total";
-    } else {
-      kpiApeEl.textContent = formatCurr(0);
-      kpiApeEl.style.color = "var(--primary)";
-      document.getElementById('kpiApeStatus').textContent = "Tudo quitado no apê";
-    }
 
     let favoresAReceber = 0;
     let favoresAPagar = 0;
@@ -1116,9 +1204,14 @@
     sorted.forEach(t => {
       const tr = document.createElement('tr');
       const isInc = t.type === 'INCOME';
+      
+      let tagsHTML = '';
+      if (t.isFixed) tagsHTML += '<span class="task-mini-tag" style="background:#DBEAFE; color:#1E40AF;">📌 FIXO</span> ';
+      if (t.isEssential) tagsHTML += '<span class="task-mini-tag" style="background:#FEF3C7; color:#D97706;">⚡ ESSENCIAL</span>';
+
       tr.innerHTML = `
         <td>${t.date}</td>
-        <td style="font-weight: 600;">${t.desc} ${t.isFixed ? '<span class="task-mini-tag" style="background:#DBEAFE; color:#1E40AF;">📌 FIXO</span>' : ''}</td>
+        <td style="font-weight: 600;">${t.desc} ${tagsHTML}</td>
         <td><span class="task-mini-tag">${t.category}</span></td>
         <td><span class="task-mini-tag" style="background:#F1F5F9; color:#334155;">${t.subcategory || '-'}</span></td>
         <td><span class="${isInc ? 'badge-income' : 'badge-expense'}">${isInc ? 'ENTRADA' : 'GASTO'}</span></td>
@@ -1146,48 +1239,25 @@
         category: t.category,
         subcategory: t.subcategory || '-',
         amount: parseFloat(t.amount || 0),
-        origin: 'TRANS'
-      }));
+        isEssential: t.isEssential
+      })).sort((a,b) => new Date(b.date) - new Date(a.date));
 
-    const fixedApe = (financeData.apeExpenses || [])
-      .filter(a => a.isFixed && isDateInRange(a.date))
-      .map(a => {
-        const count = parseInt(a.peopleCount) || 2;
-        const myShare = parseFloat(a.amount || 0) / count;
-        return {
-          id: a.id,
-          date: a.date,
-          desc: a.desc,
-          category: 'Contas do Apê',
-          subcategory: `1 / ${count} pessoas`,
-          amount: myShare,
-          origin: 'APE'
-        };
-      });
-
-    const combined = [...fixedTrans, ...fixedApe].sort((a,b) => new Date(b.date) - new Date(a.date));
-
-    if (combined.length === 0) {
+    if (fixedTrans.length === 0) {
       tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px; color: var(--text-muted);">Nenhum gasto fixo registrado no período.</td></tr>';
       return;
     }
 
-    combined.forEach(item => {
+    fixedTrans.forEach(item => {
       const tr = document.createElement('tr');
-      const isApe = item.origin === 'APE';
       tr.innerHTML = `
         <td>${item.date}</td>
-        <td style="font-weight: 600;">${item.desc} ${isApe ? '<span class="task-mini-tag" style="background:#FEF3C7; color:#D97706;">🏢 APÊ</span>' : ''}</td>
+        <td style="font-weight: 600;">${item.desc} ${item.isEssential ? '<span class="task-mini-tag" style="background:#FEF3C7; color:#D97706;">⚡ ESSENCIAL</span>' : ''}</td>
         <td><span class="task-mini-tag">${item.category}</span></td>
         <td><span class="task-mini-tag" style="background:#F1F5F9; color:#334155;">${item.subcategory}</span></td>
         <td style="font-weight: 700; color: var(--danger);">- ${formatCurr(item.amount)}</td>
         <td class="action-cell">
-          ${isApe ? 
-            `<button class="btn-icon" title="Editar no Apê" onclick="switchTab('ape'); editApe('${item.id}')">✏️</button>
-             <button class="btn-danger" title="Excluir" onclick="deleteApe('${item.id}')">X</button>` :
-            `<button class="btn-icon" title="Editar Lançamento" onclick="editLancamento('${item.id}')">✏️</button>
-             <button class="btn-danger" title="Excluir" onclick="deleteLancamento('${item.id}')">X</button>`
-          }
+          <button class="btn-icon" title="Editar Lançamento" onclick="editLancamento('${item.id}')">✏️</button>
+          <button class="btn-danger" title="Excluir" onclick="deleteLancamento('${item.id}')">X</button>
         </td>
       `;
       tbody.appendChild(tr);
@@ -1209,9 +1279,14 @@
     sorted.forEach(t => {
       const tr = document.createElement('tr');
       const isInc = t.type === 'INCOME';
+
+      let tagsHTML = '';
+      if (t.isFixed) tagsHTML += '<span class="task-mini-tag" style="background:#DBEAFE; color:#1E40AF;">📌 FIXO</span> ';
+      if (t.isEssential) tagsHTML += '<span class="task-mini-tag" style="background:#FEF3C7; color:#D97706;">⚡ ESSENCIAL</span>';
+
       tr.innerHTML = `
         <td>${t.date}</td>
-        <td style="font-weight: 600;">${t.desc} ${t.isFixed ? '<span class="task-mini-tag" style="background:#DBEAFE; color:#1E40AF;">📌 FIXO</span>' : ''}</td>
+        <td style="font-weight: 600;">${t.desc} ${tagsHTML}</td>
         <td><span class="task-mini-tag">${t.category}</span></td>
         <td><span class="task-mini-tag" style="background:#F1F5F9; color:#334155;">${t.subcategory || '-'}</span></td>
         <td><span class="${isInc ? 'badge-income' : 'badge-expense'}">${isInc ? 'ENTRADA' : 'GASTO'}</span></td>
@@ -1410,50 +1485,6 @@
     });
   }
 
-  function renderApeTable() {
-    const tbody = document.getElementById('tableApe');
-    if (!tbody) return;
-    tbody.innerHTML = '';
-
-    const sorted = (financeData.apeExpenses || []).filter(a => isDateInRange(a.date)).sort((a,b) => new Date(b.date) - new Date(a.date));
-
-    if (sorted.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 20px; color: var(--text-muted);">Nenhuma conta do apê no período.</td></tr>';
-      return;
-    }
-
-    sorted.forEach(a => {
-      const tr = document.createElement('tr');
-      const val = parseFloat(a.amount || 0);
-      const count = parseInt(a.peopleCount) || 2;
-      const myShare = val / count;
-      const isVoce = a.paidBy === 'VOCE';
-      const isSettled = a.settled;
-
-      tr.innerHTML = `
-        <td>${a.date}</td>
-        <td style="font-weight: 600;">${a.desc} ${a.isFixed ? '<span class="task-mini-tag" style="background:#DBEAFE; color:#1E40AF;">📌 FIXO</span>' : ''}</td>
-        <td><span class="task-mini-tag" style="background:${isVoce ? '#EFF6FF' : '#FEF3C7'}; color:${isVoce ? '#2563EB' : '#D97706'}">${isVoce ? '🙋‍♂️ Você' : '🧑‍🤝‍🧑 Colega'}</span></td>
-        <td><span class="task-mini-tag">1 / ${count} pessoas</span></td>
-        <td style="font-weight: 700;">${formatCurr(val)}</td>
-        <td style="color: var(--text-dark); font-weight: 600;">${formatCurr(myShare)}</td>
-        <td class="action-cell">
-          ${isSettled ? `
-            <span class="badge-income" style="display:block; margin-bottom:6px;">✅ QUITADO</span>
-            <button class="btn-outline" style="padding: 4px 8px; font-size: 10px;" title="Desfazer Quitação" onclick="undoSettleApe('${a.id}')">↩️ Desfazer</button>
-          ` : `
-            <div style="display:flex; gap:4px; justify-content:center;">
-              <button class="btn-icon" style="color:var(--success);" title="Saldar este item" onclick="settleApeSingle('${a.id}')">✅</button>
-              <button class="btn-icon" title="Editar" onclick="editApe('${a.id}')">✏️</button>
-              <button class="btn-danger" title="Excluir" onclick="deleteApe('${a.id}')">X</button>
-            </div>
-          `}
-        </td>
-      `;
-      tbody.appendChild(tr);
-    });
-  }
-
   function renderFavoresTable() {
     const tbody = document.getElementById('tableFavores');
     if (!tbody) return;
@@ -1508,17 +1539,19 @@
       const subcat = document.getElementById('lSubCat').value.trim() || '';
       const data = document.getElementById('lData').value || new Date().toISOString().split('T')[0];
       const isFixed = document.getElementById('lIsFixed').checked;
+      const isEssential = document.getElementById('lIsEssential').checked;
 
       if (editId) {
         const item = financeData.transactions.find(t => String(t.id) === String(editId));
         if (item) {
           item.desc = desc; item.amount = valor; item.type = tipo;
-          item.category = cat; item.subcategory = subcat; item.date = data; item.isFixed = isFixed;
+          item.category = cat; item.subcategory = subcat; item.date = data; 
+          item.isFixed = isFixed; item.isEssential = isEssential;
         }
       } else {
         financeData.transactions.push({
           id: 'trans_' + new Date().getTime(),
-          desc, amount: valor, type: tipo, category: cat, subcategory: subcat, date: data, isFixed: isFixed
+          desc, amount: valor, type: tipo, category: cat, subcategory: subcat, date: data, isFixed: isFixed, isEssential: isEssential
         });
       }
 
@@ -1541,6 +1574,7 @@
     document.getElementById('lSubCat').value = item.subcategory || '';
     document.getElementById('lData').value = item.date || '';
     document.getElementById('lIsFixed').checked = !!item.isFixed;
+    document.getElementById('lIsEssential').checked = !!item.isEssential;
     document.getElementById('modalLancamentoTitle').textContent = "EDITAR LANÇAMENTO";
     openModal('modalLancamento');
   }
@@ -1743,6 +1777,20 @@
     }
   }
 
+  function calcLoanFields(source) {
+    const total = parseFloat(document.getElementById('dValorTotal').value) || 0;
+    const falta = parseFloat(document.getElementById('dValorFalta').value);
+    const pago = parseFloat(document.getElementById('dValorPago').value);
+
+    if (source === 'falta' && !isNaN(falta)) {
+      document.getElementById('dValorPago').value = Math.max(0, total - falta);
+    } else if (source === 'pago' && !isNaN(pago)) {
+      document.getElementById('dValorFalta').value = Math.max(0, total - pago);
+    } else if (source === 'total') {
+      if (!isNaN(pago)) document.getElementById('dValorFalta').value = Math.max(0, total - pago);
+    }
+  }
+
   function saveDivida(e) {
     if (e && e.preventDefault) e.preventDefault();
     try {
@@ -1794,6 +1842,19 @@
     openModal('modalDivida');
   }
 
+  function addPaymentToDivida(id) {
+    const debt = (financeData.debts || []).find(d => String(d.id) === String(id));
+    if (!debt) return;
+    const val = prompt(`Quanto deseja amortizar para "${debt.name}"? (${financeData.currency || '€'})`);
+    if (val && !isNaN(parseFloat(val))) {
+      debt.paidAmount = parseFloat(debt.paidAmount || 0) + parseFloat(val);
+      if (debt.paidAmount >= debt.totalAmount) {
+        debt.settledDate = new Date().toISOString().split('T')[0];
+      }
+      saveData();
+    }
+  }
+
   function settleDividaDirect(id) {
     const debt = (financeData.debts || []).find(d => String(d.id) === String(id));
     if (debt) {
@@ -1811,157 +1872,24 @@
         if (!financeData.transactions) financeData.transactions = [];
         financeData.transactions.push({
           id: 'trans_' + new Date().getTime(),
-          desc: `Quitação de Empréstimo: ${debt.name}`,
+          desc: `Quitação Total: ${debt.name}`,
           amount: rem,
           type: 'EXPENSE',
           category: 'Empréstimos',
-          subcategory: 'Quitação Total',
-          date: today
+          subcategory: 'Quitação',
+          date: today,
+          isFixed: false,
+          isEssential: true
         });
 
         saveData();
       }
-    }
-  }
-
-  function addPaymentToDivida(id) {
-    const debt = (financeData.debts || []).find(d => String(d.id) === String(id));
-    if (!debt) return;
-    const valStr = prompt(`Digite o valor pago/amortizado: (${financeData.currency || '€'})`);
-    if (valStr && !isNaN(parseFloat(valStr))) {
-      const val = parseFloat(valStr);
-      if (val <= 0) return;
-      const today = new Date().toISOString().split('T')[0];
-
-      debt.paidAmount = parseFloat(debt.paidAmount || 0) + val;
-      if (parseFloat(debt.paidAmount) >= parseFloat(debt.totalAmount || 0)) {
-        debt.settledDate = today;
-      }
-
-      if (!financeData.transactions) financeData.transactions = [];
-      financeData.transactions.push({
-        id: 'trans_' + new Date().getTime(),
-        desc: `Amortização: ${debt.name}`,
-        amount: val,
-        type: 'EXPENSE',
-        category: 'Empréstimos',
-        subcategory: 'Amortização',
-        date: today
-      });
-
-      saveData();
     }
   }
 
   function deleteDivida(id) {
-    if (confirm("Deseja realmente remover este empréstimo?")) {
+    if (confirm("Deseja realmente excluir este empréstimo?")) {
       financeData.debts = (financeData.debts || []).filter(d => String(d.id) !== String(id));
-      saveData();
-    }
-  }
-
-  function saveApe(e) {
-    if (e && e.preventDefault) e.preventDefault();
-    try {
-      if (!financeData.apeExpenses) financeData.apeExpenses = [];
-
-      const editId = document.getElementById('aEditId').value;
-      const desc = document.getElementById('aDesc').value.trim();
-      const valor = parseFloat(document.getElementById('aValor').value) || 0;
-      const quem = document.getElementById('aQuem').value;
-      const pessoas = parseInt(document.getElementById('aPessoas').value) || 2;
-      const data = document.getElementById('aData').value || new Date().toISOString().split('T')[0];
-      const isFixed = document.getElementById('aIsFixed').checked;
-
-      if (editId) {
-        const item = financeData.apeExpenses.find(a => String(a.id) === String(editId));
-        if (item) { item.desc = desc; item.amount = valor; item.paidBy = quem; item.peopleCount = pessoas; item.date = data; item.isFixed = isFixed; }
-      } else {
-        financeData.apeExpenses.push({
-          id: 'ape_' + new Date().getTime(),
-          desc, amount: valor, paidBy: quem, peopleCount: pessoas, date: data, settled: false, isFixed: isFixed
-        });
-      }
-
-      saveData();
-      closeModal('modalApe');
-      if (e && e.target && typeof e.target.reset === 'function') e.target.reset();
-    } catch(err) {
-      alert("Erro ao salvar conta do apê: " + err.message);
-    }
-  }
-
-  function editApe(id) {
-    const item = (financeData.apeExpenses || []).find(a => String(a.id) === String(id));
-    if (!item) return;
-    document.getElementById('aEditId').value = item.id;
-    document.getElementById('aDesc').value = item.desc || '';
-    document.getElementById('aValor').value = item.amount || '';
-    document.getElementById('aQuem').value = item.paidBy || 'VOCE';
-    document.getElementById('aPessoas').value = item.peopleCount || 2;
-    document.getElementById('aData').value = item.date || '';
-    document.getElementById('aIsFixed').checked = !!item.isFixed;
-    document.getElementById('modalApeTitle').textContent = "EDITAR CONTA DO APÊ";
-    openModal('modalApe');
-  }
-
-  function settleApeSingle(id) {
-    const a = financeData.apeExpenses.find(x => String(x.id) === String(id));
-    if (!a) return;
-
-    if (!financeData.transactions) financeData.transactions = [];
-
-    const val = parseFloat(a.amount || 0);
-    const count = parseInt(a.peopleCount) || 2;
-    const myShare = val / count;
-    const othersShare = val - myShare;
-
-    let transType, transAmount, descPrefix;
-    if (a.paidBy === 'VOCE') {
-        transType = 'INCOME';
-        transAmount = othersShare;
-        descPrefix = 'Recebimento Acerto Apê:';
-    } else {
-        transType = 'EXPENSE';
-        transAmount = myShare;
-        descPrefix = 'Pagamento Acerto Apê:';
-    }
-
-    if (confirm(`Saldar esta conta do Apê?\n\nIsso gerará automaticamente um lançamento de ${formatCurr(transAmount)}.`)) {
-        const transId = 'trans_' + new Date().getTime();
-        financeData.transactions.push({
-            id: transId,
-            desc: `${descPrefix} ${a.desc}`,
-            amount: transAmount,
-            type: transType,
-            category: 'Contas do Apê',
-            subcategory: 'Acerto Individual',
-            date: new Date().toISOString().split('T')[0]
-        });
-        
-        a.settled = true;
-        a.settlementTransId = transId;
-        saveData();
-    }
-  }
-
-  function undoSettleApe(id) {
-    const a = financeData.apeExpenses.find(x => String(x.id) === String(id));
-    if (!a) return;
-
-    if (confirm(`Desfazer a quitação desta conta do Apê?\n\nIsso removerá o lançamento gerado automaticamente.`)) {
-        a.settled = false;
-        if (a.settlementTransId) {
-            financeData.transactions = (financeData.transactions || []).filter(t => String(t.id) !== String(a.settlementTransId));
-            delete a.settlementTransId;
-        }
-        saveData();
-    }
-  }
-
-  function deleteApe(id) {
-    if (confirm("Deseja realmente excluir esta conta do apê?")) {
-      financeData.apeExpenses = (financeData.apeExpenses || []).filter(a => String(a.id) !== String(id));
       saveData();
     }
   }
@@ -2010,394 +1938,191 @@
   }
 
   function settleFavor(id) {
-    const f = (financeData.favors || []).find(x => String(x.id) === String(id));
-    if (!f) return;
-
-    const isConcedido = (f.type === 'CONCEDIDO');
-    const transType = isConcedido ? 'INCOME' : 'EXPENSE';
-    const actionText = isConcedido ? 'recebido' : 'pago';
-
-    if (confirm(`Marcar o favor "${f.desc}" como ${actionText} (${formatCurr(f.amount)})?`)) {
-      const transId = 'trans_' + new Date().getTime();
-      if (!financeData.transactions) financeData.transactions = [];
-      financeData.transactions.push({
-        id: transId,
-        desc: `Favor Quitado: ${f.desc} (${f.pessoa})`,
-        amount: parseFloat(f.amount || 0),
-        type: transType,
-        category: 'Favores',
-        subcategory: f.pessoa,
-        date: new Date().toISOString().split('T')[0]
-      });
-
-      f.settled = true;
-      f.settlementTransId = transId;
+    const item = (financeData.favors || []).find(f => String(f.id) === String(id));
+    if (item) {
+      item.settled = true;
       saveData();
     }
   }
 
   function undoSettleFavor(id) {
-    const f = (financeData.favors || []).find(x => String(x.id) === String(id));
-    if (!f) return;
-
-    if (confirm("Desfazer quitação do favor?")) {
-      f.settled = false;
-      if (f.settlementTransId) {
-        financeData.transactions = (financeData.transactions || []).filter(t => String(t.id) !== String(f.settlementTransId));
-        delete f.settlementTransId;
-      }
+    const item = (financeData.favors || []).find(f => String(f.id) === String(id));
+    if (item) {
+      item.settled = false;
       saveData();
     }
   }
 
   function deleteFavor(id) {
-    if (confirm("Deseja realmente excluir este favor?")) {
+    if (confirm("Deseja remover este registro de favor?")) {
       financeData.favors = (financeData.favors || []).filter(f => String(f.id) !== String(id));
       saveData();
-    }
-  }
-
-  function calcLoanFields(source) {
-    const totalInput = document.getElementById('dValorTotal');
-    const faltaInput = document.getElementById('dValorFalta');
-    const pagoInput = document.getElementById('dValorPago');
-
-    const total = parseFloat(totalInput.value) || 0;
-
-    if (source === 'falta' || source === 'total') {
-      const faltaVal = parseFloat(faltaInput.value);
-      if (!isNaN(faltaVal) && faltaInput.value !== '') {
-        pagoInput.value = Math.max(0, total - faltaVal).toFixed(2);
-      }
-    } else if (source === 'pago') {
-      const pagoVal = parseFloat(pagoInput.value);
-      if (!isNaN(pagoVal) && pagoInput.value !== '') {
-        faltaInput.value = Math.max(0, total - pagoVal).toFixed(2);
-      }
     }
   }
 
   function populateCategoryFilters() {
     const catSelect = document.getElementById('chartCategoryFilter');
     if (!catSelect) return;
-    const currCat = catSelect.value;
 
+    const currentCatVal = catSelect.value;
     catSelect.innerHTML = '<option value="ALL">Todas as Saídas (Geral)</option>';
-    catSelect.innerHTML += '<option value="CONTAS_APE">🏢 Contas do Apê</option>';
-    catSelect.innerHTML += '<option value="DIVIDAS">🤝 Empréstimos</option>';
-    catSelect.innerHTML += '<option value="POUPANCA">🐷 Poupança & Aportes</option>';
 
-    const cats = new Set();
-    (financeData.transactions || []).forEach(t => {
-      if (t.type === 'EXPENSE' && t.category) cats.add(t.category.toUpperCase().trim());
+    const categoriesFound = new Set();
+    (financeData.transactions || []).filter(t => t.type === 'EXPENSE').forEach(t => {
+      if (t.category) categoriesFound.add(t.category);
     });
 
-    Array.from(cats).sort().forEach(cat => {
-      if (!['CONTAS COMPARTILHADAS', 'CONTAS_APE', 'DIVIDAS', 'POUPANCA'].includes(cat)) {
-        const opt = document.createElement('option');
-        opt.value = cat;
-        opt.textContent = cat;
-        if (cat === currCat) opt.selected = true;
-        catSelect.appendChild(opt);
-      }
+    categoriesFound.forEach(cat => {
+      const opt = document.createElement('option');
+      opt.value = cat;
+      opt.textContent = cat;
+      catSelect.appendChild(opt);
     });
 
-    populateSubCategoryFilter();
+    if (categoriesFound.has(currentCatVal)) {
+      catSelect.value = currentCatVal;
+    }
+
+    onCategoryFilterChange();
   }
 
   function onCategoryFilterChange() {
-    populateSubCategoryFilter();
+    const catSelect = document.getElementById('chartCategoryFilter');
+    const subCatSelect = document.getElementById('chartSubCategoryFilter');
+    if (!catSelect || !subCatSelect) return;
+
+    const selectedCat = catSelect.value;
+    const currentSubVal = subCatSelect.value;
+
+    subCatSelect.innerHTML = '<option value="ALL">Todas as Subcategorias</option>';
+
+    if (selectedCat !== 'ALL') {
+      const subCatsFound = new Set();
+      (financeData.transactions || [])
+        .filter(t => t.type === 'EXPENSE' && t.category === selectedCat && t.subcategory)
+        .forEach(t => subCatsFound.add(t.subcategory));
+
+      subCatsFound.forEach(sub => {
+        const opt = document.createElement('option');
+        opt.value = sub;
+        opt.textContent = sub;
+        subCatSelect.appendChild(opt);
+      });
+
+      if (subCatsFound.has(currentSubVal)) {
+        subCatSelect.value = currentSubVal;
+      }
+    }
+
     updateHistoryChart();
   }
 
-  function populateSubCategoryFilter() {
-    const catSelect = document.getElementById('chartCategoryFilter');
-    const subSelect = document.getElementById('chartSubCategoryFilter');
-    if (!catSelect || !subSelect) return;
-
-    const catVal = catSelect.value;
-    const currSub = subSelect.value;
-
-    subSelect.innerHTML = '<option value="ALL">Todas as Subcategorias</option>';
-
-    const subCats = new Set();
-
-    if (catVal === 'ALL') {
-      (financeData.transactions || []).forEach(t => {
-        if (t.type === 'EXPENSE' && t.subcategory) subCats.add(t.subcategory.toUpperCase().trim());
-      });
-      (financeData.apeExpenses || []).forEach(a => {
-        if (a.desc) subCats.add(a.desc.toUpperCase().trim());
-      });
-      (financeData.debts || []).forEach(d => {
-        if (d.name) subCats.add(d.name.toUpperCase().trim());
-      });
-      (financeData.savings || []).forEach(s => {
-        if (s.areas && s.areas.length > 0) {
-          s.areas.forEach(ar => subCats.add(ar.name.toUpperCase().trim()));
-        } else if (s.name) subCats.add(s.name.toUpperCase().trim());
-      });
-    } else if (catVal === 'CONTAS_APE') {
-      (financeData.apeExpenses || []).forEach(a => {
-        if (a.desc) subCats.add(a.desc.toUpperCase().trim());
-      });
-    } else if (catVal === 'DIVIDAS') {
-      (financeData.debts || []).forEach(d => {
-        if (d.name) subCats.add(d.name.toUpperCase().trim());
-      });
-    } else if (catVal === 'POUPANCA') {
-      (financeData.savings || []).forEach(s => {
-        if (s.areas && s.areas.length > 0) {
-          s.areas.forEach(ar => subCats.add(ar.name.toUpperCase().trim()));
-        } else if (s.name) subCats.add(s.name.toUpperCase().trim());
-      });
-    } else {
-      (financeData.transactions || []).forEach(t => {
-        if (t.type === 'EXPENSE' && t.category && t.category.toUpperCase().trim() === catVal) {
-          if (t.subcategory) subCats.add(t.subcategory.toUpperCase().trim());
-          else if (t.desc) subCats.add(t.desc.toUpperCase().trim());
-        }
-      });
-    }
-
-    Array.from(subCats).sort().forEach(sub => {
-      const opt = document.createElement('option');
-      opt.value = sub;
-      opt.textContent = sub;
-      if (sub === currSub) opt.selected = true;
-      subSelect.appendChild(opt);
-    });
-  }
-
   function initOrUpdateCharts() {
-    if (typeof Chart === 'undefined') return;
-    try {
-      updateHistoryChart();
-      updateCategoryChart();
-    } catch(err) {
-      console.error("Erro nos gráficos:", err);
-    }
+    updateHistoryChart();
+    updateCategoryPieChart();
   }
 
   function updateHistoryChart() {
-    if (typeof Chart === 'undefined') return;
-    const canvas = document.getElementById('historyChart');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    const selectedCat = document.getElementById('chartCategoryFilter').value;
-    const selectedSub = document.getElementById('chartSubCategoryFilter').value;
+    const ctx = document.getElementById('historyChart');
+    if (!ctx) return;
 
-    const monthlyData = {};
-    let categorySumTotal = 0;
-    let categoryItemsCount = 0;
+    const catSelected = document.getElementById('chartCategoryFilter').value;
+    const subSelected = document.getElementById('chartSubCategoryFilter').value;
 
-    if (selectedCat !== 'CONTAS_APE' && selectedCat !== 'DIVIDAS' && selectedCat !== 'POUPANCA') {
-      (financeData.transactions || []).filter(t => isDateInRange(t.date)).forEach(t => {
-        if (t.type !== 'EXPENSE') return;
-        
-        const cat = (t.category || '').toUpperCase().trim();
-        const sub = (t.subcategory || t.desc || '').toUpperCase().trim();
+    const filteredExpenses = (financeData.transactions || []).filter(t => {
+      if (t.type !== 'EXPENSE') return false;
+      if (!isDateInRange(t.date)) return false;
+      if (catSelected !== 'ALL' && t.category !== catSelected) return false;
+      if (subSelected !== 'ALL' && t.subcategory !== subSelected) return false;
+      return true;
+    });
 
-        if (selectedCat !== 'ALL' && cat !== selectedCat) return;
-        if (selectedSub !== 'ALL' && sub !== selectedSub) return;
+    let totalSum = 0;
+    const dateMap = {};
 
-        const val = parseFloat(t.amount || 0);
-        categorySumTotal += val;
-        categoryItemsCount++;
+    filteredExpenses.forEach(t => {
+      const amt = parseFloat(t.amount || 0);
+      totalSum += amt;
+      dateMap[t.date] = (dateMap[t.date] || 0) + amt;
+    });
 
-        const dateObj = new Date(t.date);
-        const monthKey = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
+    const badgeVal = document.getElementById('statBadgeValue');
+    const badgeSub = document.getElementById('statBadgeSub');
+    if (badgeVal) badgeVal.textContent = formatCurr(totalSum);
+    if (badgeSub) badgeSub.textContent = `${filteredExpenses.length} lançamento(s)`;
 
-        if (!monthlyData[monthKey]) monthlyData[monthKey] = 0;
-        monthlyData[monthKey] += val;
-      });
+    const sortedDates = Object.keys(dateMap).sort();
+    const chartData = sortedDates.map(d => dateMap[d]);
+
+    if (historyChartInstance) {
+      historyChartInstance.destroy();
     }
-
-    if (selectedCat === 'ALL' || selectedCat === 'CONTAS_APE') {
-      (financeData.apeExpenses || []).filter(a => isDateInRange(a.date)).forEach(a => {
-        const sub = (a.desc || '').toUpperCase().trim();
-        if (selectedSub !== 'ALL' && sub !== selectedSub) return;
-
-        const count = parseInt(a.peopleCount) || 2;
-        const myShare = parseFloat(a.amount || 0) / count;
-
-        categorySumTotal += myShare;
-        categoryItemsCount++;
-
-        const dateObj = new Date(a.date);
-        const monthKey = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
-
-        if (!monthlyData[monthKey]) monthlyData[monthKey] = 0;
-        monthlyData[monthKey] += myShare;
-      });
-    }
-
-    if (selectedCat === 'ALL' || selectedCat === 'DIVIDAS') {
-      (financeData.debts || []).forEach(d => {
-        const sub = (d.name || '').toUpperCase().trim();
-        if (selectedSub !== 'ALL' && sub !== selectedSub) return;
-
-        const dateStr = d.settledDate || new Date().toISOString().split('T')[0];
-        if (!isDateInRange(dateStr)) return;
-
-        const val = parseFloat(d.paidAmount || 0);
-        categorySumTotal += val;
-        if (val > 0) categoryItemsCount++;
-
-        const dateObj = new Date(dateStr);
-        const monthKey = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
-
-        if (!monthlyData[monthKey]) monthlyData[monthKey] = 0;
-        monthlyData[monthKey] += val;
-      });
-    }
-
-    if (selectedCat === 'ALL' || selectedCat === 'POUPANCA') {
-      (financeData.savings || []).forEach(s => {
-        const dateObj = new Date();
-        const monthKey = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
-        
-        if (!isDateInRange(dateObj.toISOString().split('T')[0])) return;
-
-        if (s.areas && s.areas.length > 0) {
-          s.areas.forEach(ar => {
-            const sub = (ar.name || '').toUpperCase().trim();
-            if (selectedSub !== 'ALL' && sub !== selectedSub) return;
-
-            const val = parseFloat(ar.currentAmount || 0);
-            categorySumTotal += val;
-            if (val > 0) categoryItemsCount++;
-
-            if (!monthlyData[monthKey]) monthlyData[monthKey] = 0;
-            monthlyData[monthKey] += val;
-          });
-        } else {
-          const sub = (s.name || '').toUpperCase().trim();
-          if (selectedSub !== 'ALL' && sub !== selectedSub) return;
-
-          const val = parseFloat(s.currentAmount || 0);
-          categorySumTotal += val;
-          if (val > 0) categoryItemsCount++;
-
-          if (!monthlyData[monthKey]) monthlyData[monthKey] = 0;
-          monthlyData[monthKey] += val;
-        }
-      });
-    }
-
-    const curr = financeData.currency || "€";
-    let filterLabel = "SOMA TOTAL (TODAS AS SAÍDAS)";
-    if (selectedCat !== 'ALL') filterLabel = `SOMA TOTAL: ${selectedCat}`;
-    if (selectedSub !== 'ALL') filterLabel += ` > ${selectedSub}`;
-
-    document.getElementById('statBadgeLabel').textContent = filterLabel;
-    document.getElementById('statBadgeValue').textContent = `${curr} ${Math.round(categorySumTotal).toLocaleString('pt-BR')}`;
-    document.getElementById('statBadgeSub').textContent = `${categoryItemsCount} item(ns) no filtro`;
-
-    const labels = Object.keys(monthlyData).sort();
-    const values = labels.map(k => monthlyData[k]);
-
-    if (historyChartInstance) historyChartInstance.destroy();
-
-    let chartLabel = `Saídas (${curr})`;
-    if (selectedCat !== 'ALL') chartLabel = `${selectedCat}`;
-    if (selectedSub !== 'ALL') chartLabel += ` > ${selectedSub}`;
 
     historyChartInstance = new Chart(ctx, {
       type: 'line',
       data: {
-        labels: labels,
+        labels: sortedDates.length > 0 ? sortedDates : ['Sem Dados'],
         datasets: [{
-          label: chartLabel,
-          data: values,
+          label: 'Gastos no Período',
+          data: chartData.length > 0 ? chartData : [0],
           borderColor: '#2F5FD0',
           backgroundColor: 'rgba(47, 95, 208, 0.1)',
           fill: true,
           tension: 0.3,
-          borderWidth: 3
+          pointRadius: 4,
+          pointHoverRadius: 6
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: { legend: { display: true } },
-        scales: { y: { beginAtZero: true } }
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          y: { beginAtZero: true }
+        }
       }
     });
   }
 
-  function updateCategoryChart() {
-    if (typeof Chart === 'undefined') return;
-    const canvas = document.getElementById('categoryChart');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    const catSums = {};
+  function updateCategoryPieChart() {
+    const ctx = document.getElementById('categoryChart');
+    if (!ctx) return;
 
-    (financeData.transactions || []).filter(t => isDateInRange(t.date)).forEach(t => {
-      if (t.type !== 'EXPENSE') return;
-      const cat = (t.category || 'Outros').toUpperCase().trim();
-      if (!catSums[cat]) catSums[cat] = 0;
-      catSums[cat] += parseFloat(t.amount || 0);
+    const catTotals = {};
+    (financeData.transactions || []).filter(t => t.type === 'EXPENSE' && isDateInRange(t.date)).forEach(t => {
+      const cat = t.category || 'Outros';
+      catTotals[cat] = (catTotals[cat] || 0) + parseFloat(t.amount || 0);
     });
 
-    (financeData.apeExpenses || []).filter(a => isDateInRange(a.date)).forEach(a => {
-      const cat = 'CONTAS DO APÊ';
-      if (!catSums[cat]) catSums[cat] = 0;
-      const count = parseInt(a.peopleCount) || 2;
-      catSums[cat] += parseFloat(a.amount || 0) / count;
-    });
+    const labels = Object.keys(catTotals);
+    const data = Object.values(catTotals);
 
-    const labels = Object.keys(catSums);
-    const values = labels.map(k => catSums[k]);
+    if (categoryChartInstance) {
+      categoryChartInstance.destroy();
+    }
 
-    if (categoryChartInstance) categoryChartInstance.destroy();
+    const defaultColors = ['#2F5FD0', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#6366F1', '#14B8A6'];
 
     categoryChartInstance = new Chart(ctx, {
       type: 'doughnut',
       data: {
-        labels: labels.length > 0 ? labels : ['Sem lançamentos no período'],
+        labels: labels.length > 0 ? labels : ['Sem despesas'],
         datasets: [{
-          data: values.length > 0 ? values : [1],
-          backgroundColor: ['#2F5FD0', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#64748B']
+          data: data.length > 0 ? data : [1],
+          backgroundColor: labels.length > 0 ? defaultColors.slice(0, labels.length) : ['#E2E8F0']
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: { legend: { position: 'right' } }
+        plugins: {
+          legend: { position: 'bottom' }
+        }
       }
     });
   }
-
-  function openModal(modalId) {
-    document.getElementById(modalId).classList.add('active');
-    document.body.classList.add('modal-open');
-  }
-
-  function closeModal(modalId) {
-    document.getElementById(modalId).classList.remove('active');
-    document.body.classList.remove('modal-open');
-    const hiddenInputs = document.querySelectorAll('#' + modalId + ' input[type="hidden"]');
-    hiddenInputs.forEach(i => i.value = '');
-
-    const checkFixed = document.getElementById('lIsFixed');
-    if (checkFixed) checkFixed.checked = false;
-
-    const checkApeFixed = document.getElementById('aIsFixed');
-    if (checkApeFixed) checkApeFixed.checked = false;
-    
-    const pValorMeta = document.getElementById('pValorMeta');
-    const pValorAtual = document.getElementById('pValorAtual');
-    if (pValorMeta) pValorMeta.disabled = false;
-    if (pValorAtual) pValorAtual.disabled = false;
-  }
-
-  function formatCurr(val) {
-    const curr = financeData.currency || "€";
-    const num = (val || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    return `${curr} ${num}`;
-  }
 </script>
-
 </body>
 </html>
