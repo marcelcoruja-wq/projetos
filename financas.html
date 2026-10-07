@@ -195,7 +195,7 @@
         <!-- TAB CONTENT 4: OTHER CATEGORIES -->
         <div id="tab-content-categories" class="tab-pane hidden space-y-6">
             <div class="bg-white border border-indigo-200 rounded-xl p-6">
-                <h2 class="text-xl font-bold text-indigo-950">Outras Categorias & Gastos Diversos</h2>
+                <h2 class="text-xl font-bold text-indigo-950">Lazer</h2>
                 <p class="text-xs text-indigo-800/80 mt-1">Gestão de despesas não classificadas como essenciais nem viagens.</p>
             </div>
         </div>
@@ -465,12 +465,12 @@
         const defaultState = {
             activeTab: 'overview',
             activeTagFilter: 'ALL',
-            categories: ['Gastos Essenciais', 'Viagens', 'Outras Categorias'],
+            categories: ['Gastos Essenciais', 'Viagens', 'Lazer'],
             tags: ['Essencial', 'Fixa', 'Variável', 'Lazer', 'Viagem'],
             budgets: {
                 'Gastos Essenciais': 1800.00,
                 'Viagens': 600.00,
-                'Outras Categorias': 500.00
+                'Lazer': 500.00
             },
             poupancas: [
                 { id: '1', title: 'Fundo de Emergência', current: 1200.00, target: 3000.00 },
@@ -484,7 +484,7 @@
                 { id: '2', title: 'Supermercado Semanal', amount: 165.40, category: 'Gastos Essenciais', date: '2026-10-03', tag: 'Essencial', isTravel: false },
                 { id: '3', title: 'Passagens Aéreas Férias', amount: 320.00, category: 'Viagens', date: '2026-10-04', tag: 'Viagem', isTravel: true },
                 { id: '4', title: 'Reserva do Hotel', amount: 180.00, category: 'Viagens', date: '2026-10-05', tag: 'Viagem', isTravel: true },
-                { id: '5', title: 'Jantar de Confraternização', amount: 45.00, category: 'Outras Categorias', date: '2026-10-06', tag: 'Lazer', isTravel: false },
+                { id: '5', title: 'Jantar de Confraternização', amount: 45.00, category: 'Lazer', date: '2026-10-06', tag: 'Lazer', isTravel: false },
                 { id: '6', title: 'Conta de Eletricidade & Água', amount: 110.20, category: 'Gastos Essenciais', date: '2026-10-06', tag: 'Fixa', isTravel: false }
             ]
         };
