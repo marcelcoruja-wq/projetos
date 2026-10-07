@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Quebra de cache para garantir que lê o cloud.js novo -->
   <script src="cloud.js?v=11"></script>
   <style>
     :root {
@@ -58,8 +59,8 @@
     .action-cell { white-space: nowrap; text-align: center; }
 
     /* CONTROLE DE ABAS */
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
+    .tab-content { display: none !important; }
+    .tab-content.active { display: block !important; }
 
     /* SEÇÃO DE FILAS KPIS DO DASHBOARD */
     .kpi-section-title { font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; letter-spacing: 0.5px; }
@@ -742,6 +743,7 @@
     return `${curr} ${num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   }
 
+  // GERENCIAMENTO DE ETIQUETAS FIXAS DE CATEGORIAS
   function renderCategoriesManager() {
     const container = document.getElementById('categoriesListContainer');
     const datalist = document.getElementById('catList');
@@ -2037,25 +2039,26 @@
     filteredExpenses.forEach(t => {
       const amt = parseFloat(t.amount || 0);
       totalSum += amt;
-      const key = t.date || 'Sem Data';
-      grouped[key] = (grouped[key] || 0) + amt;
+      grouped[t.date] = (grouped[t.date] || 0) + amt;
     });
 
     document.getElementById('statBadgeValue').textContent = formatCurr(totalSum);
     document.getElementById('statBadgeSub').textContent = `${filteredExpenses.length} lançamentos`;
 
     const labels = Object.keys(grouped).sort();
-    const dataVals = labels.map(l => grouped[l]);
+    const data = labels.map(k => grouped[k]);
 
-    if (historyChartInstance) historyChartInstance.destroy();
+    if (historyChartInstance) {
+      historyChartInstance.destroy();
+    }
 
     historyChartInstance = new Chart(ctx, {
       type: 'bar',
       data: {
         labels: labels,
         datasets: [{
-          label: 'Gastos',
-          data: dataVals,
+          label: 'Gastos no Período',
+          data: data,
           backgroundColor: '#2F5FD0',
           borderRadius: 6
         }]
@@ -2063,7 +2066,9 @@
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
+        plugins: {
+          legend: { display: false }
+        },
         scales: {
           y: { beginAtZero: true }
         }
@@ -2075,36 +2080,39 @@
     const ctx = document.getElementById('categoryChart');
     if (!ctx) return;
 
-    const catTotals = {};
+    const totalsPerCat = {};
     (financeData.transactions || []).filter(t => t.type === 'EXPENSE' && isDateInRange(t.date)).forEach(t => {
-      const cat = t.category || 'Geral';
-      catTotals[cat] = (catTotals[cat] || 0) + parseFloat(t.amount || 0);
+      const cat = t.category || 'Outros';
+      totalsPerCat[cat] = (totalsPerCat[cat] || 0) + parseFloat(t.amount || 0);
     });
 
-    const labels = Object.keys(catTotals);
-    const dataVals = labels.map(l => catTotals[l]);
+    const labels = Object.keys(totalsPerCat);
+    const data = labels.map(k => totalsPerCat[k]);
 
-    if (categoryChartInstance) categoryChartInstance.destroy();
+    if (categoryChartInstance) {
+      categoryChartInstance.destroy();
+    }
 
     categoryChartInstance = new Chart(ctx, {
       type: 'doughnut',
       data: {
         labels: labels,
         datasets: [{
-          data: dataVals,
-          backgroundColor: ['#2F5FD0', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#64748B']
+          data: data,
+          backgroundColor: [
+            '#2F5FD0', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#64748B'
+          ]
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: { position: 'right' }
+          legend: { position: 'bottom' }
         }
       }
     });
   }
 </script>
-
 </body>
 </html>
