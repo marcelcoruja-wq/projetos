@@ -27,7 +27,7 @@
                     </div>
                     <div>
                         <h1 class="text-lg font-bold tracking-tight text-slate-900">Finanças & Orçamento</h1>
-                        <p class="text-xs text-slate-500">Controlo de Tetos, Categorias e Despesas</p>
+                        <p class="text-xs text-slate-500">Controlo de Tetos, Categorias, Poupanças e Empréstimos</p>
                     </div>
                 </div>
 
@@ -63,33 +63,33 @@
         </div>
     </header>
 
-    <!-- Global Summary Dashboard Header (White & Bright Theme) -->
+    <!-- Global Summary Dashboard Header (Com fundos brancos ajustados) -->
     <div class="bg-white border-b border-slate-200 py-6 shadow-xs">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 shadow-xs">
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
                 <span class="text-xs text-slate-500 font-semibold uppercase tracking-wider">Teto Total Definido</span>
                 <div class="text-2xl font-bold mt-1 text-slate-900" id="global-budget-display">€ 0.00</div>
                 <div class="text-xs text-slate-500 mt-1">Limite global orçamentado</div>
             </div>
 
-            <div class="bg-amber-50/50 p-4 rounded-xl border border-amber-200 shadow-xs">
+            <div class="bg-white p-4 rounded-xl border border-amber-200 shadow-xs">
                 <span class="text-xs text-amber-800 font-semibold uppercase tracking-wider">Total Gasto Realizado</span>
                 <div class="text-2xl font-bold mt-1 text-amber-700" id="global-spent-display">€ 0.00</div>
                 <div class="text-xs text-amber-800/80 mt-1" id="global-spent-percent">0% do teto global</div>
             </div>
 
-            <div class="bg-emerald-50/50 p-4 rounded-xl border border-emerald-200 shadow-xs" id="global-remaining-card">
+            <div class="bg-white p-4 rounded-xl border border-emerald-200 shadow-xs" id="global-remaining-card">
                 <span class="text-xs text-emerald-800 font-semibold uppercase tracking-wider">Saldo Disponível</span>
                 <div class="text-2xl font-bold mt-1 text-emerald-700" id="global-remaining-display">€ 0.00</div>
                 <div class="text-xs text-emerald-800/80 mt-1" id="global-remaining-status">Dentro da margem</div>
             </div>
 
-            <div class="bg-sky-50/50 p-4 rounded-xl border border-sky-200 shadow-xs flex flex-col justify-between">
+            <div class="bg-white p-4 rounded-xl border border-sky-200 shadow-xs flex flex-col justify-between">
                 <div>
                     <span class="text-xs text-sky-800 font-semibold uppercase tracking-wider">Gastos em Viagens</span>
                     <div class="text-2xl font-bold mt-1 text-sky-700" id="travel-spent-display">€ 0.00</div>
                 </div>
-                <div class="text-[11px] text-sky-800 bg-sky-100 px-2 py-0.5 rounded border border-sky-200 inline-block w-max mt-2 font-medium">
+                <div class="text-[11px] text-sky-800 bg-sky-50 px-2 py-0.5 rounded border border-sky-200 inline-block w-max mt-2 font-medium">
                     ✈️ Registados com Checkbox
                 </div>
             </div>
@@ -99,23 +99,29 @@
     <!-- Main Content Area -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
 
-        <!-- Navigation Tabs -->
+        <!-- Navigation Tabs (Com Poupança e Empréstimos) -->
         <div class="bg-white rounded-xl shadow-xs border border-slate-200 p-1.5 flex flex-wrap gap-1 mb-6">
-            <button onclick="switchTab('overview')" id="tab-btn-overview" class="tab-btn flex-1 min-w-[140px] py-2.5 px-4 rounded-lg text-sm font-semibold transition flex items-center justify-center gap-2 text-slate-600 hover:bg-slate-100">
+            <button onclick="switchTab('overview')" id="tab-btn-overview" class="tab-btn flex-1 min-w-[120px] py-2.5 px-3 rounded-lg text-xs font-semibold transition flex items-center justify-center gap-1.5 text-slate-600 hover:bg-slate-100">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
                 Visão Geral
             </button>
-            <button onclick="switchTab('essentials')" id="tab-btn-essentials" class="tab-btn flex-1 min-w-[140px] py-2.5 px-4 rounded-lg text-sm font-semibold transition flex items-center justify-center gap-2 text-slate-600 hover:bg-slate-100">
+            <button onclick="switchTab('essentials')" id="tab-btn-essentials" class="tab-btn flex-1 min-w-[120px] py-2.5 px-3 rounded-lg text-xs font-semibold transition flex items-center justify-center gap-1.5 text-slate-600 hover:bg-slate-100">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
                 Gastos Essenciais
             </button>
-            <button onclick="switchTab('travel')" id="tab-btn-travel" class="tab-btn flex-1 min-w-[140px] py-2.5 px-4 rounded-lg text-sm font-semibold transition flex items-center justify-center gap-2 text-slate-600 hover:bg-slate-100">
+            <button onclick="switchTab('travel')" id="tab-btn-travel" class="tab-btn flex-1 min-w-[120px] py-2.5 px-3 rounded-lg text-xs font-semibold transition flex items-center justify-center gap-1.5 text-slate-600 hover:bg-slate-100">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 002 2h1.5a2.5 2.5 0 002.5-2.5V11.414l1.293-1.293a1 1 0 00-1.414-1.414L18 10V5a2 2 0 00-2-2H8z"></path></svg>
-                Viagens (Adicional)
+                Viagens
             </button>
-            <button onclick="switchTab('categories')" id="tab-btn-categories" class="tab-btn flex-1 min-w-[140px] py-2.5 px-4 rounded-lg text-sm font-semibold transition flex items-center justify-center gap-2 text-slate-600 hover:bg-slate-100">
+            <button onclick="switchTab('categories')" id="tab-btn-categories" class="tab-btn flex-1 min-w-[120px] py-2.5 px-3 rounded-lg text-xs font-semibold transition flex items-center justify-center gap-1.5 text-slate-600 hover:bg-slate-100">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 11h.01M7 15h.01M11 7h8M11 11h8M11 15h8M4 5h16a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V6a1 1 0 011-1z"></path></svg>
                 Outras Categorias
+            </button>
+            <button onclick="switchTab('poupanca')" id="tab-btn-poupanca" class="tab-btn flex-1 min-w-[120px] py-2.5 px-3 rounded-lg text-xs font-semibold transition flex items-center justify-center gap-1.5 text-slate-600 hover:bg-slate-100">
+                🐷 Poupança & Metas
+            </button>
+            <button onclick="switchTab('dividas')" id="tab-btn-dividas" class="tab-btn flex-1 min-w-[120px] py-2.5 px-3 rounded-lg text-xs font-semibold transition flex items-center justify-center gap-1.5 text-slate-600 hover:bg-slate-100">
+                🤝 Empréstimos
             </button>
         </div>
 
@@ -125,7 +131,7 @@
                 <!-- Dynamically populated tags -->
             </div>
             <div class="relative min-w-[220px]">
-                <input type="text" id="search-input" oninput="renderApp()" placeholder="Pesquisar gastos..." class="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <input type="text" id="search-input" oninput="renderApp()" placeholder="Pesquisar..." class="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
                 <svg class="w-4 h-4 text-slate-400 absolute left-2.5 top-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
             </div>
         </div>
@@ -146,14 +152,14 @@
 
         <!-- TAB CONTENT 2: ESSENTIALS -->
         <div id="tab-content-essentials" class="tab-pane hidden space-y-6">
-            <div class="bg-amber-50/70 border border-amber-200 rounded-xl p-6">
+            <div class="bg-white border border-amber-200 rounded-xl p-6">
                 <div class="flex justify-between items-start flex-wrap gap-4">
                     <div>
                         <span class="text-xs font-bold uppercase tracking-wider text-amber-800 bg-amber-100 px-2.5 py-1 rounded-md">Categoria Principal</span>
                         <h2 class="text-xl font-bold text-amber-950 mt-2">Gastos Essenciais</h2>
                         <p class="text-xs text-amber-800/80 mt-1">Despesas fundamentais para o dia a dia (Moradia, Alimentação, Saúde, Contas).</p>
                     </div>
-                    <div class="bg-white p-4 rounded-xl shadow-xs border border-amber-200 text-right min-w-[200px]">
+                    <div class="bg-slate-50 p-4 rounded-xl shadow-xs border border-amber-200 text-right min-w-[200px]">
                         <div class="text-xs text-slate-500">Teto vs. Realizado</div>
                         <div class="text-lg font-bold text-amber-950 mt-0.5" id="essentials-budget-summary">€ 0.00 / € 0.00</div>
                         <div class="w-full bg-slate-200 rounded-full h-2 mt-2">
@@ -166,16 +172,16 @@
 
         <!-- TAB CONTENT 3: TRAVEL -->
         <div id="tab-content-travel" class="tab-pane hidden space-y-6">
-            <div class="bg-sky-50/70 border border-sky-200 rounded-xl p-6">
+            <div class="bg-white border border-sky-200 rounded-xl p-6">
                 <div class="flex justify-between items-start flex-wrap gap-4">
                     <div>
                         <span class="text-xs font-bold uppercase tracking-wider text-sky-800 bg-sky-100 px-2.5 py-1 rounded-md">Gasto Adicional Isolado</span>
                         <h2 class="text-xl font-bold text-sky-950 mt-2">✈️ Registo de Viagens</h2>
                         <p class="text-xs text-sky-800/80 mt-1">
-                            Gastos marcados com o <b>Checkbox de Viagem</b>. Não poluem os seus gastos essenciais nem o orçamento diário.
+                            Gastos marcados com o <b>Checkbox de Viagem</b>.
                         </p>
                     </div>
-                    <div class="bg-white p-4 rounded-xl shadow-xs border border-sky-200 text-right min-w-[200px]">
+                    <div class="bg-slate-50 p-4 rounded-xl shadow-xs border border-sky-200 text-right min-w-[200px]">
                         <div class="text-xs text-slate-500">Teto de Viagens vs. Realizado</div>
                         <div class="text-lg font-bold text-sky-950 mt-0.5" id="travel-budget-summary">€ 0.00 / € 0.00</div>
                         <div class="w-full bg-slate-200 rounded-full h-2 mt-2">
@@ -188,9 +194,41 @@
 
         <!-- TAB CONTENT 4: OTHER CATEGORIES -->
         <div id="tab-content-categories" class="tab-pane hidden space-y-6">
-            <div class="bg-indigo-50/70 border border-indigo-200 rounded-xl p-6">
+            <div class="bg-white border border-indigo-200 rounded-xl p-6">
                 <h2 class="text-xl font-bold text-indigo-950">Outras Categorias & Gastos Diversos</h2>
-                <p class="text-xs text-indigo-800/80 mt-1">Gestão de despesas não classificadas como puramente essenciais nem viagens (Lazer, Educação, Compras).</p>
+                <p class="text-xs text-indigo-800/80 mt-1">Gestão de despesas não classificadas como puramente essenciais nem viagens.</p>
+            </div>
+        </div>
+
+        <!-- TAB CONTENT 5: POUPANÇA & METAS (Nova) -->
+        <div id="tab-content-poupanca" class="tab-pane hidden space-y-6">
+            <div class="bg-white rounded-xl p-6 shadow-xs border border-slate-200">
+                <div class="flex justify-between items-center mb-4">
+                    <div>
+                        <h2 class="text-base font-bold text-slate-800">🐷 Minhas Metas de Poupança & Economia</h2>
+                        <p class="text-xs text-slate-500">Acompanhe o seu progresso em direção aos seus objetivos financeiros.</p>
+                    </div>
+                    <button onclick="openModal('poupanca')" class="px-3 py-1.5 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-xs">+ Nova Meta</button>
+                </div>
+                <div id="poupanca-cards-container" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Poupança Cards -->
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB CONTENT 6: EMPRÉSTIMOS (Nova) -->
+        <div id="tab-content-dividas" class="tab-pane hidden space-y-6">
+            <div class="bg-white rounded-xl p-6 shadow-xs border border-slate-200">
+                <div class="flex justify-between items-center mb-4">
+                    <div>
+                        <h2 class="text-base font-bold text-slate-800">🤝 Controlo de Empréstimos & Financiamentos</h2>
+                        <p class="text-xs text-slate-500">Gestão de valores a pagar ou receber com acompanhamento de quitação.</p>
+                    </div>
+                    <button onclick="openModal('divida')" class="px-3 py-1.5 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-xs">+ Novo Empréstimo</button>
+                </div>
+                <div id="dividas-cards-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Empréstimos Cards -->
+                </div>
             </div>
         </div>
 
@@ -310,7 +348,7 @@
         </div>
     </div>
 
-    <!-- MODAL 3: Gestão de Categorias e Etiquetas Editáveis -->
+    <!-- MODAL 3: Gestão de Categorias e Etiquetas -->
     <div id="modal-categories" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50 flex items-center justify-center hidden p-4">
         <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-slate-100">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3 mb-4">
@@ -321,26 +359,20 @@
             </div>
 
             <div class="space-y-6">
-                <!-- Manage Categories Section -->
                 <div>
                     <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Categorias Principais</h4>
-                    <div id="categories-list" class="flex flex-wrap gap-2 mb-3">
-                        <!-- Dynamic badges with delete button -->
-                    </div>
+                    <div id="categories-list" class="flex flex-wrap gap-2 mb-3"></div>
                     <div class="flex gap-2">
-                        <input type="text" id="new-category-input" placeholder="Nova Categoria (Ex: Investimentos)" class="flex-1 px-3 py-1.5 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        <input type="text" id="new-category-input" placeholder="Nova Categoria" class="flex-1 px-3 py-1.5 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                         <button onclick="addCategory()" class="px-3 py-1.5 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition">+ Adicionar</button>
                     </div>
                 </div>
 
-                <!-- Manage Subcategories / Tags Section -->
                 <div class="border-t border-slate-100 pt-4">
                     <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Etiquetas / Subcategorias</h4>
-                    <div id="tags-list" class="flex flex-wrap gap-2 mb-3">
-                        <!-- Dynamic badges with delete button -->
-                    </div>
+                    <div id="tags-list" class="flex flex-wrap gap-2 mb-3"></div>
                     <div class="flex gap-2">
-                        <input type="text" id="new-tag-input" placeholder="Nova Etiqueta (Ex: 💡 Educação)" class="flex-1 px-3 py-1.5 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        <input type="text" id="new-tag-input" placeholder="Nova Etiqueta" class="flex-1 px-3 py-1.5 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                         <button onclick="addTag()" class="px-3 py-1.5 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition">+ Adicionar</button>
                     </div>
                 </div>
@@ -349,6 +381,74 @@
             <div class="flex justify-end pt-4 border-t border-slate-100 mt-6">
                 <button onclick="closeModal('categories')" class="px-4 py-1.5 text-xs font-semibold bg-slate-800 text-white hover:bg-slate-700 rounded-lg">Concluído</button>
             </div>
+        </div>
+    </div>
+
+    <!-- MODAL 4: Nova Meta de Poupança (Novo) -->
+    <div id="modal-poupanca" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-100">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3 mb-4">
+                <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                    <span class="p-1.5 bg-emerald-100 text-emerald-600 rounded-lg">🐷</span> Adicionar Meta de Poupança
+                </h3>
+                <button onclick="closeModal('poupanca')" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+            </div>
+            <form onsubmit="handleSavePoupanca(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Título da Meta</label>
+                    <input type="text" id="poupanca-title" required placeholder="Ex: Fundo de Emergência, Carro Novo" class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Valor Atual (€)</label>
+                        <input type="number" step="0.01" min="0" id="poupanca-current" required placeholder="0.00" class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Meta Pretendida (€)</label>
+                        <input type="number" step="0.01" min="0.01" id="poupanca-target" required placeholder="1000.00" class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
+                    <button type="button" onclick="closeModal('poupanca')" class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Cancelar</button>
+                    <button type="submit" class="px-4 py-1.5 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-xs">Guardar Meta</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 5: Novo Empréstimo (Novo) -->
+    <div id="modal-divida" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-100">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3 mb-4">
+                <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                    <span class="p-1.5 bg-red-100 text-red-600 rounded-lg">🤝</span> Adicionar Empréstimo
+                </h3>
+                <button onclick="closeModal('divida')" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+            </div>
+            <form onsubmit="handleSaveDivida(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Descrição / Entidade</label>
+                    <input type="text" id="divida-title" required placeholder="Ex: Empréstimo Banco X, Crédito Pessoal" class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Valor Restante (€)</label>
+                        <input type="number" step="0.01" min="0" id="divida-remaining" required placeholder="500.00" class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Valor Total (€)</label>
+                        <input type="number" step="0.01" min="0.01" id="divida-total" required placeholder="1000.00" class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
+                    <button type="button" onclick="closeModal('divida')" class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Cancelar</button>
+                    <button type="submit" class="px-4 py-1.5 text-xs font-semibold bg-red-600 hover:bg-red-700 text-white rounded-lg shadow-xs">Guardar Empréstimo</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -372,6 +472,13 @@
                 'Viagens': 600.00,
                 'Outras Categorias': 500.00
             },
+            poupancas: [
+                { id: '1', title: 'Fundo de Emergência', current: 1200.00, target: 3000.00 },
+                { id: '2', title: 'Viagem de Verão', current: 400.00, target: 1000.00 }
+            ],
+            dividas: [
+                { id: '1', title: 'Crédito Automóvel', remaining: 2400.00, total: 5000.00 }
+            ],
             expenses: [
                 { id: '1', title: 'Renda do Apartamento', amount: 850.00, category: 'Gastos Essenciais', date: '2026-10-01', tag: 'Essencial', isTravel: false },
                 { id: '2', title: 'Supermercado Semanal', amount: 165.40, category: 'Gastos Essenciais', date: '2026-10-03', tag: 'Essencial', isTravel: false },
@@ -415,7 +522,6 @@
             }, 3000);
         }
 
-        // Backup: Download JSON
         function downloadBackup() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
             const downloadAnchor = document.createElement('a');
@@ -428,7 +534,6 @@
             showToast('💾 Backup transferido com sucesso!');
         }
 
-        // Backup: Upload JSON
         function uploadBackup(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -450,10 +555,9 @@
                 }
             };
             reader.readAsText(file);
-            event.target.value = ''; // Reset input
+            event.target.value = '';
         }
 
-        // Helper for formatting Euro currency
         function formatEUR(val) {
             return new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' }).format(val || 0);
         }
@@ -483,7 +587,6 @@
             renderApp();
         }
 
-        // Category & Tag Customization Logic
         function addCategory() {
             const input = document.getElementById('new-category-input');
             const catName = input.value.trim();
@@ -492,7 +595,7 @@
             if (!state.categories.includes(catName)) {
                 state.categories.push(catName);
                 if (state.budgets[catName] === undefined) {
-                    state.budgets[catName] = 300.00; // Default teto
+                    state.budgets[catName] = 300.00;
                 }
                 saveState();
                 input.value = '';
@@ -539,7 +642,6 @@
         }
 
         function renderCategoriesModal() {
-            // Render Categories Badges
             const catContainer = document.getElementById('categories-list');
             catContainer.innerHTML = state.categories.map(c => `
                 <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 text-slate-800 border border-slate-200">
@@ -548,7 +650,6 @@
                 </span>
             `).join('');
 
-            // Render Tags Badges
             const tagContainer = document.getElementById('tags-list');
             tagContainer.innerHTML = state.tags.map(t => `
                 <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">
@@ -584,6 +685,55 @@
             const totalBudget = Object.values(state.budgets).reduce((a, b) => a + b, 0);
 
             return { totalSpent, travelSpent, categorySpent, totalBudget };
+        }
+
+        function renderPoupança() {
+            const container = document.getElementById('poupanca-cards-container');
+            if (!state.poupancas || state.poupancas.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-500 col-span-3">Nenhuma meta de poupança definida.</p>`;
+                return;
+            }
+            container.innerHTML = state.poupancas.map(p => {
+                const pct = Math.min(100, Math.round((p.current / (p.target || 1)) * 100));
+                return `
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 shadow-xs relative">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-xs font-bold text-slate-800">${escapeHtml(p.title)}</h3>
+                            <button onclick="deletePoupança('${p.id}')" class="text-slate-400 hover:text-red-600 text-xs font-bold">&times;</button>
+                        </div>
+                        <div class="text-lg font-bold text-emerald-700">${formatEUR(p.current)} <span class="text-xs text-slate-400 font-normal">/ ${formatEUR(p.target)}</span></div>
+                        <div class="w-full bg-slate-200 rounded-full h-2 mt-2">
+                            <div class="bg-emerald-500 h-2 rounded-full progress-bar-transition" style="width: ${pct}%"></div>
+                        </div>
+                        <div class="text-[10px] text-slate-500 mt-1 text-right font-medium">${pct}% concluído</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderDividas() {
+            const container = document.getElementById('dividas-cards-container');
+            if (!state.dividas || state.dividas.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-500 col-span-2">Nenhum empréstimo registado.</p>`;
+                return;
+            }
+            container.innerHTML = state.dividas.map(d => {
+                const paid = d.total - d.remaining;
+                const pct = Math.min(100, Math.round((paid / (d.total || 1)) * 100));
+                return `
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 shadow-xs relative">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-xs font-bold text-slate-800">${escapeHtml(d.title)}</h3>
+                            <button onclick="deleteDivida('${d.id}')" class="text-slate-400 hover:text-red-600 text-xs font-bold">&times;</button>
+                        </div>
+                        <div class="text-lg font-bold text-red-600">${formatEUR(d.remaining)} <span class="text-xs text-slate-400 font-normal">restantes de ${formatEUR(d.total)}</span></div>
+                        <div class="w-full bg-slate-200 rounded-full h-2 mt-2">
+                            <div class="bg-red-500 h-2 rounded-full progress-bar-transition" style="width: ${100 - pct}%"></div>
+                        </div>
+                        <div class="text-[10px] text-slate-500 mt-1 text-right font-medium">${pct}% amortizado</div>
+                    </div>
+                `;
+            }).join('');
         }
 
         function renderApp() {
@@ -679,6 +829,10 @@
                 `;
             }).join('');
 
+            // Render Modules Poupança & Dívidas
+            renderPoupança();
+            renderDividas();
+
             // 5. Filter Transactions List
             let filtered = state.expenses.filter(item => {
                 if (state.activeTab === 'essentials' && item.category !== 'Gastos Essenciais') return false;
@@ -747,18 +901,12 @@
         function openModal(modalName) {
             if (modalName === 'expense') {
                 document.getElementById('exp-date').valueAsDate = new Date();
-                
-                // Populate dynamic categories select
                 const catSelect = document.getElementById('exp-category');
                 catSelect.innerHTML = state.categories.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
-
-                // Populate dynamic tags select
                 const tagSelect = document.getElementById('exp-tag');
                 tagSelect.innerHTML = state.tags.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join('');
-
                 document.getElementById('modal-expense').classList.remove('hidden');
             } else if (modalName === 'budget') {
-                // Populate dynamic budget input fields for all categories
                 const container = document.getElementById('budget-inputs-container');
                 container.innerHTML = state.categories.map(cat => `
                     <div>
@@ -766,11 +914,14 @@
                         <input type="number" step="10" data-category="${escapeHtml(cat)}" value="${state.budgets[cat] || 0}" required class="budget-input w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
                     </div>
                 `).join('');
-
                 document.getElementById('modal-budget').classList.remove('hidden');
             } else if (modalName === 'categories') {
                 renderCategoriesModal();
                 document.getElementById('modal-categories').classList.remove('hidden');
+            } else if (modalName === 'poupanca') {
+                document.getElementById('modal-poupanca').classList.remove('hidden');
+            } else if (modalName === 'divida') {
+                document.getElementById('modal-divida').classList.remove('hidden');
             }
         }
 
@@ -807,6 +958,50 @@
             showToast('Gasto registado com sucesso!');
         }
 
+        function handleSavePoupanca(event) {
+            event.preventDefault();
+            const title = document.getElementById('poupanca-title').value.trim();
+            const current = parseFloat(document.getElementById('poupanca-current').value) || 0;
+            const target = parseFloat(document.getElementById('poupanca-target').value) || 0;
+
+            if (!title || target <= 0) return;
+
+            state.poupancas.push({ id: Date.now().toString(), title, current, target });
+            saveState();
+            closeModal('poupanca');
+            renderApp();
+            showToast('Meta de poupança registada!');
+        }
+
+        function handleSaveDivida(event) {
+            event.preventDefault();
+            const title = document.getElementById('divida-title').value.trim();
+            const remaining = parseFloat(document.getElementById('divida-remaining').value) || 0;
+            const total = parseFloat(document.getElementById('divida-total').value) || 0;
+
+            if (!title || total <= 0) return;
+
+            state.dividas.push({ id: Date.now().toString(), title, remaining, total });
+            saveState();
+            closeModal('divida');
+            renderApp();
+            showToast('Empréstimo registado!');
+        }
+
+        function deletePoupança(id) {
+            state.poupancas = state.poupancas.filter(p => p.id !== id);
+            saveState();
+            renderApp();
+            showToast('Meta eliminada.');
+        }
+
+        function deleteDivida(id) {
+            state.dividas = state.dividas.filter(d => d.id !== id);
+            saveState();
+            renderApp();
+            showToast('Empréstimo eliminado.');
+        }
+
         function handleSaveBudgets(event) {
             event.preventDefault();
             const inputs = document.querySelectorAll('.budget-input');
@@ -829,7 +1024,6 @@
             showToast('Gasto removido.');
         }
 
-        // Initialize application on load
         window.onload = function() {
             switchTab('overview');
         };
