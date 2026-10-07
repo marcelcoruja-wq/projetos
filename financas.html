@@ -60,8 +60,603 @@
     .btn:hover { background: var(--accent-hover); }
     .btn-secondary { background: var(--bg-card); color: var(--text-main); }
     .btn-secondary:hover { background: var(--border); }
-    .btn-danger { background: var(--red); color: #fff; }
+    .btn-danger { background: var(--red); color: #fff; padding: 6px 12px; font-size: 0.8rem; }
 
     table { width: 100%; border-collapse: collapse; margin-top: 16px; }
     th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); }
-    th { background: var(--bg-secondary); color: var(--text-muted);
+    th { background: var(--bg-secondary); color: var(--text-muted); font-size: 0.85rem; }
+
+    /* Modais e correção de z-index do popup sobreposto */
+    .modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 1000; }
+    .modal-backdrop.active { display: flex; }
+    .modal-content { background: var(--bg-secondary); padding: 24px; border-radius: var(--radius); width: 90%; max-width: 500px; border: 1px solid var(--border); max-height: 90vh; overflow-y: auto; }
+    
+    /* Garantir que o Popup de etiquetas fica acima do modal de lançamento */
+    #modalEtiquetas { z-index: 2000 !important; }
+
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; background: var(--border); color: var(--text-main); margin-right: 4px; }
+    .filter-bar { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; background: var(--bg-secondary); padding: 12px; border-radius: var(--radius); border: 1px solid var(--border); }
+    .filter-bar select { width: auto; min-width: 180px; }
+    
+    .charts-wrapper { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 20px; }
+    .chart-box { background: var(--bg-secondary); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border); min-height: 280px; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Calculador de Finanças Pessoais</h1>
+    <div>
+      <button class="btn btn-secondary" onclick="exportarBackup()">Exportar Backup</button>
+      <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">Importar</button>
+      <input type="file" id="importFile" hidden onchange="importarBackup(event)" />
+    </div>
+  </header>
+
+  <!-- Navegação das Abas -->
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('dashboard')">Dashboard</button>
+    <button class="tab-btn" onclick="switchTab('lancamentos')">Lançamentos</button>
+    <button class="tab-btn" onclick="switchTab('gastosFixos')">Gastos Fixos</button>
+    <button class="tab-btn" onclick="switchTab('essenciaisViagens')">Essenciais & Viagens</button>
+    <button class="tab-btn" onclick="switchTab('poupanca')">Poupança & Metas</button>
+  </div>
+
+  <!-- TAB: DASHBOARD -->
+  <div id="dashboard" class="tab-content active">
+    <div class="grid-cards">
+      <div class="card">
+        <div class="card-title">Saldo Disponível</div>
+        <div class="card-value green" id="dashSaldo">€ 0.00</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Teto Mensal</div>
+        <div class="card-value" id="dashTeto">€ 0.00</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Gastos Essenciais</div>
+        <div class="card-value red" id="dashEssenciais">€ 0.00</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Gastos em Viagens</div>
+        <div class="card-value purple" id="dashViagens">€ 0.00</div>
+      </div>
+    </div>
+
+    <div class="charts-wrapper">
+      <div class="chart-box">
+        <h3 style="margin-bottom:12px; font-size:1rem; color:var(--text-muted);">Distribuição de Gastos</h3>
+        <canvas id="chartCategorias"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: LANÇAMENTOS -->
+  <div id="lancamentos" class="tab-content">
+    <!-- Resumo de Teto x Gastos Visível na própria Aba -->
+    <div class="grid-cards">
+      <div class="card">
+        <div class="card-title">Teto Definido</div>
+        <div class="card-value" id="lancTeto">€ 0.00</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Total Gasto Real</div>
+        <div class="card-value red" id="lancGastoTotal">€ 0.00</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Margem do Teto Restante</div>
+        <div class="card-value green" id="lancMargem">€ 0.00</div>
+      </div>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px; flex-wrap:wrap; gap:10px;">
+      <h2>Histórico de Lançamentos</h2>
+      <div>
+        <button class="btn btn-secondary" onclick="abrirModalEtiquetas()">Gerir Etiquetas</button>
+        <button class="btn" onclick="abrirModalLancamento()">+ Novo Lançamento</button>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Descrição</th>
+          <th>Tipo / Atributos</th>
+          <th>Etiqueta</th>
+          <th>Valor</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="tabelaLancamentos"></tbody>
+    </table>
+  </div>
+
+  <!-- TAB: GASTOS FIXOS -->
+  <div id="gastosFixos" class="tab-content">
+    <div class="grid-cards">
+      <div class="card">
+        <div class="card-title">Total de Gastos Fixos</div>
+        <div class="card-value red" id="fixoTotal">€ 0.00</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Comprometimento do Teto</div>
+        <div class="card-value" id="fixoPercentagemTeto">0%</div>
+      </div>
+    </div>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px;">
+      <h2>Gastos Recorrentes / Fixos</h2>
+      <button class="btn" onclick="abrirModalLancamento('fixo')">+ Adicionar Gasto Fixo</button>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Descrição</th>
+          <th>Etiqueta</th>
+          <th>Valor Mensal</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="tabelaFixos"></tbody>
+    </table>
+  </div>
+
+  <!-- TAB: ESSENCIAIS & VIAGENS -->
+  <div id="essenciaisViagens" class="tab-content">
+    <div class="grid-cards">
+      <div class="card">
+        <div class="card-title">Total Essencial</div>
+        <div class="card-value red" id="essencialTotalAba">€ 0.00</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Total Acumulado em Viagens</div>
+        <div class="card-value purple" id="viagemTotalAba">€ 0.00</div>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <label for="filtroEtiqueta">Filtrar por Etiqueta:</label>
+      <select id="filtroEtiqueta" onchange="renderizarEssenciaisEViagens()">
+        <option value="todas">Todas as Etiquetas</option>
+      </select>
+      
+      <label for="filtroCategoria">Tipo de Gasto:</label>
+      <select id="filtroCategoria" onchange="renderizarEssenciaisEViagens()">
+        <option value="todos">Todos (Essencial e Viagens)</option>
+        <option value="essencial">Apenas Essenciais</option>
+        <option value="viagem">Apenas Viagens</option>
+      </select>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Descrição</th>
+          <th>Tipo</th>
+          <th>Etiqueta</th>
+          <th>Valor</th>
+        </tr>
+      </thead>
+      <tbody id="tabelaEssenciaisViagens"></tbody>
+    </table>
+  </div>
+
+  <!-- TAB: POUPANÇA & METAS -->
+  <div id="poupanca" class="tab-content">
+    <h2>Poupança & Objetivos de Viagens</h2>
+    <p style="color:var(--text-muted); margin-top:10px;">Gestão de fundos acumulados e reservas financeiras.</p>
+  </div>
+
+  <!-- MODAL: LANÇAMENTO -->
+  <div id="modalLancamento" class="modal-backdrop">
+    <div class="modal-content">
+      <h3 style="margin-bottom:16px;">Registar Novo Gasto / Entrada</h3>
+      <form id="formLancamento" onsubmit="salvarLancamento(event)">
+        <div class="form-group">
+          <label>Descrição</label>
+          <input type="text" id="lancDescricao" required placeholder="Ex: Passagens aéreas, Supermercado..." />
+        </div>
+        <div class="form-group">
+          <label>Valor (€)</label>
+          <input type="number" step="0.01" id="lancValor" required placeholder="0.00" />
+        </div>
+        <div class="form-group">
+          <label>Data</label>
+          <input type="date" id="lancData" required />
+        </div>
+        <div class="form-group">
+          <label>Etiqueta / Categoria</label>
+          <div style="display:flex; gap:8px;">
+            <select id="lancEtiqueta"></select>
+            <button type="button" class="btn btn-secondary" onclick="abrirModalEtiquetas()">+</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Atributos do Gasto</label>
+          <div class="checkbox-group">
+            <label class="checkbox-item">
+              <input type="checkbox" id="chkFixo" /> Gasto Fixo
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" id="chkEssencial" /> Gasto Essencial
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" id="chkViagem" /> Viagem
+            </label>
+          </div>
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:20px;">
+          <button type="button" class="btn btn-secondary" onclick="fecharModalLancamento()">Cancelar</button>
+          <button type="submit" class="btn">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: ETIQUETAS (SOBREPOSTO COM Z-INDEX 2000) -->
+  <div id="modalEtiquetas" class="modal-backdrop">
+    <div class="modal-content">
+      <h3 style="margin-bottom:16px;">Gerir Etiquetas</h3>
+      <div class="form-group" style="display:flex; gap:8px;">
+        <input type="text" id="novaEtiquetaNome" placeholder="Nova etiqueta (ex: Hotel, Voo...)" />
+        <button type="button" class="btn" onclick="adicionarEtiqueta()">Adicionar</button>
+      </div>
+      <div id="listaEtiquetas" style="margin-top:12px; display:flex; flex-wrap:wrap; gap:6px;"></div>
+      <div style="display:flex; justify-content:flex-end; margin-top:20px;">
+        <button type="button" class="btn btn-secondary" onclick="fecharModalEtiquetas()">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // CHAVE DE PERSISTÊNCIA CONTINUA (NÃO APAGA OS SEUS DADOS)
+    const STORAGE_KEY = 'FINANCAS_E_VIAGENS_DATA_V2';
+
+    let estado = {
+      tetoMensal: 2000,
+      lancamentos: [],
+      etiquetas: ['Alimentação', 'Transporte', 'Lazer', 'Viagens', 'Alojamento', 'Saúde']
+    };
+
+    let meuGrafico = null;
+
+    // CARREGAR DADOS SEGURO
+    function carregarDados() {
+      try {
+        const dadosSalvos = localStorage.getItem(STORAGE_KEY);
+        if (dadosSalvos) {
+          const parsed = JSON.parse(dadosSalvos);
+          estado = {
+            tetoMensal: parsed.tetoMensal || 2000,
+            lancamentos: Array.isArray(parsed.lancamentos) ? parsed.lancamentos : [],
+            etiquetas: Array.isArray(parsed.etiquetas) && parsed.etiquetas.length > 0 
+                       ? parsed.etiquetas 
+                       : ['Alimentação', 'Transporte', 'Lazer', 'Viagens', 'Alojamento', 'Saúde']
+          };
+        }
+      } catch (e) {
+        console.error("Erro ao carregar dados salvos:", e);
+      }
+      atualizarInterface();
+    }
+
+    // SALVAR DADOS NO NAVEGADOR
+    function salvarDados() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(estado));
+      } catch (e) {
+        console.error("Erro ao gravar dados:", e);
+      }
+    }
+
+    // ALTERNAR ABAS
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+      
+      const targetBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick').includes(tabId));
+      if(targetBtn) targetBtn.classList.add('active');
+      
+      const targetContent = document.getElementById(tabId);
+      if(targetContent) targetContent.classList.add('active');
+
+      if (tabId === 'essenciaisViagens') renderizarEssenciaisEViagens();
+      if (tabId === 'dashboard') renderizarGraficos();
+    }
+
+    // MODAIS
+    function abrirModalLancamento(tipoDefault) {
+      document.getElementById('formLancamento').reset();
+      document.getElementById('lancData').valueAsDate = new Date();
+      if(tipoDefault === 'fixo') document.getElementById('chkFixo').checked = true;
+      atualizarSelectEtiquetas();
+      document.getElementById('modalLancamento').classList.add('active');
+    }
+
+    function fecharModalLancamento() {
+      document.getElementById('modalLancamento').classList.remove('active');
+    }
+
+    function abrirModalEtiquetas() {
+      renderizarListaEtiquetas();
+      document.getElementById('modalEtiquetas').classList.add('active');
+    }
+
+    function fecharModalEtiquetas() {
+      document.getElementById('modalEtiquetas').classList.remove('active');
+      atualizarSelectEtiquetas();
+    }
+
+    // GESTÃO DE ETIQUETAS
+    function adicionarEtiqueta() {
+      const input = document.getElementById('novaEtiquetaNome');
+      const nome = input.value.trim();
+      if (nome && !estado.etiquetas.includes(nome)) {
+        estado.etiquetas.push(nome);
+        input.value = '';
+        salvarDados();
+        renderizarListaEtiquetas();
+        atualizarSelectEtiquetas();
+      }
+    }
+
+    function removerEtiqueta(nome) {
+      estado.etiquetas = estado.etiquetas.filter(e => e !== nome);
+      salvarDados();
+      renderizarListaEtiquetas();
+      atualizarSelectEtiquetas();
+    }
+
+    function renderizarListaEtiquetas() {
+      const div = document.getElementById('listaEtiquetas');
+      div.innerHTML = estado.etiquetas.map(e => `
+        <span class="tag" style="padding:6px 10px; font-size:0.85rem;">
+          ${e} <a href="javascript:void(0)" onclick="removerEtiqueta('${e}')" style="color:var(--red); font-weight:bold; margin-left:6px; text-decoration:none;">×</a>
+        </span>
+      `).join('');
+    }
+
+    function atualizarSelectEtiquetas() {
+      const selectLanc = document.getElementById('lancEtiqueta');
+      const selectFiltro = document.getElementById('filtroEtiqueta');
+
+      if (selectLanc) {
+        const valAnterior = selectLanc.value;
+        selectLanc.innerHTML = estado.etiquetas.map(e => `<option value="${e}">${e}</option>`).join('');
+        if (valAnterior && estado.etiquetas.includes(valAnterior)) selectLanc.value = valAnterior;
+      }
+
+      if (selectFiltro) {
+        const valFiltroAnterior = selectFiltro.value;
+        selectFiltro.innerHTML = '<option value="todas">Todas as Etiquetas</option>' + 
+          estado.etiquetas.map(e => `<option value="${e}">${e}</option>`).join('');
+        if (valFiltroAnterior) selectFiltro.value = valFiltroAnterior;
+      }
+    }
+
+    // LANÇAMENTOS
+    function salvarLancamento(e) {
+      e.preventDefault();
+      const novo = {
+        id: Date.now(),
+        descricao: document.getElementById('lancDescricao').value,
+        valor: parseFloat(document.getElementById('lancValor').value) || 0,
+        data: document.getElementById('lancData').value,
+        etiqueta: document.getElementById('lancEtiqueta').value,
+        isFixo: document.getElementById('chkFixo').checked,
+        isEssencial: document.getElementById('chkEssencial').checked,
+        isViagem: document.getElementById('chkViagem').checked
+      };
+
+      estado.lancamentos.push(novo);
+      salvarDados();
+      fecharModalLancamento();
+      atualizarInterface();
+    }
+
+    function apagarLancamento(id) {
+      if (confirm('Tem certeza que deseja eliminar este registo?')) {
+        estado.lancamentos = estado.lancamentos.filter(l => l.id !== id);
+        salvarDados();
+        atualizarInterface();
+      }
+    }
+
+    function atualizarInterface() {
+      atualizarDashboardEInterno();
+      renderizarTabelaLancamentos();
+      renderizarTabelaFixos();
+      renderizarEssenciaisEViagens();
+      atualizarSelectEtiquetas();
+      renderizarGraficos();
+    }
+
+    function atualizarDashboardEInterno() {
+      let totalGasto = 0;
+      let totalEssencial = 0;
+      let totalViagem = 0;
+      let totalFixo = 0;
+
+      estado.lancamentos.forEach(l => {
+        totalGasto += l.valor;
+        if (l.isEssencial) totalEssencial += l.valor;
+        if (l.isViagem) totalViagem += l.valor;
+        if (l.isFixo) totalFixo += l.valor;
+      });
+
+      const margem = estado.tetoMensal - totalGasto;
+
+      // Dashboard
+      document.getElementById('dashSaldo').innerText = `€ ${margem.toFixed(2)}`;
+      document.getElementById('dashTeto').innerText = `€ ${estado.tetoMensal.toFixed(2)}`;
+      document.getElementById('dashEssenciais').innerText = `€ ${totalEssencial.toFixed(2)}`;
+      document.getElementById('dashViagens').innerText = `€ ${totalViagem.toFixed(2)}`;
+
+      // Aba Lançamentos
+      document.getElementById('lancTeto').innerText = `€ ${estado.tetoMensal.toFixed(2)}`;
+      document.getElementById('lancGastoTotal').innerText = `€ ${totalGasto.toFixed(2)}`;
+      document.getElementById('lancMargem').innerText = `€ ${margem.toFixed(2)}`;
+
+      // Aba Gastos Fixos
+      document.getElementById('fixoTotal').innerText = `€ ${totalFixo.toFixed(2)}`;
+      const percFixo = estado.tetoMensal > 0 ? ((totalFixo / estado.tetoMensal) * 100).toFixed(1) : 0;
+      document.getElementById('fixoPercentagemTeto').innerText = `${percFixo}%`;
+
+      // Aba Essenciais & Viagens
+      document.getElementById('essencialTotalAba').innerText = `€ ${totalEssencial.toFixed(2)}`;
+      document.getElementById('viagemTotalAba').innerText = `€ ${totalViagem.toFixed(2)}`;
+    }
+
+    function renderizarTabelaLancamentos() {
+      const tbody = document.getElementById('tabelaLancamentos');
+      if (estado.lancamentos.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">Nenhum gasto registado.</td></tr>';
+        return;
+      }
+      
+      tbody.innerHTML = estado.lancamentos.map(l => `
+        <tr>
+          <td>${l.data}</td>
+          <td>${l.descricao}</td>
+          <td>
+            ${l.isFixo ? '<span class="tag">Fixo</span>' : ''}
+            ${l.isEssencial ? '<span class="tag">Essencial</span>' : ''}
+            ${l.isViagem ? '<span class="tag" style="background:var(--purple); color:#fff;">Viagem</span>' : ''}
+          </td>
+          <td><span class="tag">${l.etiqueta}</span></td>
+          <td style="font-weight:600;">€ ${l.valor.toFixed(2)}</td>
+          <td><button class="btn btn-danger" onclick="apagarLancamento(${l.id})">Apagar</button></td>
+        </tr>
+      `).join('');
+    }
+
+    function renderizarTabelaFixos() {
+      const tbody = document.getElementById('tabelaFixos');
+      const fixos = estado.lancamentos.filter(l => l.isFixo);
+
+      if (fixos.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">Nenhum gasto fixo marcado.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = fixos.map(l => `
+        <tr>
+          <td>${l.descricao}</td>
+          <td><span class="tag">${l.etiqueta}</span></td>
+          <td style="font-weight:600;">€ ${l.valor.toFixed(2)}</td>
+          <td><button class="btn btn-danger" onclick="apagarLancamento(${l.id})">Apagar</button></td>
+        </tr>
+      `).join('');
+    }
+
+    function renderizarEssenciaisEViagens() {
+      const tbody = document.getElementById('tabelaEssenciaisViagens');
+      const filtroEtq = document.getElementById('filtroEtiqueta') ? document.getElementById('filtroEtiqueta').value : 'todas';
+      const filtroCat = document.getElementById('filtroCategoria') ? document.getElementById('filtroCategoria').value : 'todos';
+
+      let filtrados = estado.lancamentos.filter(l => l.isEssencial || l.isViagem);
+
+      if (filtroEtq !== 'todas') {
+        filtrados = filtrados.filter(l => l.etiqueta === filtroEtq);
+      }
+
+      if (filtroCat === 'essencial') {
+        filtrados = filtrados.filter(l => l.isEssencial);
+      } else if (filtroCat === 'viagem') {
+        filtrados = filtrados.filter(l => l.isViagem);
+      }
+
+      if (filtrados.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--text-muted);">Nenhum registo encontrado com os filtros selecionados.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = filtrados.map(l => `
+        <tr>
+          <td>${l.data}</td>
+          <td>${l.descricao}</td>
+          <td>
+            ${l.isEssencial ? '<span class="tag">Essencial</span>' : ''}
+            ${l.isViagem ? '<span class="tag" style="background:var(--purple); color:#fff;">Viagem</span>' : ''}
+          </td>
+          <td><span class="tag">${l.etiqueta}</span></td>
+          <td style="font-weight:600;">€ ${l.valor.toFixed(2)}</td>
+        </tr>
+      `).join('');
+    }
+
+    // GRÁFICOS
+    function renderizarGraficos() {
+      const ctx = document.getElementById('chartCategorias');
+      if (!ctx) return;
+
+      const totaisPorEtiqueta = {};
+      estado.etiquetas.forEach(e => totaisPorEtiqueta[e] = 0);
+      
+      estado.lancamentos.forEach(l => {
+        if (totaisPorEtiqueta[l.etiqueta] !== undefined) {
+          totaisPorEtiqueta[l.etiqueta] += l.valor;
+        }
+      });
+
+      const labels = Object.keys(totaisPorEtiqueta);
+      const dataValues = Object.values(totaisPorEtiqueta);
+
+      if (meuGrafico) meuGrafico.destroy();
+
+      meuGrafico = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: labels,
+          datasets: [{
+            data: dataValues,
+            backgroundColor: ['#38bdf8', '#a855f7', '#22c55e', '#ef4444', '#f59e0b', '#6366f1', '#ec4899']
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { labels: { color: '#f8fafc' } }
+          }
+        }
+      });
+    }
+
+    // EXPORTAR & IMPORTAR BACKUP (PREVENÇÃO DE PERDAS)
+    function exportarBackup() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(estado, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `financas_backup_${new Date().toISOString().slice(0,10)}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    function importarBackup(event) {
+      const fileReader = new FileReader();
+      fileReader.onload = function(e) {
+        try {
+          const conteudo = JSON.parse(e.target.result);
+          if (conteudo && typeof conteudo === 'object') {
+            estado = conteudo;
+            salvarDados();
+            atualizarInterface();
+            alert('Dados importados e restaurados com sucesso!');
+          }
+        } catch (err) {
+          alert('Ficheiro de backup inválido.');
+        }
+      };
+      fileReader.readAsText(event.target.files[0]);
+    }
+
+    // INICIALIZAÇÃO AUTOMÁTICA
+    document.addEventListener('DOMContentLoaded', () => {
+      carregarDados();
+    });
+  </script>
+</body>
+</html>
