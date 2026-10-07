@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,1025 +8,614 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
-        .progress-bar-transition {
-            transition: width 0.5s ease-in-out, background-color 0.3s ease;
-        }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen pb-12">
+<body class="bg-slate-50 text-slate-800 min-h-screen">
 
-    <!-- Top Navigation Header (Light Theme) -->
-    <header class="bg-white border-b border-slate-200 text-slate-800 sticky top-0 z-40 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-wrap items-center justify-between py-3 gap-3">
-                <div class="flex items-center space-x-3">
-                    <div class="p-2 bg-indigo-600 rounded-xl text-white shadow-sm">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                    </div>
-                    <div>
-                        <h1 class="text-lg font-bold tracking-tight text-slate-900">Finanças & Orçamento</h1>
-                        <p class="text-xs text-slate-500">Controlo de Tetos, Categorias, Poupanças e Empréstimos</p>
-                    </div>
+    <!-- BARRA SUPERIOR / CABEÇALHO -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-indigo-600 text-white p-2 rounded-lg">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 </div>
-
-                <!-- Backup & Action Buttons -->
-                <div class="flex items-center flex-wrap gap-2">
-                    <button onclick="downloadBackup()" title="Descarregar ficheiro de cópia de segurança JSON" class="px-3 py-1.5 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg border border-slate-200 transition flex items-center gap-1.5">
-                        <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                        Baixar Backup
-                    </button>
-
-                    <label title="Carregar ficheiro JSON de cópia de segurança" class="px-3 py-1.5 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg border border-slate-200 transition flex items-center gap-1.5 cursor-pointer">
-                        <svg class="w-4 h-4 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                        Subir Backup
-                        <input type="file" id="backup-file-input" accept=".json" onchange="uploadBackup(event)" class="hidden">
-                    </label>
-
-                    <button onclick="openModal('categories')" title="Personalizar categorias e etiquetas" class="px-3 py-1.5 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg border border-slate-200 transition flex items-center gap-1.5">
-                        <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                        Categorias & Etiquetas
-                    </button>
-
-                    <button onclick="openModal('budget')" class="px-3 py-1.5 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg border border-slate-200 transition flex items-center gap-1.5">
-                        <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path></svg>
-                        Definir Tetos
-                    </button>
-
-                    <button onclick="openModal('expense')" class="px-4 py-1.5 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-sm transition flex items-center gap-1.5">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                        Novo Gasto
-                    </button>
-                </div>
+                <h1 class="text-xl font-bold text-slate-900">Gestão Financeira</h1>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button onclick="exportData()" class="px-3 py-1.5 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-md transition-colors flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    Exportar Backup
+                </button>
+                <label class="px-3 py-1.5 text-xs font-medium text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-md transition-colors cursor-pointer flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                    Importar Backup
+                    <input type="file" id="importFile" onchange="importData(event)" class="hidden" accept=".json">
+                </label>
             </div>
         </div>
     </header>
 
-    <!-- Global Summary Dashboard Header (Com fundos brancos ajustados) -->
-    <div class="bg-white border-b border-slate-200 py-6 shadow-xs">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-                <span class="text-xs text-slate-500 font-semibold uppercase tracking-wider">Teto Total Definido</span>
-                <div class="text-2xl font-bold mt-1 text-slate-900" id="global-budget-display">€ 0.00</div>
-                <div class="text-xs text-slate-500 mt-1">Limite global orçamentado</div>
-            </div>
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
-            <div class="bg-white p-4 rounded-xl border border-amber-200 shadow-xs">
-                <span class="text-xs text-amber-800 font-semibold uppercase tracking-wider">Total Gasto Realizado</span>
-                <div class="text-2xl font-bold mt-1 text-amber-700" id="global-spent-display">€ 0.00</div>
-                <div class="text-xs text-amber-800/80 mt-1" id="global-spent-percent">0% do teto global</div>
+        <!-- CARTÕES DE RESUMO -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                <span class="text-xs font-medium text-slate-500 uppercase tracking-wider">Teto de Gastos Total</span>
+                <div class="text-2xl font-bold text-slate-900 mt-1" id="kpi-budget">€ 0,00</div>
+                <span class="text-xs text-slate-400">Limite definido globalmente</span>
             </div>
-
-            <div class="bg-white p-4 rounded-xl border border-emerald-200 shadow-xs" id="global-remaining-card">
-                <span class="text-xs text-emerald-800 font-semibold uppercase tracking-wider">Saldo Disponível</span>
-                <div class="text-2xl font-bold mt-1 text-emerald-700" id="global-remaining-display">€ 0.00</div>
-                <div class="text-xs text-emerald-800/80 mt-1" id="global-remaining-status">Dentro da margem</div>
-            </div>
-
-            <div class="bg-white p-4 rounded-xl border border-sky-200 shadow-xs flex flex-col justify-between">
-                <div>
-                    <span class="text-xs text-sky-800 font-semibold uppercase tracking-wider">Gastos em Viagens</span>
-                    <div class="text-2xl font-bold mt-1 text-sky-700" id="travel-spent-display">€ 0.00</div>
-                </div>
-                <div class="text-[11px] text-sky-800 bg-sky-50 px-2 py-0.5 rounded border border-sky-200 inline-block w-max mt-2 font-medium">
-                    ✈️ Registados com Checkbox
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                <span class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Gasto Realizado</span>
+                <div class="text-2xl font-bold text-slate-900 mt-1" id="kpi-spent">€ 0,00</div>
+                <div class="w-full bg-slate-100 h-1.5 rounded-full mt-2 overflow-hidden">
+                    <div id="kpi-spent-bar" class="bg-indigo-600 h-full rounded-full" style="width: 0%"></div>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- Main Content Area -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
-
-        <!-- Navigation Tabs (Com Poupança e Empréstimos) -->
-        <div class="bg-white rounded-xl shadow-xs border border-slate-200 p-1.5 flex flex-wrap gap-1 mb-6">
-            <button onclick="switchTab('overview')" id="tab-btn-overview" class="tab-btn flex-1 min-w-[120px] py-2.5 px-3 rounded-lg text-xs font-semibold transition flex items-center justify-center gap-1.5 text-slate-600 hover:bg-slate-100">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
-                Visão Geral
-            </button>
-            <button onclick="switchTab('essentials')" id="tab-btn-essentials" class="tab-btn flex-1 min-w-[120px] py-2.5 px-3 rounded-lg text-xs font-semibold transition flex items-center justify-center gap-1.5 text-slate-600 hover:bg-slate-100">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-                Gastos Gerais
-            </button>
-            <button onclick="switchTab('travel')" id="tab-btn-travel" class="tab-btn flex-1 min-w-[120px] py-2.5 px-3 rounded-lg text-xs font-semibold transition flex items-center justify-center gap-1.5 text-slate-600 hover:bg-slate-100">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 002 2h1.5a2.5 2.5 0 002.5-2.5V11.414l1.293-1.293a1 1 0 00-1.414-1.414L18 10V5a2 2 0 00-2-2H8z"></path></svg>
-                Viagens
-            </button>
-            <button onclick="switchTab('categories')" id="tab-btn-categories" class="tab-btn flex-1 min-w-[120px] py-2.5 px-3 rounded-lg text-xs font-semibold transition flex items-center justify-center gap-1.5 text-slate-600 hover:bg-slate-100">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 11h.01M7 15h.01M11 7h8M11 11h8M11 15h8M4 5h16a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V6a1 1 0 011-1z"></path></svg>
-                Lazer
-            </button>
-            <button onclick="switchTab('poupanca')" id="tab-btn-poupanca" class="tab-btn flex-1 min-w-[120px] py-2.5 px-3 rounded-lg text-xs font-semibold transition flex items-center justify-center gap-1.5 text-slate-600 hover:bg-slate-100">
-                🐷 Poupança & Metas
-            </button>
-            <button onclick="switchTab('dividas')" id="tab-btn-dividas" class="tab-btn flex-1 min-w-[120px] py-2.5 px-3 rounded-lg text-xs font-semibold transition flex items-center justify-center gap-1.5 text-slate-600 hover:bg-slate-100">
-                🤝 Empréstimos
-            </button>
-        </div>
-
-        <!-- Dynamic Tag / Subcategory Filter Toolbar -->
-        <div class="bg-white rounded-xl shadow-xs border border-slate-200 p-4 mb-6 flex flex-wrap items-center justify-between gap-4">
-            <div class="flex items-center gap-1.5 flex-wrap" id="tag-filter-container">
-                <!-- Dynamically populated tags -->
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                <span class="text-xs font-medium text-slate-500 uppercase tracking-wider">Saldo Disponível</span>
+                <div class="text-2xl font-bold text-slate-900 mt-1" id="kpi-remaining">€ 0,00</div>
+                <span class="text-xs text-slate-400" id="kpi-remaining-status">Dentro do orçamento</span>
             </div>
-            <div class="relative min-w-[220px]">
-                <input type="text" id="search-input" oninput="renderApp()" placeholder="Pesquisar..." class="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                <svg class="w-4 h-4 text-slate-400 absolute left-2.5 top-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                <span class="text-xs font-medium text-slate-500 uppercase tracking-wider">Gastos em Viagens</span>
+                <div class="text-2xl font-bold text-indigo-600 mt-1" id="kpi-travel">€ 0,00</div>
+                <span class="text-xs text-slate-400">Total reservado para viagens</span>
             </div>
         </div>
 
-        <!-- TAB CONTENT 1: OVERVIEW -->
-        <div id="tab-content-overview" class="tab-pane space-y-6">
-            <div class="bg-white rounded-xl p-6 shadow-xs border border-slate-200">
-                <h2 class="text-base font-bold text-slate-800 mb-1 flex items-center gap-2">
-                    <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                    Resumo do Teto Orçamental vs. Gasto Realizado por Categoria
-                </h2>
-                <p class="text-xs text-slate-500 mb-6">Acompanhe se os seus gastos realizados estão dentro do limite planeado.</p>
-                <div id="overview-budget-bars" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Dynamic budget bars -->
-                </div>
-            </div>
+        <!-- SELEÇÃO DE ABAS / NAVEGAÇÃO -->
+        <div class="border-b border-slate-200">
+            <nav class="flex space-x-8" aria-label="Abas">
+                <button onclick="switchTab('overview')" id="tab-overview" class="tab-btn border-indigo-500 text-indigo-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Visão Geral & Orçamento</button>
+                <button onclick="switchTab('general')" id="tab-general" class="tab-btn border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Gastos Gerais</button>
+                <button onclick="switchTab('travel')" id="tab-travel" class="tab-btn border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Viagens</button>
+                <button onclick="switchTab('leisure')" id="tab-leisure" class="tab-btn border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Lazer</button>
+                <button onclick="switchTab('savings')" id="tab-savings" class="tab-btn border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Poupança & Metas</button>
+                <button onclick="switchTab('loans')" id="tab-loans" class="tab-btn border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Empréstimos</button>
+            </nav>
         </div>
 
-        <!-- TAB CONTENT 2: ESSENTIALS -->
-        <div id="tab-content-essentials" class="tab-pane hidden space-y-6">
-            <div class="bg-white border border-amber-200 rounded-xl p-6">
-                <div class="flex justify-between items-start flex-wrap gap-4">
-                    <div>
-                        <span class="text-xs font-bold uppercase tracking-wider text-amber-800 bg-amber-100 px-2.5 py-1 rounded-md">Categoria Principal</span>
-                        <h2 class="text-xl font-bold text-amber-950 mt-2">Gastos Gerais</h2>
-                        <p class="text-xs text-amber-800/80 mt-1">Despesas fundamentais para o dia a dia (Moradia, Alimentação, Saúde, Contas).</p>
+        <!-- CONTEÚDO DAS ABAS -->
+
+        <!-- ABA 1: VISÃO GERAL -->
+        <div id="content-overview" class="tab-content space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Gerenciar Categorias & Teto -->
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm md:col-span-1">
+                    <h2 class="text-lg font-bold text-slate-900 mb-4">Definir Categorias & Teto</h2>
+                    <form onsubmit="addCategory(event)" class="space-y-4 mb-6">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Nome da Categoria</label>
+                            <input type="text" id="cat-name" required placeholder="Ex: Moradia, Alimentação" class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Teto Máximo (€)</label>
+                            <input type="number" step="0.01" id="cat-budget" required placeholder="0.00" class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded-md text-sm transition-colors">Adicionar Categoria</button>
+                    </form>
+
+                    <div class="space-y-3" id="categories-list">
+                        <!-- Categorias dinâmicas aqui -->
                     </div>
-                    <div class="bg-slate-50 p-4 rounded-xl shadow-xs border border-amber-200 text-right min-w-[200px]">
-                        <div class="text-xs text-slate-500">Teto vs. Realizado</div>
-                        <div class="text-lg font-bold text-amber-950 mt-0.5" id="essentials-budget-summary">€ 0.00 / € 0.00</div>
-                        <div class="w-full bg-slate-200 rounded-full h-2 mt-2">
-                            <div id="essentials-budget-bar" class="bg-amber-500 h-2 rounded-full progress-bar-transition" style="width: 0%"></div>
+                </div>
+
+                <!-- Comparativo de Orçamento -->
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm md:col-span-2">
+                    <h2 class="text-lg font-bold text-slate-900 mb-4">Acompanhamento do Orçamento por Categoria</h2>
+                    <div class="space-y-6" id="budget-progress-list">
+                        <!-- Barras de progresso dinâmicas -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ABA COMPARTILHADA PARA REGISTRO DE TRANSAÇÕES (Gerais, Viagens, Lazer) -->
+        <div id="content-transactions-wrapper" class="tab-content hidden space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Formulário de Transação -->
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm md:col-span-1">
+                    <h2 class="text-lg font-bold text-slate-900 mb-4" id="form-title">Adicionar Gastos</h2>
+                    <form onsubmit="addTransaction(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Descrição</label>
+                            <input type="text" id="tx-desc" required placeholder="Ex: Supermercado, Passagem..." class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Valor (€)</label>
+                            <input type="number" step="0.01" id="tx-amount" required placeholder="0.00" class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Data</label>
+                            <input type="date" id="tx-date" required class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Categoria</label>
+                            <select id="tx-category" required class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <!-- Opções dinâmicas -->
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Etiqueta / Subcategoria</label>
+                            <div class="flex gap-2">
+                                <select id="tx-tag" class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                    <!-- Opções dinâmicas -->
+                                </select>
+                                <button type="button" onclick="promptAddTag()" class="px-3 py-2 bg-slate-100 text-slate-600 rounded-md text-sm hover:bg-slate-200">+</button>
+                            </div>
+                        </div>
+                        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded-md text-sm transition-colors">Registrar Despesa</button>
+                    </form>
+                </div>
+
+                <!-- Tabela de Transações -->
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm md:col-span-2">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-bold text-slate-900" id="list-title">Histórico de Transações</h2>
+                        <div class="flex gap-2">
+                            <input type="text" id="search-tx" oninput="render()" placeholder="Buscar..." class="px-3 py-1.5 border border-slate-300 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <select id="filter-tag" onchange="render()" class="px-3 py-1.5 border border-slate-300 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <option value="">Todas as etiquetas</option>
+                            </select>
                         </div>
                     </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase">
+                                    <th class="py-3 px-2">Data</th>
+                                    <th class="py-3 px-2">Descrição</th>
+                                    <th class="py-3 px-2">Categoria</th>
+                                    <th class="py-3 px-2">Etiqueta</th>
+                                    <th class="py-3 px-2 text-right">Valor</th>
+                                    <th class="py-3 px-2 text-center">Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tx-table-body" class="divide-y divide-slate-100 text-sm">
+                                <!-- Linhas dinâmicas -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- TAB CONTENT 3: TRAVEL -->
-        <div id="tab-content-travel" class="tab-pane hidden space-y-6">
-            <div class="bg-white border border-sky-200 rounded-xl p-6">
-                <div class="flex justify-between items-start flex-wrap gap-4">
-                    <div>
-                        <span class="text-xs font-bold uppercase tracking-wider text-sky-800 bg-sky-100 px-2.5 py-1 rounded-md">Gasto Adicional Isolado</span>
-                        <h2 class="text-xl font-bold text-sky-950 mt-2">✈️ Registo de Viagens</h2>
-                        <p class="text-xs text-sky-800/80 mt-1">
-                            Gastos marcados com o <b>Checkbox de Viagem</b>.
-                        </p>
-                    </div>
-                    <div class="bg-slate-50 p-4 rounded-xl shadow-xs border border-sky-200 text-right min-w-[200px]">
-                        <div class="text-xs text-slate-500">Teto de Viagens vs. Realizado</div>
-                        <div class="text-lg font-bold text-sky-950 mt-0.5" id="travel-budget-summary">€ 0.00 / € 0.00</div>
-                        <div class="w-full bg-slate-200 rounded-full h-2 mt-2">
-                            <div id="travel-budget-bar" class="bg-sky-500 h-2 rounded-full progress-bar-transition" style="width: 0%"></div>
+        <!-- ABA: POUPANÇA & METAS -->
+        <div id="content-savings" class="tab-content hidden space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                    <h2 class="text-lg font-bold text-slate-900 mb-4">Criar Nova Meta</h2>
+                    <form onsubmit="addSavingsGoal(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Objetivo</label>
+                            <input type="text" id="goal-name" required placeholder="Ex: Reserva de Emergência" class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
                         </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Valor Alvo (€)</label>
+                            <input type="number" step="0.01" id="goal-target" required placeholder="0.00" class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Valor Inicial Guardado (€)</label>
+                            <input type="number" step="0.01" id="goal-current" placeholder="0.00" class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 rounded-md text-sm transition-colors">Criar Meta</button>
+                    </form>
+                </div>
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm md:col-span-2">
+                    <h2 class="text-lg font-bold text-slate-900 mb-4">Metas de Poupança</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="savings-list">
+                        <!-- Metas dinâmicas -->
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- TAB CONTENT 4: OTHER CATEGORIES -->
-        <div id="tab-content-categories" class="tab-pane hidden space-y-6">
-            <div class="bg-white border border-indigo-200 rounded-xl p-6">
-                <h2 class="text-xl font-bold text-indigo-950">Lazer</h2>
-                <p class="text-xs text-indigo-800/80 mt-1">Gestão de despesas não classificadas como essenciais nem viagens.</p>
-            </div>
-        </div>
-
-        <!-- TAB CONTENT 5: POUPANÇA & METAS (Nova) -->
-        <div id="tab-content-poupanca" class="tab-pane hidden space-y-6">
-            <div class="bg-white rounded-xl p-6 shadow-xs border border-slate-200">
-                <div class="flex justify-between items-center mb-4">
-                    <div>
-                        <h2 class="text-base font-bold text-slate-800">🐷 Minhas Metas de Poupança & Economia</h2>
-                        <p class="text-xs text-slate-500">Acompanhe o seu progresso em direção aos seus objetivos financeiros.</p>
+        <!-- ABA: EMPRÉSTIMOS -->
+        <div id="content-loans" class="tab-content hidden space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                    <h2 class="text-lg font-bold text-slate-900 mb-4">Registrar Empréstimo / Dívida</h2>
+                    <form onsubmit="addLoan(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Descrição</label>
+                            <input type="text" id="loan-name" required placeholder="Ex: Financiamento do Carro" class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Valor Total Devido (€)</label>
+                            <input type="number" step="0.01" id="loan-total" required placeholder="0.00" class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Valor Já Amortizado (€)</label>
+                            <input type="number" step="0.01" id="loan-paid" placeholder="0.00" class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <button type="submit" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-medium py-2 rounded-md text-sm transition-colors">Salvar Empréstimo</button>
+                    </form>
+                </div>
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm md:col-span-2">
+                    <h2 class="text-lg font-bold text-slate-900 mb-4">Acompanhamento de Dívidas</h2>
+                    <div class="space-y-4" id="loans-list">
+                        <!-- Empréstimos dinâmicos -->
                     </div>
-                    <button onclick="openModal('poupanca')" class="px-3 py-1.5 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-xs">+ Nova Meta</button>
                 </div>
-                <div id="poupanca-cards-container" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <!-- Poupança Cards -->
-                </div>
-            </div>
-        </div>
-
-        <!-- TAB CONTENT 6: EMPRÉSTIMOS (Nova) -->
-        <div id="tab-content-dividas" class="tab-pane hidden space-y-6">
-            <div class="bg-white rounded-xl p-6 shadow-xs border border-slate-200">
-                <div class="flex justify-between items-center mb-4">
-                    <div>
-                        <h2 class="text-base font-bold text-slate-800">🤝 Controlo de Empréstimos & Financiamentos</h2>
-                        <p class="text-xs text-slate-500">Gestão de valores a pagar ou receber com acompanhamento de quitação.</p>
-                    </div>
-                    <button onclick="openModal('divida')" class="px-3 py-1.5 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-xs">+ Novo Empréstimo</button>
-                </div>
-                <div id="dividas-cards-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- Empréstimos Cards -->
-                </div>
-            </div>
-        </div>
-
-        <!-- Unified Transactions Table -->
-        <div class="bg-white rounded-xl shadow-xs border border-slate-200 overflow-hidden mt-6">
-            <div class="p-4 border-b border-slate-200 bg-slate-50/80 flex items-center justify-between">
-                <h3 class="text-sm font-bold text-slate-700 flex items-center gap-2">
-                    <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
-                    Lista de Gastos Registados
-                </h3>
-                <span class="text-xs text-slate-500" id="expense-count-badge">0 gastos encontrados</span>
-            </div>
-
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs border-collapse">
-                    <thead>
-                        <tr class="bg-slate-100/70 text-slate-500 font-semibold uppercase tracking-wider border-b border-slate-200">
-                            <th class="py-3 px-4">Descrição</th>
-                            <th class="py-3 px-4">Categoria</th>
-                            <th class="py-3 px-4">Etiqueta / Subcategoria</th>
-                            <th class="py-3 px-4 text-center">Gasto de Viagem?</th>
-                            <th class="py-3 px-4">Data</th>
-                            <th class="py-3 px-4 text-right">Valor</th>
-                            <th class="py-3 px-4 text-center">Ação</th>
-                        </tr>
-                    </thead>
-                    <tbody id="expenses-table-body" class="divide-y divide-slate-100 text-slate-700">
-                        <!-- Dynamic rows -->
-                    </tbody>
-                </table>
-            </div>
-            <div id="empty-state" class="p-8 text-center hidden">
-                <p class="text-sm text-slate-500 font-medium">Nenhum gasto encontrado para os filtros selecionados.</p>
             </div>
         </div>
 
     </main>
 
-    <!-- MODAL 1: Novo Gasto -->
-    <div id="modal-expense" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50 flex items-center justify-center hidden p-4">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-100">
-            <div class="flex justify-between items-center border-b border-slate-100 pb-3 mb-4">
-                <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                    <span class="p-1.5 bg-indigo-100 text-indigo-600 rounded-lg">➕</span> Registar Novo Gasto
-                </h3>
-                <button onclick="closeModal('expense')" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
-            </div>
-            <form id="form-expense" onsubmit="handleSaveExpense(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Descrição do Gasto</label>
-                    <input type="text" id="exp-title" required placeholder="Ex: Supermercado, Passagem Aérea, Renda" class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Valor (€)</label>
-                        <input type="number" step="0.01" min="0.01" id="exp-amount" required placeholder="0.00" class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Data</label>
-                        <input type="date" id="exp-date" required class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Categoria Principal</label>
-                    <select id="exp-category" required class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
-                        <!-- Dynamic options -->
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Etiqueta / Subcategoria</label>
-                    <select id="exp-tag" required class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
-                        <!-- Dynamic options -->
-                    </select>
-                </div>
-
-                <!-- Travel Checkbox -->
-                <div class="bg-sky-50 p-3 rounded-xl border border-sky-200 mt-2">
-                    <label class="flex items-start gap-2.5 cursor-pointer">
-                        <input type="checkbox" id="exp-is-travel" class="mt-0.5 rounded text-sky-600 focus:ring-sky-500 w-4 h-4">
-                        <div>
-                            <span class="text-xs font-bold text-sky-900 block">✈️ Marcar como Gasto de Viagem</span>
-                            <span class="text-[11px] text-sky-700 block mt-0.5">Assinale este checkbox para categorizar este item como custo de viagem separado dos gastos diários.</span>
-                        </div>
-                    </label>
-                </div>
-
-                <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
-                    <button type="button" onclick="closeModal('expense')" class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Cancelar</button>
-                    <button type="submit" class="px-4 py-1.5 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-xs">Guardar Gasto</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- MODAL 2: Definir Tetos Orçamentais -->
-    <div id="modal-budget" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50 flex items-center justify-center hidden p-4">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-100">
-            <div class="flex justify-between items-center border-b border-slate-100 pb-3 mb-4">
-                <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                    <span class="p-1.5 bg-amber-100 text-amber-600 rounded-lg">🎯</span> Configurar Tetos Orçamentais
-                </h3>
-                <button onclick="closeModal('budget')" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
-            </div>
-            <form id="form-budget" onsubmit="handleSaveBudgets(event)" class="space-y-4">
-                <div id="budget-inputs-container" class="space-y-3 max-h-60 overflow-y-auto pr-1">
-                    <!-- Dynamic budget inputs -->
-                </div>
-
-                <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
-                    <button type="button" onclick="closeModal('budget')" class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Cancelar</button>
-                    <button type="submit" class="px-4 py-1.5 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-xs">Guardar Tetos</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- MODAL 3: Gestão de Categorias e Etiquetas -->
-    <div id="modal-categories" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50 flex items-center justify-center hidden p-4">
-        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-slate-100">
-            <div class="flex justify-between items-center border-b border-slate-100 pb-3 mb-4">
-                <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                    <span class="p-1.5 bg-indigo-100 text-indigo-600 rounded-lg">⚙️</span> Gerir Categorias & Etiquetas
-                </h3>
-                <button onclick="closeModal('categories')" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
-            </div>
-
-            <div class="space-y-6">
-                <div>
-                    <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Categorias Principais</h4>
-                    <div id="categories-list" class="flex flex-wrap gap-2 mb-3"></div>
-                    <div class="flex gap-2">
-                        <input type="text" id="new-category-input" placeholder="Nova Categoria" class="flex-1 px-3 py-1.5 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                        <button onclick="addCategory()" class="px-3 py-1.5 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition">+ Adicionar</button>
-                    </div>
-                </div>
-
-                <div class="border-t border-slate-100 pt-4">
-                    <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Etiquetas / Subcategorias</h4>
-                    <div id="tags-list" class="flex flex-wrap gap-2 mb-3"></div>
-                    <div class="flex gap-2">
-                        <input type="text" id="new-tag-input" placeholder="Nova Etiqueta" class="flex-1 px-3 py-1.5 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                        <button onclick="addTag()" class="px-3 py-1.5 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition">+ Adicionar</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="flex justify-end pt-4 border-t border-slate-100 mt-6">
-                <button onclick="closeModal('categories')" class="px-4 py-1.5 text-xs font-semibold bg-slate-800 text-white hover:bg-slate-700 rounded-lg">Concluído</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL 4: Nova Meta de Poupança (Novo) -->
-    <div id="modal-poupanca" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50 flex items-center justify-center hidden p-4">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-100">
-            <div class="flex justify-between items-center border-b border-slate-100 pb-3 mb-4">
-                <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                    <span class="p-1.5 bg-emerald-100 text-emerald-600 rounded-lg">🐷</span> Adicionar Meta de Poupança
-                </h3>
-                <button onclick="closeModal('poupanca')" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
-            </div>
-            <form onsubmit="handleSavePoupanca(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Título da Meta</label>
-                    <input type="text" id="poupanca-title" required placeholder="Ex: Fundo de Emergência, Carro Novo" class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Valor Atual (€)</label>
-                        <input type="number" step="0.01" min="0" id="poupanca-current" required placeholder="0.00" class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Meta Pretendida (€)</label>
-                        <input type="number" step="0.01" min="0.01" id="poupanca-target" required placeholder="1000.00" class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                    </div>
-                </div>
-
-                <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
-                    <button type="button" onclick="closeModal('poupanca')" class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Cancelar</button>
-                    <button type="submit" class="px-4 py-1.5 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-xs">Guardar Meta</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- MODAL 5: Novo Empréstimo (Novo) -->
-    <div id="modal-divida" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50 flex items-center justify-center hidden p-4">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-100">
-            <div class="flex justify-between items-center border-b border-slate-100 pb-3 mb-4">
-                <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                    <span class="p-1.5 bg-red-100 text-red-600 rounded-lg">🤝</span> Adicionar Empréstimo
-                </h3>
-                <button onclick="closeModal('divida')" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
-            </div>
-            <form onsubmit="handleSaveDivida(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Descrição / Entidade</label>
-                    <input type="text" id="divida-title" required placeholder="Ex: Empréstimo Banco X, Crédito Pessoal" class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Valor Restante (€)</label>
-                        <input type="number" step="0.01" min="0" id="divida-remaining" required placeholder="500.00" class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Valor Total (€)</label>
-                        <input type="number" step="0.01" min="0.01" id="divida-total" required placeholder="1000.00" class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                    </div>
-                </div>
-
-                <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
-                    <button type="button" onclick="closeModal('divida')" class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Cancelar</button>
-                    <button type="submit" class="px-4 py-1.5 text-xs font-semibold bg-red-600 hover:bg-red-700 text-white rounded-lg shadow-xs">Guardar Empréstimo</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Toast Notification Message -->
-    <div id="toast-msg" class="fixed bottom-5 right-5 bg-slate-900 text-white text-xs px-4 py-2.5 rounded-xl shadow-lg border border-slate-700 transform translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center gap-2">
-        <span id="toast-text">Mensagem</span>
-    </div>
-
     <script>
-        // LocalStorage Key
+        // ESTADO DA APLICAÇÃO
         const STORAGE_KEY = 'FINANCAS_APP_STATE_V2';
-
-        // Default Initial State
+        
         const defaultState = {
-            activeTab: 'overview',
-            activeTagFilter: 'ALL',
-            categories: ['Gastos Essenciais', 'Viagens', 'Lazer'],
+            categories: [
+                { id: '1', name: 'Gastos Essenciais', budget: 1800 },
+                { id: '2', name: 'Viagens', budget: 600 },
+                { id: '3', name: 'Lazer', budget: 500 }
+            ],
             tags: ['Essencial', 'Fixa', 'Variável', 'Lazer', 'Viagem'],
-            budgets: {
-                'Gastos Essenciais': 1800.00,
-                'Viagens': 600.00,
-                'Lazer': 500.00
-            },
-            poupancas: [
-                { id: '1', title: 'Fundo de Emergência', current: 1200.00, target: 3000.00 },
-                { id: '2', title: 'Viagem de Verão', current: 400.00, target: 1000.00 }
+            transactions: [
+                { id: '1', desc: 'Aluguel do Apartamento', amount: 850, date: '2026-10-01', categoryId: '1', tag: 'Fixa' },
+                { id: '2', desc: 'Supermercado Mensal', amount: 165.40, date: '2026-10-03', categoryId: '1', tag: 'Essencial' },
+                { id: '3', desc: 'Passagens Aéreas', amount: 320, date: '2026-10-04', categoryId: '2', tag: 'Viagem' },
+                { id: '4', desc: 'Hospedagem Hotel', amount: 180, date: '2026-10-05', categoryId: '2', tag: 'Viagem' },
+                { id: '5', desc: 'Jantar Restaurante', amount: 45, date: '2026-10-06', categoryId: '3', tag: 'Lazer' },
+                { id: '6', desc: 'Conta de Luz e Água', amount: 110.20, date: '2026-10-07', categoryId: '1', tag: 'Fixa' }
             ],
-            dividas: [
-                { id: '1', title: 'Crédito Automóvel', remaining: 2400.00, total: 5000.00 }
+            savings: [
+                { id: '1', name: 'Reserva de Emergência', target: 3000, current: 1200 },
+                { id: '2', name: 'Viagem de Fim de Ano', target: 1000, current: 400 }
             ],
-            expenses: [
-                { id: '1', title: 'Renda do Apartamento', amount: 850.00, category: 'Gastos Essenciais', date: '2026-10-01', tag: 'Essencial', isTravel: false },
-                { id: '2', title: 'Supermercado Semanal', amount: 165.40, category: 'Gastos Essenciais', date: '2026-10-03', tag: 'Essencial', isTravel: false },
-                { id: '3', title: 'Passagens Aéreas Férias', amount: 320.00, category: 'Viagens', date: '2026-10-04', tag: 'Viagem', isTravel: true },
-                { id: '4', title: 'Reserva do Hotel', amount: 180.00, category: 'Viagens', date: '2026-10-05', tag: 'Viagem', isTravel: true },
-                { id: '5', title: 'Jantar de Confraternização', amount: 45.00, category: 'Lazer', date: '2026-10-06', tag: 'Lazer', isTravel: false },
-                { id: '6', title: 'Conta de Eletricidade & Água', amount: 110.20, category: 'Gastos Essenciais', date: '2026-10-06', tag: 'Fixa', isTravel: false }
+            loans: [
+                { id: '1', name: 'Financiamento do Carro', total: 5000, paid: 2600 }
             ]
         };
 
-        let state = loadSavedState();
-
-        function loadSavedState() {
-            try {
-                const saved = localStorage.getItem(STORAGE_KEY);
-                if (saved) {
-                    const parsed = JSON.parse(saved);
-                    return { ...defaultState, ...parsed };
-                }
-            } catch (e) {
-                console.error('Erro ao carregar do localStorage:', e);
-            }
-            return defaultState;
-        }
+        let state = JSON.parse(localStorage.getItem(STORAGE_KEY)) || defaultState;
+        let activeTab = 'overview';
 
         function saveState() {
-            try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-            } catch (e) {
-                console.error('Erro ao gravar no localStorage:', e);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            render();
+        }
+
+        // CONTROLADOR DE ABAS
+        function switchTab(tab) {
+            activeTab = tab;
+            
+            // Atualiza botões
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('border-indigo-500', 'text-indigo-600');
+                btn.classList.add('border-transparent', 'text-slate-500');
+            });
+            const activeBtn = document.getElementById(`tab-${tab}`);
+            if(activeBtn) {
+                activeBtn.classList.add('border-indigo-500', 'text-indigo-600');
+                activeBtn.classList.remove('border-transparent', 'text-slate-500');
+            }
+
+            // Oculta todos os conteúdos
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+
+            // Exibe o conteúdo correto
+            if (['general', 'travel', 'leisure'].includes(tab)) {
+                document.getElementById('content-transactions-wrapper').classList.remove('hidden');
+            } else {
+                document.getElementById(`content-${tab}`).classList.remove('hidden');
+            }
+
+            render();
+        }
+
+        // FORMATADORES - MANTIDO EM EUROS (€)
+        const formatCurrency = (val) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'EUR' }).format(val);
+
+        // NAVEGAÇÃO & RENDERING DA INTERFACE
+        function render() {
+            renderKPIs();
+            renderCategories();
+            renderTransactions();
+            renderSavings();
+            renderLoans();
+            populateSelects();
+        }
+
+        function renderKPIs() {
+            const totalBudget = state.categories.reduce((acc, c) => acc + c.budget, 0);
+            const totalSpent = state.transactions.reduce((acc, t) => acc + t.amount, 0);
+            const remaining = totalBudget - totalSpent;
+            
+            const travelCat = state.categories.find(c => c.name.toLowerCase().includes('viag'));
+            const travelSpent = state.transactions
+                .filter(t => (travelCat && t.categoryId === travelCat.id) || t.tag.toLowerCase() === 'viagem')
+                .reduce((acc, t) => acc + t.amount, 0);
+
+            document.getElementById('kpi-budget').innerText = formatCurrency(totalBudget);
+            document.getElementById('kpi-spent').innerText = formatCurrency(totalSpent);
+            document.getElementById('kpi-remaining').innerText = formatCurrency(remaining);
+            document.getElementById('kpi-travel').innerText = formatCurrency(travelSpent);
+
+            const spentPct = totalBudget > 0 ? Math.min((totalSpent / totalBudget) * 100, 100) : 0;
+            const progressBar = document.getElementById('kpi-spent-bar');
+            progressBar.style.width = `${spentPct}%`;
+
+            const remainingStatus = document.getElementById('kpi-remaining-status');
+            if (remaining < 0) {
+                remainingStatus.innerText = 'Orçamento estourado!';
+                remainingStatus.className = 'text-xs text-red-500 font-semibold';
+                progressBar.className = 'bg-red-600 h-full rounded-full';
+            } else {
+                remainingStatus.innerText = 'Dentro do orçamento';
+                remainingStatus.className = 'text-xs text-slate-400';
+                progressBar.className = 'bg-indigo-600 h-full rounded-full';
             }
         }
 
-        function showToast(msg) {
-            const toast = document.getElementById('toast-msg');
-            const text = document.getElementById('toast-text');
-            text.innerText = msg;
-            toast.classList.remove('translate-y-20', 'opacity-0');
-            setTimeout(() => {
-                toast.classList.add('translate-y-20', 'opacity-0');
-            }, 3000);
+        function renderCategories() {
+            // Lista para gerenciamento
+            const list = document.getElementById('categories-list');
+            list.innerHTML = state.categories.map(c => `
+                <div class="flex justify-between items-center p-2 bg-slate-50 rounded-lg text-sm border border-slate-100">
+                    <div>
+                        <span class="font-medium text-slate-800">${c.name}</span>
+                        <span class="text-xs text-slate-500 block">${formatCurrency(c.budget)}</span>
+                    </div>
+                    <button onclick="deleteCategory('${c.id}')" class="text-slate-400 hover:text-red-500 text-xs">Excluir</button>
+                </div>
+            `).join('');
+
+            // Barras de Progresso
+            const progressList = document.getElementById('budget-progress-list');
+            progressList.innerHTML = state.categories.map(c => {
+                const spent = state.transactions.filter(t => t.categoryId === c.id).reduce((acc, t) => acc + t.amount, 0);
+                const pct = c.budget > 0 ? Math.min((spent / c.budget) * 100, 100) : 0;
+                const isOver = spent > c.budget;
+
+                return `
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-sm font-medium">
+                            <span>${c.name}</span>
+                            <span>${formatCurrency(spent)} / <span class="text-slate-400">${formatCurrency(c.budget)}</span></span>
+                        </div>
+                        <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                            <div class="${isOver ? 'bg-red-500' : 'bg-indigo-600'} h-full rounded-full" style="width: ${pct}%"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
         }
 
-        function downloadBackup() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
+        function renderTransactions() {
+            const search = document.getElementById('search-tx').value.toLowerCase();
+            const tagFilter = document.getElementById('filter-tag').value;
+
+            let filtered = state.transactions.filter(t => {
+                const matchesSearch = t.desc.toLowerCase().includes(search);
+                const matchesTag = tagFilter === '' || t.tag === tagFilter;
+                return matchesSearch && matchesTag;
+            });
+
+            // Filtragem por Aba Ativa
+            if (activeTab === 'travel') {
+                filtered = filtered.filter(t => t.tag.toLowerCase() === 'viagem' || (state.categories.find(c => c.id === t.categoryId)?.name.toLowerCase().includes('viag')));
+            } else if (activeTab === 'leisure') {
+                filtered = filtered.filter(t => t.tag.toLowerCase() === 'lazer' || (state.categories.find(c => c.id === t.categoryId)?.name.toLowerCase().includes('lazer')));
+            }
+
+            const tbody = document.getElementById('tx-table-body');
+            tbody.innerHTML = filtered.map(t => {
+                const cat = state.categories.find(c => c.id === t.categoryId);
+                return `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="py-3 px-2 text-slate-500 text-xs">${t.date}</td>
+                        <td class="py-3 px-2 font-medium text-slate-800">${t.desc}</td>
+                        <td class="py-3 px-2 text-slate-600"><span class="bg-slate-100 px-2 py-0.5 rounded text-xs">${cat ? cat.name : 'Geral'}</span></td>
+                        <td class="py-3 px-2"><span class="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded text-xs font-medium">${t.tag || 'Sem Etiqueta'}</span></td>
+                        <td class="py-3 px-2 text-right font-semibold text-slate-900">${formatCurrency(t.amount)}</td>
+                        <td class="py-3 px-2 text-center">
+                            <button onclick="deleteTransaction('${t.id}')" class="text-slate-400 hover:text-red-500 text-xs">Remover</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderSavings() {
+            const list = document.getElementById('savings-list');
+            list.innerHTML = state.savings.map(s => {
+                const pct = Math.min((s.current / s.target) * 100, 100).toFixed(0);
+                return `
+                    <div class="p-4 border border-slate-200 rounded-lg space-y-3 bg-slate-50">
+                        <div class="flex justify-between items-start">
+                            <h3 class="font-bold text-slate-800">${s.name}</h3>
+                            <button onclick="deleteSavings('${s.id}')" class="text-slate-400 hover:text-red-500 text-xs">Remover</button>
+                        </div>
+                        <div>
+                            <div class="text-xs text-slate-500">Progresso (${pct}%)</div>
+                            <div class="text-lg font-bold text-emerald-600">${formatCurrency(s.current)} / <span class="text-xs text-slate-400">${formatCurrency(s.target)}</span></div>
+                        </div>
+                        <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                            <div class="bg-emerald-500 h-full rounded-full" style="width: ${pct}%"></div>
+                        </div>
+                        <button onclick="addFundsSavings('${s.id}')" class="w-full text-xs bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 py-1.5 rounded font-medium">+ Adicionar Valor</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderLoans() {
+            const list = document.getElementById('loans-list');
+            list.innerHTML = state.loans.map(l => {
+                const remaining = l.total - l.paid;
+                const pct = Math.min((l.paid / l.total) * 100, 100).toFixed(0);
+                return `
+                    <div class="p-4 border border-slate-200 rounded-lg space-y-3 bg-white">
+                        <div class="flex justify-between items-center">
+                            <h3 class="font-bold text-slate-800">${l.name}</h3>
+                            <button onclick="deleteLoan('${l.id}')" class="text-slate-400 hover:text-red-500 text-xs">Remover</button>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2 text-center py-2 bg-slate-50 rounded">
+                            <div>
+                                <span class="text-xs text-slate-400 block">Total</span>
+                                <span class="text-xs font-semibold">${formatCurrency(l.total)}</span>
+                            </div>
+                            <div>
+                                <span class="text-xs text-slate-400 block">Pago</span>
+                                <span class="text-xs font-semibold text-emerald-600">${formatCurrency(l.paid)}</span>
+                            </div>
+                            <div>
+                                <span class="text-xs text-slate-400 block">Restante</span>
+                                <span class="text-xs font-semibold text-red-500">${formatCurrency(remaining)}</span>
+                            </div>
+                        </div>
+                        <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                            <div class="bg-amber-500 h-full rounded-full" style="width: ${pct}%"></div>
+                        </div>
+                        <button onclick="payLoan('${l.id}')" class="w-full text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-600 py-1.5 rounded font-medium">Amortizar / Pagar Parcela</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function populateSelects() {
+            const catSelect = document.getElementById('tx-category');
+            catSelect.innerHTML = state.categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+
+            const tagSelect = document.getElementById('tx-tag');
+            tagSelect.innerHTML = state.tags.map(t => `<option value="${t}">${t}</option>`).join('');
+
+            const filterTag = document.getElementById('filter-tag');
+            const currentFilter = filterTag.value;
+            filterTag.innerHTML = '<option value="">Todas as etiquetas</option>' + state.tags.map(t => `<option value="${t}">${t}</option>`).join('');
+            filterTag.value = currentFilter;
+        }
+
+        // AÇÕES DE DADOS
+        function addCategory(e) {
+            e.preventDefault();
+            const name = document.getElementById('cat-name').value;
+            const budget = parseFloat(document.getElementById('cat-budget').value);
+            
+            state.categories.push({ id: Date.now().toString(), name, budget });
+            document.getElementById('cat-name').value = '';
+            document.getElementById('cat-budget').value = '';
+            saveState();
+        }
+
+        function deleteCategory(id) {
+            state.categories = state.categories.filter(c => c.id !== id);
+            saveState();
+        }
+
+        function addTransaction(e) {
+            e.preventDefault();
+            const desc = document.getElementById('tx-desc').value;
+            const amount = parseFloat(document.getElementById('tx-amount').value);
+            const date = document.getElementById('tx-date').value;
+            const categoryId = document.getElementById('tx-category').value;
+            const tag = document.getElementById('tx-tag').value;
+
+            state.transactions.push({ id: Date.now().toString(), desc, amount, date, categoryId, tag });
+            document.getElementById('tx-desc').value = '';
+            document.getElementById('tx-amount').value = '';
+            saveState();
+        }
+
+        function deleteTransaction(id) {
+            state.transactions = state.transactions.filter(t => t.id !== id);
+            saveState();
+        }
+
+        function promptAddTag() {
+            const newTag = prompt("Nome da nova etiqueta / subcategoria:");
+            if (newTag && !state.tags.includes(newTag)) {
+                state.tags.push(newTag);
+                saveState();
+            }
+        }
+
+        function addSavingsGoal(e) {
+            e.preventDefault();
+            const name = document.getElementById('goal-name').value;
+            const target = parseFloat(document.getElementById('goal-target').value);
+            const current = parseFloat(document.getElementById('goal-current').value) || 0;
+
+            state.savings.push({ id: Date.now().toString(), name, target, current });
+            document.getElementById('goal-name').value = '';
+            document.getElementById('goal-target').value = '';
+            document.getElementById('goal-current').value = '';
+            saveState();
+        }
+
+        function addFundsSavings(id) {
+            const amount = parseFloat(prompt("Valor a adicionar à meta (€):"));
+            if (amount) {
+                const item = state.savings.find(s => s.id === id);
+                if (item) item.current += amount;
+                saveState();
+            }
+        }
+
+        function deleteSavings(id) {
+            state.savings = state.savings.filter(s => s.id !== id);
+            saveState();
+        }
+
+        function addLoan(e) {
+            e.preventDefault();
+            const name = document.getElementById('loan-name').value;
+            const total = parseFloat(document.getElementById('loan-total').value);
+            const paid = parseFloat(document.getElementById('loan-paid').value) || 0;
+
+            state.loans.push({ id: Date.now().toString(), name, total, paid });
+            document.getElementById('loan-name').value = '';
+            document.getElementById('loan-total').value = '';
+            document.getElementById('loan-paid').value = '';
+            saveState();
+        }
+
+        function payLoan(id) {
+            const amount = parseFloat(prompt("Valor amortizado / pago (€):"));
+            if (amount) {
+                const item = state.loans.find(l => l.id === id);
+                if (item) item.paid += amount;
+                saveState();
+            }
+        }
+
+        function deleteLoan(id) {
+            state.loans = state.loans.filter(l => l.id !== id);
+            saveState();
+        }
+
+        // BACKUP (IMPORTAR / EXPORTAR JSON)
+        function exportData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state));
             const downloadAnchor = document.createElement('a');
-            const dateStr = new Date().toISOString().split('T')[0];
             downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `backup_financas_${dateStr}.json`);
+            downloadAnchor.setAttribute("download", `backup_financas_${new Date().toISOString().slice(0,10)}.json`);
             document.body.appendChild(downloadAnchor);
             downloadAnchor.click();
             downloadAnchor.remove();
-            showToast('💾 Backup transferido com sucesso!');
         }
 
-        function uploadBackup(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
+        function importData(event) {
+            const fileReader = new FileReader();
+            fileReader.onload = function(e) {
                 try {
                     const importedState = JSON.parse(e.target.result);
-                    if (importedState && Array.isArray(importedState.expenses)) {
-                        state = { ...defaultState, ...importedState };
-                        saveState();
-                        renderApp();
-                        showToast('📂 Backup restaurado com sucesso!');
-                    } else {
-                        showToast('⚠️ Ficheiro de backup inválido.');
-                    }
+                    state = importedState;
+                    saveState();
+                    alert("Backup importado com sucesso!");
                 } catch (err) {
-                    showToast('❌ Erro ao ler ficheiro JSON.');
+                    alert("Erro ao ler o arquivo de backup JSON.");
                 }
             };
-            reader.readAsText(file);
-            event.target.value = '';
+            fileReader.readAsText(event.target.files[0]);
         }
 
-        function formatEUR(val) {
-            return new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' }).format(val || 0);
-        }
-
-        function switchTab(tabId) {
-            state.activeTab = tabId;
-            
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('bg-indigo-600', 'text-white', 'shadow-xs');
-                btn.classList.add('text-slate-600', 'hover:bg-slate-100');
-            });
-
-            const activeBtn = document.getElementById(`tab-btn-${tabId}`);
-            if (activeBtn) {
-                activeBtn.classList.remove('text-slate-600', 'hover:bg-slate-100');
-                activeBtn.classList.add('bg-indigo-600', 'text-white', 'shadow-xs');
-            }
-
-            document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.add('hidden'));
-            document.getElementById(`tab-content-${tabId}`).classList.remove('hidden');
-
-            renderApp();
-        }
-
-        function setTagFilter(tag) {
-            state.activeTagFilter = tag;
-            renderApp();
-        }
-
-        function addCategory() {
-            const input = document.getElementById('new-category-input');
-            const catName = input.value.trim();
-            if (!catName) return;
-
-            if (!state.categories.includes(catName)) {
-                state.categories.push(catName);
-                if (state.budgets[catName] === undefined) {
-                    state.budgets[catName] = 300.00;
-                }
-                saveState();
-                input.value = '';
-                renderCategoriesModal();
-                renderApp();
-                showToast(`Categoria "${catName}" adicionada!`);
-            }
-        }
-
-        function removeCategory(catName) {
-            if (state.categories.length <= 1) {
-                showToast('Deve manter pelo menos 1 categoria.');
-                return;
-            }
-            state.categories = state.categories.filter(c => c !== catName);
-            delete state.budgets[catName];
-            saveState();
-            renderCategoriesModal();
-            renderApp();
-            showToast(`Categoria eliminada.`);
-        }
-
-        function addTag() {
-            const input = document.getElementById('new-tag-input');
-            const tagName = input.value.trim();
-            if (!tagName) return;
-
-            if (!state.tags.includes(tagName)) {
-                state.tags.push(tagName);
-                saveState();
-                input.value = '';
-                renderCategoriesModal();
-                renderApp();
-                showToast(`Etiqueta "${tagName}" adicionada!`);
-            }
-        }
-
-        function removeTag(tagName) {
-            state.tags = state.tags.filter(t => t !== tagName);
-            saveState();
-            renderCategoriesModal();
-            renderApp();
-            showToast(`Etiqueta eliminada.`);
-        }
-
-        function renderCategoriesModal() {
-            const catContainer = document.getElementById('categories-list');
-            catContainer.innerHTML = state.categories.map(c => `
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 text-slate-800 border border-slate-200">
-                    ${escapeHtml(c)}
-                    <button onclick="removeCategory('${escapeHtml(c)}')" class="text-slate-400 hover:text-red-600 font-bold ml-1">&times;</button>
-                </span>
-            `).join('');
-
-            const tagContainer = document.getElementById('tags-list');
-            tagContainer.innerHTML = state.tags.map(t => `
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">
-                    ${escapeHtml(t)}
-                    <button onclick="removeTag('${escapeHtml(t)}')" class="text-indigo-400 hover:text-red-600 font-bold ml-1">&times;</button>
-                </span>
-            `).join('');
-        }
-
-        function calculateCalculations() {
-            let totalSpent = 0;
-            let travelSpent = 0;
-            const categorySpent = {};
-
-            state.categories.forEach(cat => categorySpent[cat] = 0);
-
-            state.expenses.forEach(exp => {
-                totalSpent += exp.amount;
-                
-                if (exp.isTravel || exp.category === 'Viagens') {
-                    travelSpent += exp.amount;
-                    if (categorySpent['Viagens'] !== undefined) {
-                        categorySpent['Viagens'] += exp.amount;
-                    }
-                } else if (categorySpent[exp.category] !== undefined) {
-                    categorySpent[exp.category] += exp.amount;
-                } else {
-                    const fallbackCat = state.categories[0] || 'Geral';
-                    categorySpent[fallbackCat] = (categorySpent[fallbackCat] || 0) + exp.amount;
-                }
-            });
-
-            const totalBudget = Object.values(state.budgets).reduce((a, b) => a + b, 0);
-
-            return { totalSpent, travelSpent, categorySpent, totalBudget };
-        }
-
-        function renderPoupança() {
-            const container = document.getElementById('poupanca-cards-container');
-            if (!state.poupancas || state.poupancas.length === 0) {
-                container.innerHTML = `<p class="text-xs text-slate-500 col-span-3">Nenhuma meta de poupança definida.</p>`;
-                return;
-            }
-            container.innerHTML = state.poupancas.map(p => {
-                const pct = Math.min(100, Math.round((p.current / (p.target || 1)) * 100));
-                return `
-                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 shadow-xs relative">
-                        <div class="flex justify-between items-start mb-2">
-                            <h3 class="text-xs font-bold text-slate-800">${escapeHtml(p.title)}</h3>
-                            <button onclick="deletePoupança('${p.id}')" class="text-slate-400 hover:text-red-600 text-xs font-bold">&times;</button>
-                        </div>
-                        <div class="text-lg font-bold text-emerald-700">${formatEUR(p.current)} <span class="text-xs text-slate-400 font-normal">/ ${formatEUR(p.target)}</span></div>
-                        <div class="w-full bg-slate-200 rounded-full h-2 mt-2">
-                            <div class="bg-emerald-500 h-2 rounded-full progress-bar-transition" style="width: ${pct}%"></div>
-                        </div>
-                        <div class="text-[10px] text-slate-500 mt-1 text-right font-medium">${pct}% concluído</div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function renderDividas() {
-            const container = document.getElementById('dividas-cards-container');
-            if (!state.dividas || state.dividas.length === 0) {
-                container.innerHTML = `<p class="text-xs text-slate-500 col-span-2">Nenhum empréstimo registado.</p>`;
-                return;
-            }
-            container.innerHTML = state.dividas.map(d => {
-                const paid = d.total - d.remaining;
-                const pct = Math.min(100, Math.round((paid / (d.total || 1)) * 100));
-                return `
-                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 shadow-xs relative">
-                        <div class="flex justify-between items-start mb-2">
-                            <h3 class="text-xs font-bold text-slate-800">${escapeHtml(d.title)}</h3>
-                            <button onclick="deleteDivida('${d.id}')" class="text-slate-400 hover:text-red-600 text-xs font-bold">&times;</button>
-                        </div>
-                        <div class="text-lg font-bold text-red-600">${formatEUR(d.remaining)} <span class="text-xs text-slate-400 font-normal">restantes de ${formatEUR(d.total)}</span></div>
-                        <div class="w-full bg-slate-200 rounded-full h-2 mt-2">
-                            <div class="bg-red-500 h-2 rounded-full progress-bar-transition" style="width: ${100 - pct}%"></div>
-                        </div>
-                        <div class="text-[10px] text-slate-500 mt-1 text-right font-medium">${pct}% amortizado</div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function renderApp() {
-            const { totalSpent, travelSpent, categorySpent, totalBudget } = calculateCalculations();
-            const searchVal = document.getElementById('search-input')?.value.toLowerCase() || '';
-
-            // 1. Render Top Summary Widgets
-            document.getElementById('global-budget-display').innerText = formatEUR(totalBudget);
-            document.getElementById('global-spent-display').innerText = formatEUR(totalSpent);
-            
-            const remaining = totalBudget - totalSpent;
-            const remainingEl = document.getElementById('global-remaining-display');
-            remainingEl.innerText = formatEUR(remaining);
-            if (remaining < 0) {
-                remainingEl.className = 'text-2xl font-bold mt-1 text-red-600';
-                document.getElementById('global-remaining-status').innerText = '⚠️ Teto Ultrapassado!';
-                document.getElementById('global-remaining-status').className = 'text-xs text-red-600 font-bold mt-1';
-            } else {
-                remainingEl.className = 'text-2xl font-bold mt-1 text-emerald-700';
-                document.getElementById('global-remaining-status').innerText = 'Dentro da margem planeada';
-                document.getElementById('global-remaining-status').className = 'text-xs text-emerald-800/80 mt-1';
-            }
-
-            const pctUsed = totalBudget > 0 ? Math.round((totalSpent / totalBudget) * 100) : 0;
-            document.getElementById('global-spent-percent').innerText = `${pctUsed}% do teto global utilizado`;
-            document.getElementById('travel-spent-display').innerText = formatEUR(travelSpent);
-
-            // 2. Render Filter Toolbar Tags
-            const tagContainer = document.getElementById('tag-filter-container');
-            let tagFilterHtml = `
-                <span class="text-xs font-bold uppercase tracking-wider text-slate-400 mr-2 flex items-center gap-1">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 11h.01M7 15h.01M11 7h8M11 11h8M11 15h8"></path></svg>
-                    Etiquetas:
-                </span>
-                <button onclick="setTagFilter('ALL')" class="px-3 py-1 rounded-full text-xs font-semibold ${state.activeTagFilter === 'ALL' ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'} transition">
-                    Todas
-                </button>
-            `;
-
-            state.tags.forEach(tag => {
-                const isActive = state.activeTagFilter === tag;
-                tagFilterHtml += `
-                    <button onclick="setTagFilter('${escapeHtml(tag)}')" class="px-3 py-1 rounded-full text-xs font-semibold ${isActive ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'} transition">
-                        ${escapeHtml(tag)}
-                    </button>
-                `;
-            });
-            tagContainer.innerHTML = tagFilterHtml;
-
-            // 3. Render Tab Specific Summaries
-            const essBudget = state.budgets['Gastos Essenciais'] || 0;
-            const essSpent = categorySpent['Gastos Essenciais'] || 0;
-            document.getElementById('essentials-budget-summary').innerText = `${formatEUR(essSpent)} / ${formatEUR(essBudget)}`;
-            const essPct = Math.min(100, Math.round((essSpent / (essBudget || 1)) * 100));
-            const essBar = document.getElementById('essentials-budget-bar');
-            essBar.style.width = `${essPct}%`;
-            essBar.className = `h-2 rounded-full progress-bar-transition ${essSpent > essBudget ? 'bg-red-500' : 'bg-amber-500'}`;
-
-            const trvBudget = state.budgets['Viagens'] || 0;
-            const trvSpent = categorySpent['Viagens'] || 0;
-            document.getElementById('travel-budget-summary').innerText = `${formatEUR(trvSpent)} / ${formatEUR(trvBudget)}`;
-            const trvPct = Math.min(100, Math.round((trvSpent / (trvBudget || 1)) * 100));
-            const trvBar = document.getElementById('travel-budget-bar');
-            trvBar.style.width = `${trvPct}%`;
-            trvBar.className = `h-2 rounded-full progress-bar-transition ${trvSpent > trvBudget ? 'bg-red-500' : 'bg-sky-500'}`;
-
-            // 4. Render Overview Budget Ceiling Bars
-            const overviewBarsContainer = document.getElementById('overview-budget-bars');
-            overviewBarsContainer.innerHTML = state.categories.map(cat => {
-                const bVal = state.budgets[cat] || 0;
-                const sVal = categorySpent[cat] || 0;
-                const pct = Math.round((sVal / (bVal || 1)) * 100);
-                const isOver = sVal > bVal;
-
-                return `
-                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="font-bold text-xs text-slate-800">${escapeHtml(cat)}</span>
-                            <span class="text-xs font-semibold ${isOver ? 'text-red-600 font-bold' : 'text-slate-600'}">
-                                ${formatEUR(sVal)} de ${formatEUR(bVal)}
-                            </span>
-                        </div>
-                        <div class="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
-                            <div class="h-2.5 rounded-full progress-bar-transition ${isOver ? 'bg-red-500' : pct > 85 ? 'bg-amber-500' : 'bg-indigo-600'}" style="width: ${Math.min(100, pct)}%"></div>
-                        </div>
-                        <div class="flex justify-between items-center mt-2 text-[11px] text-slate-500">
-                            <span>${pct}% do teto atingido</span>
-                            <span class="${isOver ? 'text-red-600 font-bold' : 'text-emerald-700'}">
-                                ${isOver ? 'Excedido em ' + formatEUR(sVal - bVal) : 'Folga: ' + formatEUR(bVal - sVal)}
-                            </span>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            // Render Modules Poupança & Dívidas
-            renderPoupança();
-            renderDividas();
-
-            // 5. Filter Transactions List
-            let filtered = state.expenses.filter(item => {
-                if (state.activeTab === 'essentials' && item.category !== 'Gastos Essenciais') return false;
-                if (state.activeTab === 'travel' && !item.isTravel && item.category !== 'Viagens') return false;
-                if (state.activeTab === 'categories' && (item.category === 'Gastos Essenciais' || item.isTravel)) return false;
-
-                if (state.activeTagFilter !== 'ALL') {
-                    if (state.activeTagFilter === 'Viagem' && !item.isTravel && item.tag !== 'Viagem') return false;
-                    if (state.activeTagFilter !== 'Viagem' && item.tag !== state.activeTagFilter) return false;
-                }
-
-                if (searchVal && !item.title.toLowerCase().includes(searchVal)) return false;
-
-                return true;
-            });
-
-            // 6. Render Table
-            const tbody = document.getElementById('expenses-table-body');
-            const emptyState = document.getElementById('empty-state');
-            document.getElementById('expense-count-badge').innerText = `${filtered.length} gastos encontrados`;
-
-            if (filtered.length === 0) {
-                tbody.innerHTML = '';
-                emptyState.classList.remove('hidden');
-                return;
-            }
-
-            emptyState.classList.add('hidden');
-            tbody.innerHTML = filtered.map(item => `
-                <tr class="hover:bg-slate-50 transition">
-                    <td class="py-3 px-4 font-semibold text-slate-800">${escapeHtml(item.title)}</td>
-                    <td class="py-3 px-4">
-                        <span class="px-2 py-0.5 rounded-md text-[11px] font-medium bg-slate-100 text-slate-700 border border-slate-200">
-                            ${escapeHtml(item.category)}
-                        </span>
-                    </td>
-                    <td class="py-3 px-4">
-                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
-                            ${escapeHtml(item.tag)}
-                        </span>
-                    </td>
-                    <td class="py-3 px-4 text-center">
-                        ${item.isTravel ? `
-                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-100 text-sky-800 border border-sky-200">
-                                ✈️ Viagem
-                            </span>
-                        ` : `
-                            <span class="text-slate-300 text-xs">—</span>
-                        `}
-                    </td>
-                    <td class="py-3 px-4 text-slate-500">${item.date}</td>
-                    <td class="py-3 px-4 text-right font-bold text-slate-900">${formatEUR(item.amount)}</td>
-                    <td class="py-3 px-4 text-center">
-                        <button onclick="deleteExpense('${item.id}')" class="text-slate-400 hover:text-red-600 transition p-1" title="Eliminar Gasto">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                        </button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        function escapeHtml(str) {
-            return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[m]);
-        }
-
-        function openModal(modalName) {
-            if (modalName === 'expense') {
-                document.getElementById('exp-date').valueAsDate = new Date();
-                const catSelect = document.getElementById('exp-category');
-                catSelect.innerHTML = state.categories.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
-                const tagSelect = document.getElementById('exp-tag');
-                tagSelect.innerHTML = state.tags.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join('');
-                document.getElementById('modal-expense').classList.remove('hidden');
-            } else if (modalName === 'budget') {
-                const container = document.getElementById('budget-inputs-container');
-                container.innerHTML = state.categories.map(cat => `
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Teto: ${escapeHtml(cat)} (€)</label>
-                        <input type="number" step="10" data-category="${escapeHtml(cat)}" value="${state.budgets[cat] || 0}" required class="budget-input w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
-                    </div>
-                `).join('');
-                document.getElementById('modal-budget').classList.remove('hidden');
-            } else if (modalName === 'categories') {
-                renderCategoriesModal();
-                document.getElementById('modal-categories').classList.remove('hidden');
-            } else if (modalName === 'poupanca') {
-                document.getElementById('modal-poupanca').classList.remove('hidden');
-            } else if (modalName === 'divida') {
-                document.getElementById('modal-divida').classList.remove('hidden');
-            }
-        }
-
-        function closeModal(modalName) {
-            document.getElementById(`modal-${modalName}`).classList.add('hidden');
-        }
-
-        function handleSaveExpense(event) {
-            event.preventDefault();
-            const title = document.getElementById('exp-title').value.trim();
-            const amount = parseFloat(document.getElementById('exp-amount').value);
-            const date = document.getElementById('exp-date').value;
-            const category = document.getElementById('exp-category').value;
-            const tag = document.getElementById('exp-tag').value;
-            const isTravel = document.getElementById('exp-is-travel').checked;
-
-            if (!title || isNaN(amount) || amount <= 0) return;
-
-            const newExpense = {
-                id: Date.now().toString(),
-                title,
-                amount,
-                date,
-                category: isTravel ? 'Viagens' : category,
-                tag: isTravel ? 'Viagem' : tag,
-                isTravel
-            };
-
-            state.expenses.unshift(newExpense);
-            saveState();
-            closeModal('expense');
-            document.getElementById('form-expense').reset();
-            renderApp();
-            showToast('Gasto registado com sucesso!');
-        }
-
-        function handleSavePoupanca(event) {
-            event.preventDefault();
-            const title = document.getElementById('poupanca-title').value.trim();
-            const current = parseFloat(document.getElementById('poupanca-current').value) || 0;
-            const target = parseFloat(document.getElementById('poupanca-target').value) || 0;
-
-            if (!title || target <= 0) return;
-
-            state.poupancas.push({ id: Date.now().toString(), title, current, target });
-            saveState();
-            closeModal('poupanca');
-            renderApp();
-            showToast('Meta de poupança registada!');
-        }
-
-        function handleSaveDivida(event) {
-            event.preventDefault();
-            const title = document.getElementById('divida-title').value.trim();
-            const remaining = parseFloat(document.getElementById('divida-remaining').value) || 0;
-            const total = parseFloat(document.getElementById('divida-total').value) || 0;
-
-            if (!title || total <= 0) return;
-
-            state.dividas.push({ id: Date.now().toString(), title, remaining, total });
-            saveState();
-            closeModal('divida');
-            renderApp();
-            showToast('Empréstimo registado!');
-        }
-
-        function deletePoupança(id) {
-            state.poupancas = state.poupancas.filter(p => p.id !== id);
-            saveState();
-            renderApp();
-            showToast('Meta eliminada.');
-        }
-
-        function deleteDivida(id) {
-            state.dividas = state.dividas.filter(d => d.id !== id);
-            saveState();
-            renderApp();
-            showToast('Empréstimo eliminado.');
-        }
-
-        function handleSaveBudgets(event) {
-            event.preventDefault();
-            const inputs = document.querySelectorAll('.budget-input');
-            inputs.forEach(input => {
-                const cat = input.getAttribute('data-category');
-                const val = parseFloat(input.value) || 0;
-                state.budgets[cat] = val;
-            });
-
-            saveState();
-            closeModal('budget');
-            renderApp();
-            showToast('Tetos orçamentais atualizados!');
-        }
-
-        function deleteExpense(id) {
-            state.expenses = state.expenses.filter(exp => exp.id !== id);
-            saveState();
-            renderApp();
-            showToast('Gasto removido.');
-        }
-
-        window.onload = function() {
-            switchTab('overview');
-        };
+        // INICIALIZAÇÃO DA APLICAÇÃO
+        document.getElementById('tx-date').value = new Date().toISOString().slice(0, 10);
+        render();
     </script>
 </body>
 </html>
