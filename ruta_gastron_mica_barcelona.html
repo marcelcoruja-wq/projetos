@@ -88,7 +88,7 @@
         <span class="text-2xl shrink-0">🥟</span>
         <div class="truncate">
           <h1 class="font-extrabold text-slate-900 leading-tight text-base sm:text-lg tracking-tight truncate">Ruta Gastronómica Barcelona</h1>
-          <p class="text-xs text-slate-500 font-medium truncate">Chilenos, Brasileños, Japoneses, Coreanos y Vietnamitas</p>
+          <p class="text-xs text-slate-500 font-medium truncate">Chilenos, Brasileños, Peruanos y Japoneses (Entença 95 & BCN)</p>
         </div>
       </div>
       <div class="flex items-center gap-2 shrink-0">
@@ -101,7 +101,7 @@
         </button>
         <div id="statsBadge" class="text-xs bg-amber-50 text-amber-800 border border-amber-200 font-semibold px-2.5 py-1.5 rounded-xl flex items-center gap-1 shadow-xs">
           <span>⭐</span>
-          <span id="starCounter">3</span>
+          <span id="starCounter">4</span>
         </div>
       </div>
     </div>
@@ -160,23 +160,16 @@
 
       <button 
         type="button"
+        data-filtro="peruano"
+        class="btn-filtro shrink-0 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer">
+        <span>🇵🇪</span> Peruanos
+      </button>
+
+      <button 
+        type="button"
         data-filtro="japones"
         class="btn-filtro shrink-0 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer">
         <span>🇯🇵</span> Japoneses
-      </button>
-
-      <button 
-        type="button"
-        data-filtro="coreano"
-        class="btn-filtro shrink-0 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer">
-        <span>🇰🇷</span> Coreanos
-      </button>
-
-      <button 
-        type="button"
-        data-filtro="vietnamita"
-        class="btn-filtro shrink-0 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer">
-        <span>🇻🇳</span> Vietnamitas
       </button>
 
       <button 
@@ -287,14 +280,14 @@
           />
         </div>
 
-        <!-- Dirección o Enlace de Google Maps -->
+        <!-- Metro más cercano o Dirección -->
         <div>
-          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Dirección en Barcelona o Enlace</label>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Metro más cercano o Barrio</label>
           <input 
             type="text" 
             id="novoMaps" 
             required 
-            placeholder="Ej: Carrer de les Flors, 16" 
+            placeholder="Ej: Metro Poblenou (L4) o Carrer de Bilbao, 18" 
             class="w-full py-2.5 px-3 bg-white border-2 border-slate-300 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:border-slate-900"
           />
         </div>
@@ -354,7 +347,7 @@
 
   <script>
     (function () {
-      // 1. Catálogo Completo: Chilenos, Brasileños, Japoneses, Coreanos y Vietnamitas en Barcelona
+      // 1. Catálogo Completo: Chilenos, Brasileños, Peruanos y Japoneses (Foco en Carrer d'Entença, 95)
       const LOCAIS_INICIAIS = [
         // ================= CHILENOS =================
         {
@@ -364,7 +357,7 @@
           bandeira: '🇨🇱',
           paisNome: 'Chileno',
           endereco: 'Carrer de les Flors, 16 (El Raval)',
-          tempo: 'Metro Paral·lel / Sant Antoni',
+          tempo: 'Metro Paral·lel (L2/L3) / Sant Antoni (L2)',
           rating: '4.6',
           reviewsCount: '1.200+',
           especialidade: 'El bar chileno por excelencia: sopaipillas con pebre, completos italianos, empanadas fritas de pino y queso, y terremoto tradicional.',
@@ -379,7 +372,7 @@
           bandeira: '🇨🇱',
           paisNome: 'Chileno',
           endereco: 'Gran Via de les Corts Catalanes, 518',
-          tempo: 'Eixample Esquerra',
+          tempo: 'Metro Urgell (L1) / Rocafort (L1) • A 6 min a pie',
           rating: '4.6',
           reviewsCount: '390+',
           especialidade: 'Empanada frita de camarón y queso (masa crujiente y relleno generoso), pastel de choclo y sándwiches clásicos chilenos.',
@@ -394,7 +387,7 @@
           bandeira: '🇨🇱',
           paisNome: 'Chileno',
           endereco: 'Avinguda de Josep Tarradellas, 60',
-          tempo: 'Sants / Entença',
+          tempo: 'Metro Entença (L5) / Sants Estació (L3/L5)',
           rating: '4.5',
           reviewsCount: '420+',
           especialidade: 'Empanada clásica de pino y queso-camarón frita en el momento, dulces chilenos artesanales.',
@@ -409,7 +402,7 @@
           bandeira: '🇨🇱',
           paisNome: 'Chileno / Latino',
           endereco: 'Carrer de Villarroel, 22',
-          tempo: 'Sant Antoni',
+          tempo: 'Metro Sant Antoni (L2) / Urgell (L1)',
           rating: '4.6',
           reviewsCount: '890+',
           especialidade: 'Empanadas fritas de mariscos, chorrillanas, street food chilena y pisco sour artesanal.',
@@ -424,7 +417,7 @@
           bandeira: '🇨🇱',
           paisNome: 'Chileno',
           endereco: 'Carrer de la Junta de Comerç, 28',
-          tempo: 'El Raval',
+          tempo: 'Metro Liceu (L3) / Sant Antoni (L2)',
           rating: '4.5',
           reviewsCount: '560+',
           especialidade: 'Carnes a la brasa, pastel de choclo tradicional, cazuela y empanadas horneadas de pino.',
@@ -439,7 +432,7 @@
           bandeira: '🇨🇱',
           paisNome: 'Chileno',
           endereco: 'Plaça del Mercat, 19',
-          tempo: 'El Clot',
+          tempo: 'Metro El Clot (L1/L2)',
           rating: '4.5',
           reviewsCount: '280+',
           especialidade: 'Bar chileno de barrio: empanadas caseras de pino, sándwich chacarero y lomito italiano.',
@@ -456,7 +449,7 @@
           bandeira: '🇧🇷',
           paisNome: 'Baiano / Frutos do mar',
           endereco: 'Carrer del Comte Borrell, 65',
-          tempo: 'Sant Antoni',
+          tempo: 'Metro Sant Antoni (L2) / Poble Sec (L3)',
           rating: '4.7',
           reviewsCount: '680+',
           especialidade: 'Especialista en cocina bahiana: moqueca de camarão con leche de coco, acarajé frito en aceite de dendê y caipirinhas.',
@@ -465,16 +458,31 @@
           searchQuery: 'Buriti Carrer del Comte Borrell 65 Barcelona'
         },
         {
+          id: 'buriti_poblenou',
+          nome: 'Buriti - Poblenou (Brasileiro / Baiano)',
+          tipo: 'brasileiro',
+          bandeira: '🇧🇷',
+          paisNome: 'Baiano Tradicional',
+          endereco: 'Carrer de Bilbao, 18',
+          tempo: 'Metro Poblenou (L4)',
+          rating: '4.7',
+          reviewsCount: '820+',
+          especialidade: 'La casa matriz de la chef baiana Sara Lemos cerca de la playa: bobó de camarão, acarajé crujiente y casquinha de siri.',
+          lat: 41.4005,
+          lng: 2.2038,
+          searchQuery: 'Buriti Carrer de Bilbao 18 Barcelona'
+        },
+        {
           id: 'mi_casa',
           nome: 'Mi Casa Bar & Restaurante (Brasileiro)',
           tipo: 'brasileiro',
           bandeira: '🇧🇷',
           paisNome: 'Brasileño',
           endereco: 'Ctra. de la Bordeta, 26',
-          tempo: 'Plaça d\'Espanya / Sants',
+          tempo: 'Metro Plaça d\'Espanya (L1/L3) • A 8 min a pie',
           rating: '4.4',
           reviewsCount: '530+',
-          especialidade: 'Pastéis y petiscos brasileños fritos, coxinhas caseras, mandioca frita y platos del día.',
+          especialidade: 'Pastéis y petiscos brasileños fritos, coxinhas caseras, mandioca frita y platos caseros muy cerca de Entença.',
           lat: 41.3725,
           lng: 2.1408,
           searchQuery: 'Mi Casa Bar Restaurante Ctra de la Bordeta 26 Barcelona'
@@ -486,7 +494,7 @@
           bandeira: '🇧🇷',
           paisNome: 'Brasileño tradicional',
           endereco: 'Carrer Ample, 43',
-          tempo: 'Barri Gòtic',
+          tempo: 'Metro Jaume I (L4) / Drassanes (L3)',
           rating: '4.5',
           reviewsCount: '1.400+',
           especialidade: 'El clásico brasileño más antiguo de Barcelona (desde 1997): feijoada completa, coxinhas doradas y guaraná.',
@@ -501,7 +509,7 @@
           bandeira: '🇧🇷',
           paisNome: 'Brasileño',
           endereco: 'Carrer de St. Antoni Maria Claret, 148',
-          tempo: 'Sagrada Família',
+          tempo: 'Metro Sagrada Família (L2/L5)',
           rating: '4.6',
           reviewsCount: '780+',
           especialidade: 'Picanha a la plancha servida con farofa y vinagreta, feijoada los fines de semana y caldos caseros.',
@@ -516,10 +524,10 @@
           bandeira: '🇧🇷',
           paisNome: 'Botequim Carioca',
           endereco: 'Carrer de Sardenya, 56',
-          tempo: 'Vila Olímpica',
+          tempo: 'Metro Ciutadella / Vila Olímpica (L4)',
           rating: '4.6',
           reviewsCount: '620+',
-          especialidade: 'Botequim carioca moderno cerca de la playa: tapiocas rellenas, pão de queijo, coxinhas y caipirinhas de maracuyá.',
+          especialidade: 'Botequim carioca moderno cerca de la playa: tapiocas rellenas, pão de queijo, coxinhas y caipirinhas.',
           lat: 41.3912,
           lng: 2.1932,
           searchQuery: 'Rio DOC Carrer de Sardenya 56 Barcelona'
@@ -531,75 +539,137 @@
           bandeira: '🇧🇷',
           paisNome: 'Churrasquería Rodízio',
           endereco: 'Carrer del Consell de Cent, 403',
-          tempo: 'Eixample Dret',
+          tempo: 'Metro Girona (L4) / Tetuan (L2)',
           rating: '4.5',
           reviewsCount: '2.100+',
-          especialidade: 'Auténtico rodízio de carnes al espeto corrido: picanha noble, maminha, costillas y buffet libre de acompañamientos.',
+          especialidade: 'Auténtico rodízio de carnes al espeto corrido: picanha noble, maminha, costillas y buffet libre.',
           lat: 41.3971,
           lng: 2.1709,
           searchQuery: 'Guanabara Churrasqueria Consell de Cent 403 Barcelona'
         },
 
-        // ================= JAPONESES =================
+        // ================= PERUANOS (EN Y ALREDEDOR DE ENTENÇA 95) =================
         {
-          id: 'ramen_hiro',
-          nome: 'Ramen-ya Hiro (Japonés)',
-          tipo: 'japones',
-          bandeira: '🇯🇵',
-          paisNome: 'Ramen Artesanal',
-          endereco: 'Carrer de Girona, 164',
-          tempo: 'Eixample Dret',
-          rating: '4.7',
-          reviewsCount: '4.300+',
-          especialidade: 'El gran templo del ramen artesanal en Barcelona: fideos elaborados a mano a diario y caldo cocido durante horas.',
-          lat: 41.4003,
-          lng: 2.1672,
-          searchQuery: 'Ramen-ya Hiro Carrer de Girona 164 Barcelona'
-        },
-        {
-          id: 'can_kenji',
-          nome: 'Can Kenji (Japonés)',
-          tipo: 'japones',
-          bandeira: '🇯🇵',
-          paisNome: 'Izakaya Tradicional',
-          endereco: 'Carrer del Rosselló, 325',
-          tempo: 'Sagrada Família',
-          rating: '4.6',
-          reviewsCount: '1.900+',
-          especialidade: 'Taberna izakaya auténtica con producto fresco de mercado: onigiri a la brasa, tataki de atún y setas salteadas.',
-          lat: 41.4026,
-          lng: 2.1678,
-          searchQuery: 'Can Kenji Carrer del Rossello 325 Barcelona'
-        },
-        {
-          id: 'ikoya',
-          nome: 'Ikoya Izakaya (Japonés)',
-          tipo: 'japones',
-          bandeira: '🇯🇵',
-          paisNome: 'Robata Grill & Sashimi',
-          endereco: 'Avinguda de Francesc Cambó, 23',
-          tempo: 'El Born / Santa Caterina',
+          id: 'rincon_peruano',
+          nome: 'El Rincón Peruano (Peruano)',
+          tipo: 'peruano',
+          bandeira: '🇵🇪',
+          paisNome: 'Peruano Tradicional',
+          endereco: 'Carrer d\'Entença, 146',
+          tempo: 'Metro Entença (L5) / Rocafort (L1) • A 3 min de ti',
           rating: '4.5',
-          reviewsCount: '850+',
-          especialidade: 'Parrilla japonesa tradicional al carbón vegetal (robata), cortes de pescado de lonja y excelente carta de sakes.',
-          lat: 41.3868,
-          lng: 2.1785,
-          searchQuery: 'Ikoya Izakaya Francesc Cambo 23 Barcelona'
+          reviewsCount: '820+',
+          especialidade: 'En tu misma calle Entença: ceviche mixto clásico con choclo y camote, lomo saltado jugoso al wok, arroz con mariscos y ají de gallina.',
+          lat: 41.3812,
+          lng: 2.1465,
+          searchQuery: 'El Rincon Peruano Carrer d Entenca 146 Barcelona'
         },
         {
-          id: 'carlota_akaneya',
-          nome: 'Carlota Akaneya (Japonés)',
+          id: 'thala_peruano',
+          nome: 'Thala Restaurante Peruano (Peruano)',
+          tipo: 'peruano',
+          bandeira: '🇵🇪',
+          paisNome: 'Cevichería & Criollo',
+          endereco: 'Carrer de Sepúlveda, 76',
+          tempo: 'Metro Rocafort (L1) • A 4 min a pie',
+          rating: '4.8',
+          reviewsCount: '950+',
+          especialidade: 'El peruano mejor calificado junto a Rocafort: ceviche carretillero con chicharrón crujiente de calamar, anticuchos y tiraditos tricolor.',
+          lat: 41.3789,
+          lng: 2.1565,
+          searchQuery: 'Thala Restaurante Peruano Carrer de Sepulveda 76 Barcelona'
+        },
+        {
+          id: 'punto_peruano',
+          nome: 'El Punto Peruano (Peruano)',
+          tipo: 'peruano',
+          bandeira: '🇵🇪',
+          paisNome: 'Pescados & Mariscos',
+          endereco: 'Carrer de Mallorca, 107',
+          tempo: 'Metro Entença (L5) / Hospital Clínic (L5)',
+          rating: '4.6',
+          reviewsCount: '620+',
+          especialidade: 'Ceviche fresco de corvina con potente leche de tigre, causa limeña rellena y jalea mixta marina crujiente.',
+          lat: 41.3848,
+          lng: 2.1520,
+          searchQuery: 'El Punto Peruano Carrer de Mallorca 107 Barcelona'
+        },
+        {
+          id: 'chifa_doromari',
+          nome: 'Chifa Doromari (Peruano / Chifa)',
+          tipo: 'peruano',
+          bandeira: '🇵🇪',
+          paisNome: 'Fusión Chifa Peruana',
+          endereco: 'Carrer del Comte d\'Urgell, 99',
+          tempo: 'Metro Urgell (L1) / Rocafort (L1)',
+          rating: '4.7',
+          reviewsCount: '710+',
+          especialidade: 'Auténtica cocina chifa (fusión cantonesa-peruana): arroz chaufa especial al wok con mariscos, tallarín saltado criollo y wantanes crujientes.',
+          lat: 41.3828,
+          lng: 2.1585,
+          searchQuery: 'Chifa Doromari Carrer del Comte d Urgell 99 Barcelona'
+        },
+        {
+          id: 'lucuma_camote',
+          nome: 'Lúcuma & Camote (Peruano)',
+          tipo: 'peruano',
+          bandeira: '🇵🇪',
+          paisNome: 'Cocina Criolla Tradicional',
+          endereco: 'Carrer d\'Aragó, 212',
+          tempo: 'Metro Rocafort (L1) / Urgell (L1)',
+          rating: '4.7',
+          reviewsCount: '870+',
+          especialidade: 'Causa de pulpo al olivo, seco de ternera norteño con frijoles y arroz, y postres emblemáticos como suspiro limeño.',
+          lat: 41.3860,
+          lng: 2.1575,
+          searchQuery: 'Lucuma y Camote Carrer d Arago 212 Barcelona'
+        },
+
+        // ================= JAPONESES (EN Y ALREDEDOR DE ENTENÇA 95) =================
+        {
+          id: 'maruya',
+          nome: 'Maruya Tasca Japonesa (Japonés)',
           tipo: 'japones',
           bandeira: '🇯🇵',
-          paisNome: 'Sumibiyaki & Wagyu A5',
-          endereco: 'Carrer del Pintor Fortuny, 32',
-          tempo: 'El Raval',
-          rating: '4.7',
+          paisNome: 'Tasca Izakaya Tradicional',
+          endereco: 'Carrer de Sepúlveda, 42',
+          tempo: 'Metro Rocafort (L1) • A 3 min a pie',
+          rating: '4.6',
           reviewsCount: '1.100+',
-          especialidade: 'Primera barbacoa japonesa sumibiyaki de Barcelona: cortes legendarios de buey de Kobe certificado y Wagyu A5.',
-          lat: 41.3831,
-          lng: 2.1700,
-          searchQuery: 'Carlota Akaneya Pintor Fortuny 32 Barcelona'
+          especialidade: 'Auténtica tasca japonesa a la vuelta de Entença 95: sushi fresco, sashimi variado, gyozas caseras doradas a la plancha y yakisoba.',
+          lat: 41.3768,
+          lng: 2.1542,
+          searchQuery: 'Maruya Tasca Japonesa Carrer de Sepulveda 42 Barcelona'
+        },
+        {
+          id: 'kobuta_ramen',
+          nome: 'Kobuta Ramen (Japonés)',
+          tipo: 'japones',
+          bandeira: '🇯🇵',
+          paisNome: 'Ramen Artesanal de Autor',
+          endereco: 'Carrer de Súria, 6',
+          tempo: 'Metro Espanya (L1/L3) • A 8 min a pie',
+          rating: '4.7',
+          reviewsCount: '2.600+',
+          especialidade: 'Para muchos el mejor ramen de la ciudad, al lado de Plaça d\'Espanya: caldo tonkotsu denso y niboshi, takoyakis artesanos y chashu melt-in-mouth.',
+          lat: 41.3735,
+          lng: 2.1432,
+          searchQuery: 'Kobuta Ramen Carrer de Suria 6 Barcelona'
+        },
+        {
+          id: 'sushi_arenas',
+          nome: 'Sushi Arenas (Japonés)',
+          tipo: 'japones',
+          bandeira: '🇯🇵',
+          paisNome: 'Sushi & Cocina Japonesa',
+          endereco: 'Gran Via de les Corts Catalanes, 390',
+          tempo: 'Metro Espanya (L1/L3) / Rocafort (L1) • A 4 min',
+          rating: '4.5',
+          reviewsCount: '820+',
+          especialidade: 'Junto a Las Arenas y Gran Via: rolls especiales flambeados, uramakis de salmón y atún fresco, y platos calientes al wok.',
+          lat: 41.3762,
+          lng: 2.1495,
+          searchQuery: 'Sushi Arenas Gran Via de les Corts Catalanes 390 Barcelona'
         },
         {
           id: 'suto',
@@ -608,171 +678,45 @@
           bandeira: '🇯🇵',
           paisNome: 'Omakase de Autor',
           endereco: 'Carrer de Violant d\'Hongria, 134',
-          tempo: 'Sants',
+          tempo: 'Metro Plaça del Centre (L3) / Sants',
           rating: '4.9',
-          reviewsCount: '450+',
-          especialidade: 'Experiencia omakase íntima para pocos comensales: nigiris de altísima precisión preparados al momento.',
+          reviewsCount: '480+',
+          especialidade: 'Máxima puntuación de Barcelona: omakase íntimo de nigiris de autor preparados con destreza milimétrica pieza a pieza frente a ti.',
           lat: 41.3802,
           lng: 2.1334,
           searchQuery: 'Suto Violant d Hongria 134 Barcelona'
         },
-
-        // ================= COREANOS =================
         {
-          id: 'pocha_asian',
-          nome: 'Pocha Asian Dining Bar (Coreano)',
-          tipo: 'coreano',
-          bandeira: '🇰🇷',
-          paisNome: 'Street Food & Pollo Frito',
-          endereco: 'Carrer de Provença, 224',
-          tempo: 'Eixample Esquerra',
-          rating: '4.6',
-          reviewsCount: '1.600+',
-          especialidade: 'Vibrante taberna de Seúl: pollo frito coreano ultra crujiente (Yangnyeom), dakkalbi picante con queso fundido y somaek.',
-          lat: 41.3916,
-          lng: 2.1581,
-          searchQuery: 'Pocha Asian Dining Bar Carrer de Provenca 224 Barcelona'
-        },
-        {
-          id: 'hana',
-          nome: 'Hana Restaurant (Coreano)',
-          tipo: 'coreano',
-          bandeira: '🇰🇷',
-          paisNome: 'Cocina Tradicional Coreana',
-          endereco: 'Carrer de Déu i Mata, 136',
-          tempo: 'Les Corts',
+          id: 'ramen_hiro',
+          nome: 'Ramen-ya Hiro (Japonés)',
+          tipo: 'japones',
+          bandeira: '🇯🇵',
+          paisNome: 'Templo del Ramen',
+          endereco: 'Carrer de Girona, 164',
+          tempo: 'Metro Girona (L4) / Verdaguer (L4/L5)',
           rating: '4.7',
-          reviewsCount: '1.200+',
-          especialidade: 'El coreano tradicional más auténtico de la ciudad: tteokbokki, japchae de boniato, kimchi jjigae casero y bulgogi.',
-          lat: 41.3892,
-          lng: 2.1352,
-          searchQuery: 'Hana Restaurant Carrer de Deu i Mata 136 Barcelona'
-        },
-        {
-          id: 'san_kil',
-          nome: 'San Kil (Coreano)',
-          tipo: 'coreano',
-          bandeira: '🇰🇷',
-          paisNome: 'Korean BBQ & Bibimbap',
-          endereco: 'Carrer de la Legalitat, 22',
-          tempo: 'Gràcia',
-          rating: '4.6',
-          reviewsCount: '950+',
-          especialidade: 'Barbacoa coreana cocinada al carbón en la mesa, dolsot bibimbap en cuenco de piedra caliente y banchan variado.',
-          lat: 41.4077,
-          lng: 2.1612,
-          searchQuery: 'San Kil Carrer de la Legalitat 22 Barcelona'
-        },
-        {
-          id: 'gyojasang',
-          nome: 'Gyojasang Korean BBQ (Coreano)',
-          tipo: 'coreano',
-          bandeira: '🇰🇷',
-          paisNome: 'Korean BBQ Moderno',
-          endereco: 'Carrer de Mallorca, 182',
-          tempo: 'Eixample',
-          rating: '4.6',
-          reviewsCount: '1.400+',
-          especialidade: 'Parrilla coreana moderna de alta calidad: panceta de cerdo macerada, costillar marinado y raciones abundantes.',
-          lat: 41.3898,
-          lng: 2.1558,
-          searchQuery: 'Gyojasang Korean BBQ Carrer de Mallorca 182 Barcelona'
-        },
-        {
-          id: 'modu',
-          nome: 'Modu Korean Bowls (Coreano)',
-          tipo: 'coreano',
-          bandeira: '🇰🇷',
-          paisNome: 'Noodles & Bowls Saludables',
-          endereco: 'Carrer de Minerva, 8',
-          tempo: 'Gràcia / Diagonal',
-          rating: '4.7',
-          reviewsCount: '850+',
-          especialidade: 'Fideos artesanos coreanos elaborados en casa (Kalguksu), dumplings mandu hechos a mano y cuencos nutritivos.',
-          lat: 41.3975,
-          lng: 2.1552,
-          searchQuery: 'Modu Korean Bowls Carrer de Minerva 8 Barcelona'
-        },
-
-        // ================= VIETNAMITAS =================
-        {
-          id: 'pho_miu',
-          nome: 'Pho Miu (Vietnamita)',
-          tipo: 'vietnamita',
-          bandeira: '🇻🇳',
-          paisNome: 'Phở Tradicional Auténtico',
-          endereco: 'Carrer de Sepúlveda, 161',
-          tempo: 'Sant Antoni',
-          rating: '4.7',
-          reviewsCount: '950+',
-          especialidade: 'El mejor Phở tradicional de Barcelona: caldo cocinado a fuego lento durante 14 horas con ternera tierna y hierbas frescas.',
-          lat: 41.3817,
-          lng: 2.1601,
-          searchQuery: 'Pho Miu Carrer de Sepulveda 161 Barcelona'
-        },
-        {
-          id: 'bun_bo',
-          nome: 'Bun Bo Vietnam (Vietnamita)',
-          tipo: 'vietnamita',
-          bandeira: '🇻🇳',
-          paisNome: 'Street Food & Bún Bò',
-          endereco: 'Carrer de Sagristans, 3',
-          tempo: 'Barri Gòtic / Catedral',
-          rating: '4.5',
-          reviewsCount: '3.800+',
-          especialidade: 'Sopa Bún Bò de fideos de arroz con hierba limón y ternera, nems fritos crujientes y café vietnamita filtrado con leche condensada.',
-          lat: 41.3860,
-          lng: 2.1751,
-          searchQuery: 'Bun Bo Vietnam Carrer de Sagristans 3 Barcelona'
-        },
-        {
-          id: 'la_vietnamita',
-          nome: 'La Vietnamita (Vietnamita)',
-          tipo: 'vietnamita',
-          bandeira: '🇻🇳',
-          paisNome: 'Bánh Mì & Ensaladas Frescas',
-          endereco: 'Carrer del Torrent de l\'Olla, 78',
-          tempo: 'Gràcia',
-          rating: '4.5',
-          reviewsCount: '1.500+',
-          especialidade: 'Comida callejera ligera de Saigón: Bánh mì artesano en pan crujiente, rollitos de verano goi cuon con salsa de cacahuete.',
-          lat: 41.4024,
-          lng: 2.1578,
-          searchQuery: 'La Vietnamita Torrent de l Olla 78 Barcelona'
-        },
-        {
-          id: 'indochine',
-          nome: 'Indochine Ly Leap (Vietnamita / Indochino)',
-          tipo: 'vietnamita',
-          bandeira: '🇻🇳',
-          paisNome: 'Experiencia Jardín Flotante',
-          endereco: 'Carrer de Muntaner, 82',
-          tempo: 'Eixample Esquerra',
-          rating: '4.4',
-          reviewsCount: '2.300+',
-          especialidade: 'Comedor espectacular sobre un lago con peces y plantas tropicales: rollitos exóticos, brochetas marinadas y curry suave.',
-          lat: 41.3867,
-          lng: 2.1565,
-          searchQuery: 'Indochine Ly Leap Carrer de Muntaner 82 Barcelona'
+          reviewsCount: '4.300+',
+          especialidade: 'El gran templo del ramen artesanal: fideos amasados a mano cada mañana y caldo tradicional cocido durante 10 horas.',
+          lat: 41.4003,
+          lng: 2.1672,
+          searchQuery: 'Ramen-ya Hiro Carrer de Girona 164 Barcelona'
         }
       ];
 
       const PAISES_MAP = {
         chileno: { bandeira: '🇨🇱', nome: 'Chileno' },
         brasileiro: { bandeira: '🇧🇷', nome: 'Brasileño' },
+        peruano: { bandeira: '🇵🇪', nome: 'Peruano' },
         japones: { bandeira: '🇯🇵', nome: 'Japonés' },
-        coreano: { bandeira: '🇰🇷', nome: 'Coreano' },
-        vietnamita: { bandeira: '🇻🇳', nome: 'Vietnamita' },
         espanol: { bandeira: '🇪🇸', nome: 'Español' },
         argentino: { bandeira: '🇦🇷', nome: 'Argentino' },
-        peruano: { bandeira: '🇵🇪', nome: 'Peruano' },
         mexicano: { bandeira: '🇲🇽', nome: 'Mexicano' },
         colombiano: { bandeira: '🇨🇴', nome: 'Colombiano' },
         otro: { bandeira: '🌎', nome: 'Internacional' }
       };
 
-      // Favoritos seleccionados por defecto: Perro Pako, Buriti y Ramen-ya Hiro
-      const FAVORITOS_DEFAULT = ['perro_pako', 'buriti', 'ramen_hiro'];
+      // Favoritos seleccionados por defecto cerca de Entença
+      const FAVORITOS_DEFAULT = ['rincon_peruano', 'maruya', 'perro_pako', 'buriti'];
       let todosLocais = [...LOCAIS_INICIAIS];
       let favoritos = new Set(FAVORITOS_DEFAULT);
       let filtroAtual = 'todas';
@@ -832,9 +776,6 @@
           
           // Enlace directo al mapa / cómo llegar
           const mapsLink = local.mapsUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(local.searchQuery || (local.nome + ' ' + local.endereco + ' Barcelona'))}`;
-          
-          // Enlace CORREGIDO a Opiniones: abre la ficha de reseñas directa en Google
-          const reviewsLink = `https://www.google.com/search?q=${encodeURIComponent((local.searchQuery || local.nome) + ' opiniones reseñas')}`;
 
           const article = document.createElement('article');
           article.id = `card-${local.id}`;
@@ -851,14 +792,11 @@
                   </span>
                   <h2 class="text-base sm:text-lg font-bold text-slate-900 leading-snug truncate">${local.nome}</h2>
                 </div>
-                <!-- Puntuación Google Maps & Enlace Directo a Opiniones -->
+                <!-- Puntuación Google Maps limpia y sin links de búsqueda -->
                 <div class="flex items-center gap-2 mt-1">
                   <span class="inline-flex items-center gap-1 text-xs font-bold bg-amber-50 text-amber-900 border border-amber-200 px-2 py-0.5 rounded-md">
                     <span>⭐</span> ${local.rating || '4.6'} <span class="text-amber-700/70 font-normal">(${local.reviewsCount || '100+'})</span>
                   </span>
-                  <a href="${reviewsLink}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-xs font-semibold text-blue-700 hover:text-blue-900 underline decoration-blue-300 transition" title="Leer todas las opiniones y reseñas de clientes">
-                    <span>💬</span> <span>Ver opiniones</span>
-                  </a>
                 </div>
               </div>
               <div class="flex items-center gap-1 shrink-0">
@@ -870,11 +808,10 @@
               </div>
             </div>
 
-            <!-- Etiquetas horizontales sin empilhar (adaptadas para pantallas pequeñas) -->
+            <!-- Etiquetas horizontales con Metro más cercano -->
             <div class="flex items-center gap-1.5 mt-2.5 overflow-x-auto no-scrollbar flex-nowrap py-0.5">
               <span class="shrink-0 whitespace-nowrap text-[11px] font-semibold px-2 py-0.5 rounded-lg border bg-rose-50 text-rose-800 border-rose-200">${local.bandeira || '🌎'} ${local.paisNome || 'Especialidad'}</span>
-              <span class="shrink-0 whitespace-nowrap text-[11px] font-medium px-2 py-0.5 rounded-lg bg-slate-100 text-slate-600 border border-slate-200">📍 ${local.endereco}</span>
-              ${local.tempo ? `<span class="shrink-0 whitespace-nowrap text-[11px] font-bold px-2 py-0.5 rounded-lg bg-amber-100 text-amber-900 border border-amber-200">⏱️ ${local.tempo}</span>` : ''}
+              <span class="shrink-0 whitespace-nowrap text-[11px] font-medium px-2 py-0.5 rounded-lg bg-slate-100 text-slate-600 border border-slate-200">🚇 ${local.tempo || local.endereco}</span>
             </div>
 
             <div class="mt-3 text-slate-700 text-sm leading-relaxed bg-slate-50 border border-slate-200/80 rounded-xl p-3">
@@ -1135,7 +1072,9 @@
           tipo: tipoPais,
           bandeira: paisInfo.bandeira,
           paisNome: paisInfo.nome,
-          endereco: mapsRaw.startsWith('http') ? 'Dirección en Google Maps' : mapsRaw,
+          endereco: mapsRaw.startsWith('http') ? 'Ver en Google Maps' : mapsRaw,
+          metro: mapsRaw.startsWith('Metro') ? mapsRaw : `🚇 ${mapsRaw}`,
+          tempo: 'Personalizado',
           rating: parseFloat(rating).toFixed(1),
           reviewsCount: 'Nuevo',
           especialidade: especialidade || 'Especialidad recomendada por el viajero.',
