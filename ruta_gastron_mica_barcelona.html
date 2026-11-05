@@ -28,6 +28,7 @@
       color: #334155;
       border: 2px solid #cbd5e1;
       transition: all 0.15s ease;
+      white-space: nowrap;
     }
     .btn-filtro.ativo {
       background-color: #0f172a !important;
@@ -40,6 +41,7 @@
       color: #78350f;
       border: 2px solid #fcd34d;
       transition: all 0.15s ease;
+      white-space: nowrap;
     }
     .btn-filtro-fav.ativo {
       background-color: #f59e0b !important;
@@ -54,12 +56,12 @@
     }
 
     .star-btn {
-      min-width: 40px;
-      min-height: 40px;
+      min-width: 42px;
+      min-height: 42px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.35rem;
+      font-size: 1.4rem;
       cursor: pointer;
       border-radius: 12px;
       transition: transform 0.1s ease;
@@ -86,7 +88,7 @@
         <span class="text-2xl shrink-0">🥟</span>
         <div class="truncate">
           <h1 class="font-extrabold text-slate-900 leading-tight text-base sm:text-lg tracking-tight truncate">Ruta Gastronómica Barcelona</h1>
-          <p class="text-xs text-slate-500 font-medium truncate">Empanadas, Pastéis y Sabores del Mundo</p>
+          <p class="text-xs text-slate-500 font-medium truncate">Chilenos, Brasileños, Japoneses, Coreanos y Vietnamitas</p>
         </div>
       </div>
       <div class="flex items-center gap-2 shrink-0">
@@ -99,7 +101,7 @@
         </button>
         <div id="statsBadge" class="text-xs bg-amber-50 text-amber-800 border border-amber-200 font-semibold px-2.5 py-1.5 rounded-xl flex items-center gap-1 shadow-xs">
           <span>⭐</span>
-          <span id="starCounter">2</span>
+          <span id="starCounter">3</span>
         </div>
       </div>
     </div>
@@ -118,7 +120,7 @@
       <input 
         type="text" 
         id="searchInput" 
-        placeholder="Buscar local, comida, país o calle..." 
+        placeholder="Buscar local, plato, ramen, empanada o calle..." 
         class="w-full pl-11 pr-10 py-3.5 text-base bg-white border-2 border-slate-300 rounded-2xl shadow-xs placeholder-slate-400 focus:outline-none focus:border-slate-900 focus:ring-0 transition-all font-medium"
       />
       <button 
@@ -133,45 +135,62 @@
       </button>
     </div>
 
-    <!-- 2. Botones de Filtro y Acción Principal ("Locales cercanos") -->
-    <div class="grid grid-cols-3 sm:grid-cols-5 gap-2 pt-1">
+    <!-- 2. Botones de Filtro Deslizables (Swipeable Pills) y Acción GPS -->
+    <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
       <button 
         type="button"
-        id="btnChileno" 
-        data-filtro="chileno"
-        class="btn-filtro py-2.5 px-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-1 shadow-xs cursor-pointer">
-        <span>🇨🇱</span> Chilenos
-      </button>
-
-      <button 
-        type="button"
-        id="btnBrasileiro" 
-        data-filtro="brasileiro"
-        class="btn-filtro py-2.5 px-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-1 shadow-xs cursor-pointer">
-        <span>🇧🇷</span> Brasileños
-      </button>
-
-      <button 
-        type="button"
-        id="btnTodas" 
         data-filtro="todas"
-        class="btn-filtro ativo py-2.5 px-2 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-1 shadow-xs cursor-pointer">
+        class="btn-filtro ativo shrink-0 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 shadow-xs cursor-pointer">
         <span>✨</span> Todas
       </button>
 
       <button 
         type="button"
-        id="btnFavoritas" 
+        data-filtro="chileno"
+        class="btn-filtro shrink-0 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer">
+        <span>🇨🇱</span> Chilenos
+      </button>
+
+      <button 
+        type="button"
+        data-filtro="brasileiro"
+        class="btn-filtro shrink-0 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer">
+        <span>🇧🇷</span> Brasileños
+      </button>
+
+      <button 
+        type="button"
+        data-filtro="japones"
+        class="btn-filtro shrink-0 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer">
+        <span>🇯🇵</span> Japoneses
+      </button>
+
+      <button 
+        type="button"
+        data-filtro="coreano"
+        class="btn-filtro shrink-0 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer">
+        <span>🇰🇷</span> Coreanos
+      </button>
+
+      <button 
+        type="button"
+        data-filtro="vietnamita"
+        class="btn-filtro shrink-0 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer">
+        <span>🇻🇳</span> Vietnamitas
+      </button>
+
+      <button 
+        type="button"
         data-filtro="favoritas"
-        class="btn-filtro-fav col-span-1 sm:col-span-1 py-2.5 px-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-1 shadow-xs cursor-pointer">
+        class="btn-filtro-fav shrink-0 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer">
         <span>⭐</span> Favoritos
       </button>
 
-      <!-- Botón 1: Locales Cercanos via GPS -->
+      <!-- Botón: Locales Cercanos con GPS -->
       <button 
         type="button"
         id="btnLocaisProximos" 
-        class="col-span-2 sm:col-span-1 py-2.5 px-2.5 rounded-xl border-2 border-emerald-600 bg-emerald-600 text-white font-bold text-xs sm:text-sm hover:bg-emerald-700 active:scale-95 transition-all flex items-center justify-center gap-1.5 shadow-xs cursor-pointer">
+        class="shrink-0 py-2.5 px-3.5 rounded-xl border-2 border-emerald-600 bg-emerald-600 text-white font-bold text-xs sm:text-sm hover:bg-emerald-700 active:scale-95 transition-all flex items-center gap-1.5 shadow-xs cursor-pointer">
         <span>📍</span> Locales cercanos
       </button>
     </div>
@@ -183,7 +202,7 @@
           <span class="text-2xl">📍</span>
           <div>
             <h3 class="font-bold text-sm sm:text-base text-emerald-900">Ordenado por cercanía a ti</h3>
-            <p class="text-xs text-emerald-700 mt-0.5">Calculado con tu ubicación GPS actual en tiempo real.</p>
+            <p class="text-xs text-emerald-700 mt-0.5">Calculado con tu ubicación GPS en tiempo real.</p>
           </div>
         </div>
         <button 
@@ -197,20 +216,20 @@
 
     <!-- Indicador de Resultados -->
     <div class="flex items-center justify-between text-xs font-medium text-slate-500 px-1 pt-1">
-      <span id="contadorResultados">Cargando locales...</span>
+      <span id="contadorResultados">Cargando restaurantes...</span>
       <span id="ordemIndicador" class="text-slate-400">Orden original</span>
     </div>
 
     <!-- 3. Contenedor Dinámico de Cards -->
     <div id="cardsContainer" class="space-y-3.5">
-      <!-- Los restaurantes (predefinidos y añadidos por el usuario) se renderizan aquí dinámicamente -->
+      <!-- Los restaurantes se renderizan aquí dinámicamente -->
     </div>
 
     <!-- Estado Vacío -->
     <div id="emptyState" style="display: none;" class="text-center py-12 px-4 bg-white border-2 border-dashed border-slate-200 rounded-3xl">
       <span class="text-4xl block mb-2">🔍</span>
       <h3 class="font-bold text-slate-700 text-base">Ningún restaurante encontrado</h3>
-      <p class="text-xs text-slate-500 mt-1 max-w-xs mx-auto">Prueba con otra búsqueda o añade un nuevo restaurante con el botón superior.</p>
+      <p class="text-xs text-slate-500 mt-1 max-w-xs mx-auto">Prueba buscando otro plato, país o añade un nuevo local con el botón superior.</p>
       <button type="button" id="btnResetEmpty" class="mt-4 text-xs font-bold text-slate-800 underline cursor-pointer">Ver todos los restaurantes</button>
     </div>
 
@@ -233,19 +252,21 @@
 
       <form id="formNovoLocal" class="space-y-3.5">
         
-        <!-- País / Gastronomía con Bandeira -->
+        <!-- País / Gastronomía con Bandera -->
         <div>
-          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">País / Origen</label>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">País / Cocina</label>
           <div class="relative">
             <select id="novoPais" required class="w-full py-2.5 px-3 bg-white border-2 border-slate-300 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-slate-900 appearance-none">
               <option value="chileno">🇨🇱 Chile (Chileno)</option>
-              <option value="brasileiro">🇧🇷 Brasil (Brasileiro)</option>
+              <option value="brasileiro">🇧🇷 Brasil (Brasileño)</option>
+              <option value="japones">🇯🇵 Japón (Ramen / Izakaya / Sushi)</option>
+              <option value="coreano">🇰🇷 Corea (Korean BBQ / Pollo frito)</option>
+              <option value="vietnamita">🇻🇳 Vietnam (Phở / Street food)</option>
               <option value="espanol">🇪🇸 España (Tapas / Español)</option>
               <option value="argentino">🇦🇷 Argentina (Empanadas / Asado)</option>
               <option value="peruano">🇵🇪 Perú (Ceviche / Criollo)</option>
               <option value="mexicano">🇲🇽 México (Tacos / Antojitos)</option>
               <option value="colombiano">🇨🇴 Colombia (Arepas / Típico)</option>
-              <option value="venezolano">🇻🇪 Venezuela (Arepas / Cachapas)</option>
               <option value="otro">🌎 Otro / Internacional</option>
             </select>
             <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-slate-500">
@@ -261,26 +282,26 @@
             type="text" 
             id="novoNome" 
             required 
-            placeholder="Ej: Empanadas Club" 
+            placeholder="Ej: Perro Pako Bar" 
             class="w-full py-2.5 px-3 bg-white border-2 border-slate-300 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:border-slate-900"
           />
         </div>
 
         <!-- Dirección o Enlace de Google Maps -->
         <div>
-          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Dirección o Enlace de Google Maps</label>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Dirección en Barcelona o Enlace</label>
           <input 
             type="text" 
             id="novoMaps" 
             required 
-            placeholder="Ej: Carrer d'Aribau, 45 o enlace Maps" 
+            placeholder="Ej: Carrer de les Flors, 16" 
             class="w-full py-2.5 px-3 bg-white border-2 border-slate-300 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:border-slate-900"
           />
         </div>
 
         <!-- Puntuación Google Maps -->
         <div>
-          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Puntuación Google Maps (1.0 - 5.0)</label>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Puntuación Google Maps</label>
           <div class="flex items-center gap-2">
             <span class="text-lg">⭐</span>
             <input 
@@ -293,7 +314,7 @@
               required
               class="w-24 py-2 px-3 bg-white border-2 border-slate-300 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-slate-900"
             />
-            <span class="text-xs text-slate-400">Puntaje visible en el card</span>
+            <span class="text-xs text-slate-400">Puntaje visible en la tarjeta</span>
           </div>
         </div>
 
@@ -303,7 +324,7 @@
           <textarea 
             id="novoEspecialidade" 
             rows="2" 
-            placeholder="Ej: Empanada frita de carne mechada con queso..."
+            placeholder="Ej: Sopaipillas con pebre, completos y terremotos..."
             class="w-full py-2 px-3 bg-white border-2 border-slate-300 rounded-xl text-sm text-slate-800 focus:outline-none focus:border-slate-900"></textarea>
         </div>
 
@@ -333,8 +354,24 @@
 
   <script>
     (function () {
-      // 1. Restaurantes Predefinidos con Puntuaciones Reales de Google Maps y Coordenadas
+      // 1. Catálogo Completo: Chilenos, Brasileños, Japoneses, Coreanos y Vietnamitas en Barcelona
       const LOCAIS_INICIAIS = [
+        // ================= CHILENOS =================
+        {
+          id: 'perro_pako',
+          nome: 'Perro Pako Bar (Chileno)',
+          tipo: 'chileno',
+          bandeira: '🇨🇱',
+          paisNome: 'Chileno',
+          endereco: 'Carrer de les Flors, 16 (El Raval)',
+          tempo: 'Metro Paral·lel / Sant Antoni',
+          rating: '4.6',
+          reviewsCount: '1.200+',
+          especialidade: 'El bar chileno por excelencia: sopaipillas con pebre, completos italianos, empanadas fritas de pino y queso, y terremoto tradicional.',
+          lat: 41.3769,
+          lng: 2.1678,
+          searchQuery: 'Perro Pako Bar Carrer de les Flors 16 Barcelona'
+        },
         {
           id: 'el_vuit',
           nome: 'El Vuit Gastronòmic (Chileno)',
@@ -342,28 +379,13 @@
           bandeira: '🇨🇱',
           paisNome: 'Chileno',
           endereco: 'Gran Via de les Corts Catalanes, 518',
-          tempo: '~650 m (8 min)',
+          tempo: 'Eixample Esquerra',
           rating: '4.6',
-          reviewsCount: '380+',
-          especialidade: 'Empanada frita de camarón y queso (massa crocante e recheio generoso).',
+          reviewsCount: '390+',
+          especialidade: 'Empanada frita de camarón y queso (masa crujiente y relleno generoso), pastel de choclo y sándwiches clásicos chilenos.',
           lat: 41.3809,
           lng: 2.1582,
-          mapsQuery: 'El+Vuit+Gastronomic+Gran+Via+de+les+Corts+Catalanes+518+Barcelona'
-        },
-        {
-          id: 'mi_casa',
-          nome: 'Mi Casa Bar & Restaurante (Brasileiro)',
-          tipo: 'brasileiro',
-          bandeira: '🇧🇷',
-          paisNome: 'Brasileño',
-          endereco: 'Ctra. de la Bordeta, 26 (Plaça d\'Espanya / Sants)',
-          tempo: '~950 m (12 min)',
-          rating: '4.4',
-          reviewsCount: '520+',
-          especialidade: 'Pastéis e petiscos brasileiros fritos e pratos típicos caseiros.',
-          lat: 41.3725,
-          lng: 2.1408,
-          mapsQuery: 'Mi+Casa+Bar+Restaurante+Ctra+de+la+Bordeta+26+Barcelona'
+          searchQuery: 'El Vuit Gastronomic Gran Via de les Corts Catalanes 518 Barcelona'
         },
         {
           id: 'la_mestiza',
@@ -372,28 +394,13 @@
           bandeira: '🇨🇱',
           paisNome: 'Chileno',
           endereco: 'Avinguda de Josep Tarradellas, 60',
-          tempo: '~980 m (12 min subiendo Entença)',
+          tempo: 'Sants / Entença',
           rating: '4.5',
-          reviewsCount: '410+',
-          especialidade: 'Empanada clássica de queso y camarón frita na hora.',
+          reviewsCount: '420+',
+          especialidade: 'Empanada clásica de pino y queso-camarón frita en el momento, dulces chilenos artesanales.',
           lat: 41.3855,
           lng: 2.1415,
-          mapsQuery: 'La+Mestiza+Avinguda+de+Josep+Tarradellas+60+Barcelona'
-        },
-        {
-          id: 'buriti',
-          nome: 'Buriti - Sant Antoni (Brasileiro / Baiano)',
-          tipo: 'brasileiro',
-          bandeira: '🇧🇷',
-          paisNome: 'Baiano / Frutos do mar',
-          endereco: 'Carrer del Comte Borrell, 65',
-          tempo: '~1,1 km (14 min)',
-          rating: '4.7',
-          reviewsCount: '650+',
-          especialidade: 'Especialista em pratos baianos: moqueca de camarão, acarajé e petiscos de frutos do mar.',
-          lat: 41.3780,
-          lng: 2.1604,
-          mapsQuery: 'Buriti+Carrer+del+Comte+Borrell+65+Barcelona'
+          searchQuery: 'La Mestiza Avinguda de Josep Tarradellas 60 Barcelona'
         },
         {
           id: 'kiltro',
@@ -402,29 +409,370 @@
           bandeira: '🇨🇱',
           paisNome: 'Chileno / Latino',
           endereco: 'Carrer de Villarroel, 22',
-          tempo: '~1,3 km (16 min)',
+          tempo: 'Sant Antoni',
           rating: '4.6',
           reviewsCount: '890+',
-          especialidade: 'Empanadas fritas de frutos do mar e comida de rua latina.',
+          especialidade: 'Empanadas fritas de mariscos, chorrillanas, street food chilena y pisco sour artesanal.',
           lat: 41.3814,
           lng: 2.1610,
-          mapsQuery: 'Kiltro+Restobar+Carrer+de+Villarroel+22+Barcelona'
+          searchQuery: 'Kiltro Restobar Carrer de Villarroel 22 Barcelona'
+        },
+        {
+          id: 'torres_paine',
+          nome: 'Torres del Paine (Chileno)',
+          tipo: 'chileno',
+          bandeira: '🇨🇱',
+          paisNome: 'Chileno',
+          endereco: 'Carrer de la Junta de Comerç, 28',
+          tempo: 'El Raval',
+          rating: '4.5',
+          reviewsCount: '560+',
+          especialidade: 'Carnes a la brasa, pastel de choclo tradicional, cazuela y empanadas horneadas de pino.',
+          lat: 41.3801,
+          lng: 2.1712,
+          searchQuery: 'Torres del Paine Carrer de la Junta de Comerc 28 Barcelona'
+        },
+        {
+          id: 'refugio_33',
+          nome: 'Bar Refugio Los 33 (Chileno)',
+          tipo: 'chileno',
+          bandeira: '🇨🇱',
+          paisNome: 'Chileno',
+          endereco: 'Plaça del Mercat, 19',
+          tempo: 'El Clot',
+          rating: '4.5',
+          reviewsCount: '280+',
+          especialidade: 'Bar chileno de barrio: empanadas caseras de pino, sándwich chacarero y lomito italiano.',
+          lat: 41.4082,
+          lng: 2.1889,
+          searchQuery: 'Bar Refugio Los 33 Placa del Mercat 19 Barcelona'
+        },
+
+        // ================= BRASILEIROS =================
+        {
+          id: 'buriti',
+          nome: 'Buriti - Sant Antoni (Brasileiro / Baiano)',
+          tipo: 'brasileiro',
+          bandeira: '🇧🇷',
+          paisNome: 'Baiano / Frutos do mar',
+          endereco: 'Carrer del Comte Borrell, 65',
+          tempo: 'Sant Antoni',
+          rating: '4.7',
+          reviewsCount: '680+',
+          especialidade: 'Especialista en cocina bahiana: moqueca de camarão con leche de coco, acarajé frito en aceite de dendê y caipirinhas.',
+          lat: 41.3780,
+          lng: 2.1604,
+          searchQuery: 'Buriti Carrer del Comte Borrell 65 Barcelona'
+        },
+        {
+          id: 'mi_casa',
+          nome: 'Mi Casa Bar & Restaurante (Brasileiro)',
+          tipo: 'brasileiro',
+          bandeira: '🇧🇷',
+          paisNome: 'Brasileño',
+          endereco: 'Ctra. de la Bordeta, 26',
+          tempo: 'Plaça d\'Espanya / Sants',
+          rating: '4.4',
+          reviewsCount: '530+',
+          especialidade: 'Pastéis y petiscos brasileños fritos, coxinhas caseras, mandioca frita y platos del día.',
+          lat: 41.3725,
+          lng: 2.1408,
+          searchQuery: 'Mi Casa Bar Restaurante Ctra de la Bordeta 26 Barcelona'
+        },
+        {
+          id: 'cantinho',
+          nome: 'Cantinho Brasileiro (Brasileiro)',
+          tipo: 'brasileiro',
+          bandeira: '🇧🇷',
+          paisNome: 'Brasileño tradicional',
+          endereco: 'Carrer Ample, 43',
+          tempo: 'Barri Gòtic',
+          rating: '4.5',
+          reviewsCount: '1.400+',
+          especialidade: 'El clásico brasileño más antiguo de Barcelona (desde 1997): feijoada completa, coxinhas doradas y guaraná.',
+          lat: 41.3796,
+          lng: 2.1798,
+          searchQuery: 'Cantinho Brasileiro Carrer Ample 43 Barcelona'
+        },
+        {
+          id: 'kdelicia',
+          nome: 'K\'Delicia (Brasileiro)',
+          tipo: 'brasileiro',
+          bandeira: '🇧🇷',
+          paisNome: 'Brasileño',
+          endereco: 'Carrer de St. Antoni Maria Claret, 148',
+          tempo: 'Sagrada Família',
+          rating: '4.6',
+          reviewsCount: '780+',
+          especialidade: 'Picanha a la plancha servida con farofa y vinagreta, feijoada los fines de semana y caldos caseros.',
+          lat: 41.4085,
+          lng: 2.1706,
+          searchQuery: 'KDelicia Carrer de St Antoni Maria Claret 148 Barcelona'
+        },
+        {
+          id: 'rio_doc',
+          nome: 'Río D.O.C. (Brasileiro)',
+          tipo: 'brasileiro',
+          bandeira: '🇧🇷',
+          paisNome: 'Botequim Carioca',
+          endereco: 'Carrer de Sardenya, 56',
+          tempo: 'Vila Olímpica',
+          rating: '4.6',
+          reviewsCount: '620+',
+          especialidade: 'Botequim carioca moderno cerca de la playa: tapiocas rellenas, pão de queijo, coxinhas y caipirinhas de maracuyá.',
+          lat: 41.3912,
+          lng: 2.1932,
+          searchQuery: 'Rio DOC Carrer de Sardenya 56 Barcelona'
+        },
+        {
+          id: 'guanabara',
+          nome: 'Guanabara Churrasquería (Brasileiro)',
+          tipo: 'brasileiro',
+          bandeira: '🇧🇷',
+          paisNome: 'Churrasquería Rodízio',
+          endereco: 'Carrer del Consell de Cent, 403',
+          tempo: 'Eixample Dret',
+          rating: '4.5',
+          reviewsCount: '2.100+',
+          especialidade: 'Auténtico rodízio de carnes al espeto corrido: picanha noble, maminha, costillas y buffet libre de acompañamientos.',
+          lat: 41.3971,
+          lng: 2.1709,
+          searchQuery: 'Guanabara Churrasqueria Consell de Cent 403 Barcelona'
+        },
+
+        // ================= JAPONESES =================
+        {
+          id: 'ramen_hiro',
+          nome: 'Ramen-ya Hiro (Japonés)',
+          tipo: 'japones',
+          bandeira: '🇯🇵',
+          paisNome: 'Ramen Artesanal',
+          endereco: 'Carrer de Girona, 164',
+          tempo: 'Eixample Dret',
+          rating: '4.7',
+          reviewsCount: '4.300+',
+          especialidade: 'El gran templo del ramen artesanal en Barcelona: fideos elaborados a mano a diario y caldo cocido durante horas.',
+          lat: 41.4003,
+          lng: 2.1672,
+          searchQuery: 'Ramen-ya Hiro Carrer de Girona 164 Barcelona'
+        },
+        {
+          id: 'can_kenji',
+          nome: 'Can Kenji (Japonés)',
+          tipo: 'japones',
+          bandeira: '🇯🇵',
+          paisNome: 'Izakaya Tradicional',
+          endereco: 'Carrer del Rosselló, 325',
+          tempo: 'Sagrada Família',
+          rating: '4.6',
+          reviewsCount: '1.900+',
+          especialidade: 'Taberna izakaya auténtica con producto fresco de mercado: onigiri a la brasa, tataki de atún y setas salteadas.',
+          lat: 41.4026,
+          lng: 2.1678,
+          searchQuery: 'Can Kenji Carrer del Rossello 325 Barcelona'
+        },
+        {
+          id: 'ikoya',
+          nome: 'Ikoya Izakaya (Japonés)',
+          tipo: 'japones',
+          bandeira: '🇯🇵',
+          paisNome: 'Robata Grill & Sashimi',
+          endereco: 'Avinguda de Francesc Cambó, 23',
+          tempo: 'El Born / Santa Caterina',
+          rating: '4.5',
+          reviewsCount: '850+',
+          especialidade: 'Parrilla japonesa tradicional al carbón vegetal (robata), cortes de pescado de lonja y excelente carta de sakes.',
+          lat: 41.3868,
+          lng: 2.1785,
+          searchQuery: 'Ikoya Izakaya Francesc Cambo 23 Barcelona'
+        },
+        {
+          id: 'carlota_akaneya',
+          nome: 'Carlota Akaneya (Japonés)',
+          tipo: 'japones',
+          bandeira: '🇯🇵',
+          paisNome: 'Sumibiyaki & Wagyu A5',
+          endereco: 'Carrer del Pintor Fortuny, 32',
+          tempo: 'El Raval',
+          rating: '4.7',
+          reviewsCount: '1.100+',
+          especialidade: 'Primera barbacoa japonesa sumibiyaki de Barcelona: cortes legendarios de buey de Kobe certificado y Wagyu A5.',
+          lat: 41.3831,
+          lng: 2.1700,
+          searchQuery: 'Carlota Akaneya Pintor Fortuny 32 Barcelona'
+        },
+        {
+          id: 'suto',
+          nome: 'Suto (Japonés)',
+          tipo: 'japones',
+          bandeira: '🇯🇵',
+          paisNome: 'Omakase de Autor',
+          endereco: 'Carrer de Violant d\'Hongria, 134',
+          tempo: 'Sants',
+          rating: '4.9',
+          reviewsCount: '450+',
+          especialidade: 'Experiencia omakase íntima para pocos comensales: nigiris de altísima precisión preparados al momento.',
+          lat: 41.3802,
+          lng: 2.1334,
+          searchQuery: 'Suto Violant d Hongria 134 Barcelona'
+        },
+
+        // ================= COREANOS =================
+        {
+          id: 'pocha_asian',
+          nome: 'Pocha Asian Dining Bar (Coreano)',
+          tipo: 'coreano',
+          bandeira: '🇰🇷',
+          paisNome: 'Street Food & Pollo Frito',
+          endereco: 'Carrer de Provença, 224',
+          tempo: 'Eixample Esquerra',
+          rating: '4.6',
+          reviewsCount: '1.600+',
+          especialidade: 'Vibrante taberna de Seúl: pollo frito coreano ultra crujiente (Yangnyeom), dakkalbi picante con queso fundido y somaek.',
+          lat: 41.3916,
+          lng: 2.1581,
+          searchQuery: 'Pocha Asian Dining Bar Carrer de Provenca 224 Barcelona'
+        },
+        {
+          id: 'hana',
+          nome: 'Hana Restaurant (Coreano)',
+          tipo: 'coreano',
+          bandeira: '🇰🇷',
+          paisNome: 'Cocina Tradicional Coreana',
+          endereco: 'Carrer de Déu i Mata, 136',
+          tempo: 'Les Corts',
+          rating: '4.7',
+          reviewsCount: '1.200+',
+          especialidade: 'El coreano tradicional más auténtico de la ciudad: tteokbokki, japchae de boniato, kimchi jjigae casero y bulgogi.',
+          lat: 41.3892,
+          lng: 2.1352,
+          searchQuery: 'Hana Restaurant Carrer de Deu i Mata 136 Barcelona'
+        },
+        {
+          id: 'san_kil',
+          nome: 'San Kil (Coreano)',
+          tipo: 'coreano',
+          bandeira: '🇰🇷',
+          paisNome: 'Korean BBQ & Bibimbap',
+          endereco: 'Carrer de la Legalitat, 22',
+          tempo: 'Gràcia',
+          rating: '4.6',
+          reviewsCount: '950+',
+          especialidade: 'Barbacoa coreana cocinada al carbón en la mesa, dolsot bibimbap en cuenco de piedra caliente y banchan variado.',
+          lat: 41.4077,
+          lng: 2.1612,
+          searchQuery: 'San Kil Carrer de la Legalitat 22 Barcelona'
+        },
+        {
+          id: 'gyojasang',
+          nome: 'Gyojasang Korean BBQ (Coreano)',
+          tipo: 'coreano',
+          bandeira: '🇰🇷',
+          paisNome: 'Korean BBQ Moderno',
+          endereco: 'Carrer de Mallorca, 182',
+          tempo: 'Eixample',
+          rating: '4.6',
+          reviewsCount: '1.400+',
+          especialidade: 'Parrilla coreana moderna de alta calidad: panceta de cerdo macerada, costillar marinado y raciones abundantes.',
+          lat: 41.3898,
+          lng: 2.1558,
+          searchQuery: 'Gyojasang Korean BBQ Carrer de Mallorca 182 Barcelona'
+        },
+        {
+          id: 'modu',
+          nome: 'Modu Korean Bowls (Coreano)',
+          tipo: 'coreano',
+          bandeira: '🇰🇷',
+          paisNome: 'Noodles & Bowls Saludables',
+          endereco: 'Carrer de Minerva, 8',
+          tempo: 'Gràcia / Diagonal',
+          rating: '4.7',
+          reviewsCount: '850+',
+          especialidade: 'Fideos artesanos coreanos elaborados en casa (Kalguksu), dumplings mandu hechos a mano y cuencos nutritivos.',
+          lat: 41.3975,
+          lng: 2.1552,
+          searchQuery: 'Modu Korean Bowls Carrer de Minerva 8 Barcelona'
+        },
+
+        // ================= VIETNAMITAS =================
+        {
+          id: 'pho_miu',
+          nome: 'Pho Miu (Vietnamita)',
+          tipo: 'vietnamita',
+          bandeira: '🇻🇳',
+          paisNome: 'Phở Tradicional Auténtico',
+          endereco: 'Carrer de Sepúlveda, 161',
+          tempo: 'Sant Antoni',
+          rating: '4.7',
+          reviewsCount: '950+',
+          especialidade: 'El mejor Phở tradicional de Barcelona: caldo cocinado a fuego lento durante 14 horas con ternera tierna y hierbas frescas.',
+          lat: 41.3817,
+          lng: 2.1601,
+          searchQuery: 'Pho Miu Carrer de Sepulveda 161 Barcelona'
+        },
+        {
+          id: 'bun_bo',
+          nome: 'Bun Bo Vietnam (Vietnamita)',
+          tipo: 'vietnamita',
+          bandeira: '🇻🇳',
+          paisNome: 'Street Food & Bún Bò',
+          endereco: 'Carrer de Sagristans, 3',
+          tempo: 'Barri Gòtic / Catedral',
+          rating: '4.5',
+          reviewsCount: '3.800+',
+          especialidade: 'Sopa Bún Bò de fideos de arroz con hierba limón y ternera, nems fritos crujientes y café vietnamita filtrado con leche condensada.',
+          lat: 41.3860,
+          lng: 2.1751,
+          searchQuery: 'Bun Bo Vietnam Carrer de Sagristans 3 Barcelona'
+        },
+        {
+          id: 'la_vietnamita',
+          nome: 'La Vietnamita (Vietnamita)',
+          tipo: 'vietnamita',
+          bandeira: '🇻🇳',
+          paisNome: 'Bánh Mì & Ensaladas Frescas',
+          endereco: 'Carrer del Torrent de l\'Olla, 78',
+          tempo: 'Gràcia',
+          rating: '4.5',
+          reviewsCount: '1.500+',
+          especialidade: 'Comida callejera ligera de Saigón: Bánh mì artesano en pan crujiente, rollitos de verano goi cuon con salsa de cacahuete.',
+          lat: 41.4024,
+          lng: 2.1578,
+          searchQuery: 'La Vietnamita Torrent de l Olla 78 Barcelona'
+        },
+        {
+          id: 'indochine',
+          nome: 'Indochine Ly Leap (Vietnamita / Indochino)',
+          tipo: 'vietnamita',
+          bandeira: '🇻🇳',
+          paisNome: 'Experiencia Jardín Flotante',
+          endereco: 'Carrer de Muntaner, 82',
+          tempo: 'Eixample Esquerra',
+          rating: '4.4',
+          reviewsCount: '2.300+',
+          especialidade: 'Comedor espectacular sobre un lago con peces y plantas tropicales: rollitos exóticos, brochetas marinadas y curry suave.',
+          lat: 41.3867,
+          lng: 2.1565,
+          searchQuery: 'Indochine Ly Leap Carrer de Muntaner 82 Barcelona'
         }
       ];
 
       const PAISES_MAP = {
         chileno: { bandeira: '🇨🇱', nome: 'Chileno' },
         brasileiro: { bandeira: '🇧🇷', nome: 'Brasileño' },
+        japones: { bandeira: '🇯🇵', nome: 'Japonés' },
+        coreano: { bandeira: '🇰🇷', nome: 'Coreano' },
+        vietnamita: { bandeira: '🇻🇳', nome: 'Vietnamita' },
         espanol: { bandeira: '🇪🇸', nome: 'Español' },
         argentino: { bandeira: '🇦🇷', nome: 'Argentino' },
         peruano: { bandeira: '🇵🇪', nome: 'Peruano' },
         mexicano: { bandeira: '🇲🇽', nome: 'Mexicano' },
         colombiano: { bandeira: '🇨🇴', nome: 'Colombiano' },
-        venezolano: { bandeira: '🇻🇪', nome: 'Venezolano' },
         otro: { bandeira: '🌎', nome: 'Internacional' }
       };
 
-      const FAVORITOS_DEFAULT = ['el_vuit', 'buriti'];
+      // Favoritos seleccionados por defecto: Perro Pako, Buriti y Ramen-ya Hiro
+      const FAVORITOS_DEFAULT = ['perro_pako', 'buriti', 'ramen_hiro'];
       let todosLocais = [...LOCAIS_INICIAIS];
       let favoritos = new Set(FAVORITOS_DEFAULT);
       let filtroAtual = 'todas';
@@ -453,7 +801,7 @@
             }
           }
         } catch (e) {
-          // Respaldo silencioso si hay bloqueo de iframe
+          // Fallback silencioso si el iframe de Google bloquea localStorage
         }
       }
 
@@ -481,9 +829,12 @@
 
         lista.forEach(local => {
           const isFav = favoritos.has(local.id);
-          const mapsLink = local.mapsUrl || `https://www.google.com/maps/search/?api=1&query=${local.mapsQuery || encodeURIComponent(local.nome + ' ' + local.endereco)}`;
-          // Enlace directo a la sección de opiniones / reseñas
-          const reviewsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(local.nome + ' ' + local.endereco)}+reviews`;
+          
+          // Enlace directo al mapa / cómo llegar
+          const mapsLink = local.mapsUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(local.searchQuery || (local.nome + ' ' + local.endereco + ' Barcelona'))}`;
+          
+          // Enlace CORREGIDO a Opiniones: abre la ficha de reseñas directa en Google
+          const reviewsLink = `https://www.google.com/search?q=${encodeURIComponent((local.searchQuery || local.nome) + ' opiniones reseñas')}`;
 
           const article = document.createElement('article');
           article.id = `card-${local.id}`;
@@ -500,12 +851,12 @@
                   </span>
                   <h2 class="text-base sm:text-lg font-bold text-slate-900 leading-snug truncate">${local.nome}</h2>
                 </div>
-                <!-- Puntuación Google Maps & Enlace a Opiniones -->
+                <!-- Puntuación Google Maps & Enlace Directo a Opiniones -->
                 <div class="flex items-center gap-2 mt-1">
                   <span class="inline-flex items-center gap-1 text-xs font-bold bg-amber-50 text-amber-900 border border-amber-200 px-2 py-0.5 rounded-md">
-                    <span>⭐</span> ${local.rating || '4.6'}
+                    <span>⭐</span> ${local.rating || '4.6'} <span class="text-amber-700/70 font-normal">(${local.reviewsCount || '100+'})</span>
                   </span>
-                  <a href="${reviewsLink}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-xs font-semibold text-slate-600 hover:text-slate-900 underline decoration-slate-300 transition" title="Ver opiniones y reseñas en Google Maps">
+                  <a href="${reviewsLink}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-xs font-semibold text-blue-700 hover:text-blue-900 underline decoration-blue-300 transition" title="Leer todas las opiniones y reseñas de clientes">
                     <span>💬</span> <span>Ver opiniones</span>
                   </a>
                 </div>
@@ -519,7 +870,7 @@
               </div>
             </div>
 
-            <!-- Etiquetas horizontales sin empilhar -->
+            <!-- Etiquetas horizontales sin empilhar (adaptadas para pantallas pequeñas) -->
             <div class="flex items-center gap-1.5 mt-2.5 overflow-x-auto no-scrollbar flex-nowrap py-0.5">
               <span class="shrink-0 whitespace-nowrap text-[11px] font-semibold px-2 py-0.5 rounded-lg border bg-rose-50 text-rose-800 border-rose-200">${local.bandeira || '🌎'} ${local.paisNome || 'Especialidad'}</span>
               <span class="shrink-0 whitespace-nowrap text-[11px] font-medium px-2 py-0.5 rounded-lg bg-slate-100 text-slate-600 border border-slate-200">📍 ${local.endereco}</span>
@@ -535,7 +886,7 @@
           container.appendChild(article);
         });
 
-        // Reatribuir evento a los botones de estrella
+        // Eventos para botones de favoritos
         container.querySelectorAll('.star-btn').forEach(btn => {
           btn.addEventListener('click', function (e) {
             e.preventDefault();
@@ -567,7 +918,7 @@
         }
         salvarFavoritos();
         
-        // Actualizar visual del card
+        // Actualizar visual de la tarjeta
         const card = document.getElementById(`card-${id}`);
         if (card) {
           const btn = card.querySelector('.star-btn');
@@ -591,17 +942,9 @@
       function setFiltro(tipo) {
         filtroAtual = tipo;
 
-        const botoes = {
-          chileno: document.getElementById('btnChileno'),
-          brasileiro: document.getElementById('btnBrasileiro'),
-          todas: document.getElementById('btnTodas'),
-          favoritas: document.getElementById('btnFavoritas')
-        };
-
-        Object.keys(botoes).forEach(k => {
-          const btn = botoes[k];
-          if (!btn) return;
-          if (k === tipo) {
+        document.querySelectorAll('[data-filtro]').forEach(btn => {
+          const f = btn.getAttribute('data-filtro');
+          if (f === tipo) {
             btn.classList.add('ativo');
           } else {
             btn.classList.remove('ativo');
@@ -628,12 +971,12 @@
           const texto = (card.textContent || card.innerText || '').toLowerCase();
 
           let matchFiltro = true;
-          if (filtroAtual === 'chileno') {
-            matchFiltro = (tipo === 'chileno');
-          } else if (filtroAtual === 'brasileiro') {
-            matchFiltro = (tipo === 'brasileiro');
+          if (filtroAtual === 'todas') {
+            matchFiltro = true;
           } else if (filtroAtual === 'favoritas') {
             matchFiltro = favoritos.has(id);
+          } else {
+            matchFiltro = (tipo === filtroAtual);
           }
 
           let matchTexto = true;
@@ -651,7 +994,7 @@
 
         const contadorEl = document.getElementById('contadorResultados');
         if (contadorEl) {
-          contadorEl.textContent = `${visiveis} ${visiveis === 1 ? 'local gastronómico' : 'locales gastronómicos'}`;
+          contadorEl.textContent = `${visiveis} ${visiveis === 1 ? 'restaurante disponible' : 'restaurantes disponibles'}`;
         }
 
         const emptyEl = document.getElementById('emptyState');
@@ -673,7 +1016,7 @@
         return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
       }
 
-      // 1. FUNCIÓN: LOCALES CERCANOS VÍA GPS
+      // FUNCIÓN: LOCALES CERCANOS VÍA GPS
       function ordenarPorProximidade() {
         if (!('geolocation' in navigator)) {
           mostrarToast('GPS no compatible en este navegador', '⚠️');
@@ -689,9 +1032,7 @@
               lng: pos.coords.longitude
             };
 
-            // Calcular distancia a cada local
             const listaOrdenada = todosLocais.map(loc => {
-              // Si no tiene coordenadas precisas, asigna el centro de Barcelona por defecto
               const locLat = loc.lat || 41.3851;
               const locLng = loc.lng || 2.1734;
               const dist = calcularDistanciaMetros(userLocation.lat, userLocation.lng, locLat, locLng);
@@ -723,11 +1064,11 @@
             const ind = document.getElementById('ordemIndicador');
             if (ind) ind.textContent = '📍 Más cercanos a ti (GPS)';
 
-            mostrarToast('¡Locales ordenados por cercanía!', '📍');
+            mostrarToast('¡Restaurantes ordenados por cercanía!', '📍');
             if (banner) banner.scrollIntoView({ behavior: 'smooth' });
           },
           (err) => {
-            mostrarToast('No se pudo acceder al GPS. Activa la ubicación', '⚠️');
+            mostrarToast('Activa la ubicación para ordenar por cercanía', '⚠️');
           },
           { enableHighAccuracy: true, timeout: 8000 }
         );
@@ -741,7 +1082,6 @@
         const ind = document.getElementById('ordemIndicador');
         if (ind) ind.textContent = 'Orden original';
 
-        // Restaurar sin etiqueta de distancia GPS
         const listaOriginal = todosLocais.map(loc => {
           const c = { ...loc };
           delete c.distanciaTexto;
@@ -753,7 +1093,7 @@
         mostrarToast('Orden original restablecido', '↺');
       }
 
-      // 2. FUNCIÓN: REGISTRO DE NUEVO LOCAL
+      // FUNCIÓN: REGISTRO DE NUEVO LOCAL
       function abrirModalNovoLocal() {
         const modal = document.getElementById('modalNovoLocal');
         if (modal) modal.style.display = 'flex';
@@ -782,7 +1122,6 @@
         const paisInfo = PAISES_MAP[tipoPais] || { bandeira: '🌎', nome: 'Internacional' };
         const idUnico = 'local_' + Date.now();
 
-        // Determinar si es un link completo o una dirección de texto
         let mapsUrl = '';
         if (mapsRaw.startsWith('http://') || mapsRaw.startsWith('https://')) {
           mapsUrl = mapsRaw;
@@ -798,17 +1137,16 @@
           paisNome: paisInfo.nome,
           endereco: mapsRaw.startsWith('http') ? 'Dirección en Google Maps' : mapsRaw,
           rating: parseFloat(rating).toFixed(1),
+          reviewsCount: 'Nuevo',
           especialidade: especialidade || 'Especialidad recomendada por el viajero.',
           mapsUrl: mapsUrl,
-          // Coordenadas aproximadas en Barcelona centro para cálculo de proximidad
+          searchQuery: `${nome} ${mapsRaw} Barcelona`,
           lat: 41.3851 + (Math.random() - 0.5) * 0.015,
           lng: 2.1734 + (Math.random() - 0.5) * 0.015
         };
 
-        // Guardar en la lista
-        todosLocais.push(novoItem);
+        todosLocais.unshift(novoItem);
 
-        // Guardar sólo los creados por el usuario en localStorage
         const customLocais = todosLocais.filter(l => l.id.startsWith('local_'));
         salvarNovosLocais(customLocais);
 
@@ -817,7 +1155,6 @@
         aplicarFiltrosEBusca();
         mostrarToast('¡Nuevo restaurante añadido con éxito!', '🎉');
 
-        // Scroll al nuevo restaurante
         setTimeout(() => {
           const el = document.getElementById(`card-${idUnico}`);
           if (el) el.scrollIntoView({ behavior: 'smooth' });
@@ -848,7 +1185,7 @@
           });
         });
 
-        // Campo de búsqueda
+        // Búsqueda
         const searchInput = document.getElementById('searchInput');
         if (searchInput) {
           searchInput.addEventListener('input', aplicarFiltrosEBusca);
@@ -864,7 +1201,7 @@
           });
         }
 
-        // Botón Locales Cercanos
+        // GPS
         const btnLocaisProximos = document.getElementById('btnLocaisProximos');
         if (btnLocaisProximos) {
           btnLocaisProximos.addEventListener('click', ordenarPorProximidade);
@@ -874,7 +1211,7 @@
           btnDesfazerProximidade.addEventListener('click', desfazerProximidade);
         }
 
-        // Botones Modal Añadir
+        // Modal
         const btnAbrirNovo = document.getElementById('btnAbrirNovoLocal');
         if (btnAbrirNovo) {
           btnAbrirNovo.addEventListener('click', abrirModalNovoLocal);
