@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Ruta Gastronómica Barcelona</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    body {
+      -webkit-tap-highlight-color: transparent;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+    
+    button, a, .star-btn {
+      touch-action: manipulation !important;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    .btn-filtro {
+      background-color: #ffffff;
+      color: #334155;
+      border: 2px solid #cbd5e1;
+      transition: all 0.15s ease;
+    }
+    .btn-filtro.ativo {
+      background-color: #0f172a !important;
+      color: #ffffff !important;
+      border-color: #0f172a !important;
+      font-weight: 700;
+    }
+    .btn-filtro-fav {
+      background-color: #fef3c7;
+      color: #78350f;
+      border: 2px solid #fcd34d;
+      transition: all 0.15s ease;
+    }
+    .btn-filtro-fav.ativo {
+      background-color: #f59e0b !important;
+      color: #ffffff !important;
+      border-color: #d97706 !important;
+      font-weight: 700;
+    }
+
+    .card-favorito {
+      background-color: #fffdf5 !important;
+      border-color: #f59e0b !important;
+    }
+
+    .star-btn {
+      min-width: 40px;
+      min-height: 40px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.35rem;
+      cursor: pointer;
+      border-radius: 12px;
+      transition: transform 0.1s ease;
+    }
+    .star-btn:active {
+      transform: scale(0.88);
+    }
+
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen pb-16 antialiased selection:bg-amber-100">
+
+  <!-- Encabezado Fijo con Botón de Añadir Local -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
+    <div class="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2 min-w-0">
+        <span class="text-2xl shrink-0">🥟</span>
+        <div class="truncate">
+          <h1 class="font-extrabold text-slate-900 leading-tight text-base sm:text-lg tracking-tight truncate">Ruta Gastronómica Barcelona</h1>
+          <p class="text-xs text-slate-500 font-medium truncate">Empanadas, Pastéis y Sabores del Mundo</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 shrink-0">
+        <button 
+          type="button" 
+          id="btnAbrirNovoLocal" 
+          class="bg-slate-900 text-white font-bold text-xs py-2 px-3 rounded-xl hover:bg-slate-800 active:scale-95 transition flex items-center gap-1.5 shadow-xs cursor-pointer">
+          <span class="text-base leading-none">+</span>
+          <span class="hidden sm:inline">Añadir</span> Local
+        </button>
+        <div id="statsBadge" class="text-xs bg-amber-50 text-amber-800 border border-amber-200 font-semibold px-2.5 py-1.5 rounded-xl flex items-center gap-1 shadow-xs">
+          <span>⭐</span>
+          <span id="starCounter">2</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Contenedor Principal -->
+  <main class="max-w-2xl mx-auto px-4 pt-4 space-y-4">
+
+    <!-- 1. Campo de Búsqueda -->
+    <div class="relative">
+      <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+      </div>
+      <input 
+        type="text" 
+        id="searchInput" 
+        placeholder="Buscar local, comida, país o calle..." 
+        class="w-full pl-11 pr-10 py-3.5 text-base bg-white border-2 border-slate-300 rounded-2xl shadow-xs placeholder-slate-400 focus:outline-none focus:border-slate-900 focus:ring-0 transition-all font-medium"
+      />
+      <button 
+        type="button"
+        id="clearSearch" 
+        style="display: none;"
+        class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 transition"
+        title="Borrar búsqueda">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- 2. Botones de Filtro y Acción Principal ("Locales cercanos") -->
+    <div class="grid grid-cols-3 sm:grid-cols-5 gap-2 pt-1">
+      <button 
+        type="button"
+        id="btnChileno" 
+        data-filtro="chileno"
+        class="btn-filtro py-2.5 px-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-1 shadow-xs cursor-pointer">
+        <span>🇨🇱</span> Chilenos
+      </button>
+
+      <button 
+        type="button"
+        id="btnBrasileiro" 
+        data-filtro="brasileiro"
+        class="btn-filtro py-2.5 px-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-1 shadow-xs cursor-pointer">
+        <span>🇧🇷</span> Brasileños
+      </button>
+
+      <button 
+        type="button"
+        id="btnTodas" 
+        data-filtro="todas"
+        class="btn-filtro ativo py-2.5 px-2 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-1 shadow-xs cursor-pointer">
+        <span>✨</span> Todas
+      </button>
+
+      <button 
+        type="button"
+        id="btnFavoritas" 
+        data-filtro="favoritas"
+        class="btn-filtro-fav col-span-1 sm:col-span-1 py-2.5 px-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-1 shadow-xs cursor-pointer">
+        <span>⭐</span> Favoritos
+      </button>
+
+      <!-- Botón 1: Locales Cercanos via GPS -->
+      <button 
+        type="button"
+        id="btnLocaisProximos" 
+        class="col-span-2 sm:col-span-1 py-2.5 px-2.5 rounded-xl border-2 border-emerald-600 bg-emerald-600 text-white font-bold text-xs sm:text-sm hover:bg-emerald-700 active:scale-95 transition-all flex items-center justify-center gap-1.5 shadow-xs cursor-pointer">
+        <span>📍</span> Locales cercanos
+      </button>
+    </div>
+
+    <!-- Banner Informativo: Orden por Proximidad GPS Activo -->
+    <div id="proximidadeBanner" style="display: none;" class="bg-emerald-50 border-2 border-emerald-500 rounded-2xl p-4 text-emerald-950 transition-all shadow-xs">
+      <div class="flex items-start justify-between gap-2">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">📍</span>
+          <div>
+            <h3 class="font-bold text-sm sm:text-base text-emerald-900">Ordenado por cercanía a ti</h3>
+            <p class="text-xs text-emerald-700 mt-0.5">Calculado con tu ubicación GPS actual en tiempo real.</p>
+          </div>
+        </div>
+        <button 
+          type="button"
+          id="btnDesfazerProximidade" 
+          class="text-xs font-semibold bg-white border border-emerald-300 text-emerald-800 px-2.5 py-1.5 rounded-lg hover:bg-emerald-100 active:scale-95 transition cursor-pointer shrink-0">
+          Restablecer
+        </button>
+      </div>
+    </div>
+
+    <!-- Indicador de Resultados -->
+    <div class="flex items-center justify-between text-xs font-medium text-slate-500 px-1 pt-1">
+      <span id="contadorResultados">Cargando locales...</span>
+      <span id="ordemIndicador" class="text-slate-400">Orden original</span>
+    </div>
+
+    <!-- 3. Contenedor Dinámico de Cards -->
+    <div id="cardsContainer" class="space-y-3.5">
+      <!-- Los restaurantes (predefinidos y añadidos por el usuario) se renderizan aquí dinámicamente -->
+    </div>
+
+    <!-- Estado Vacío -->
+    <div id="emptyState" style="display: none;" class="text-center py-12 px-4 bg-white border-2 border-dashed border-slate-200 rounded-3xl">
+      <span class="text-4xl block mb-2">🔍</span>
+      <h3 class="font-bold text-slate-700 text-base">Ningún restaurante encontrado</h3>
+      <p class="text-xs text-slate-500 mt-1 max-w-xs mx-auto">Prueba con otra búsqueda o añade un nuevo restaurante con el botón superior.</p>
+      <button type="button" id="btnResetEmpty" class="mt-4 text-xs font-bold text-slate-800 underline cursor-pointer">Ver todos los restaurantes</button>
+    </div>
+
+  </main>
+
+  <!-- MODAL: Añadir Nuevo Local -->
+  <div id="modalNovoLocal" style="display: none;" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div class="bg-white w-full max-w-md rounded-3xl p-5 border border-slate-200 shadow-2xl space-y-4 my-auto">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">🏪</span>
+          <h2 class="font-bold text-slate-900 text-lg">Añadir Nuevo Local</h2>
+        </div>
+        <button type="button" id="btnFecharModalNovo" class="text-slate-400 hover:text-slate-600 p-2 cursor-pointer">
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <form id="formNovoLocal" class="space-y-3.5">
+        
+        <!-- País / Gastronomía con Bandeira -->
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">País / Origen</label>
+          <div class="relative">
+            <select id="novoPais" required class="w-full py-2.5 px-3 bg-white border-2 border-slate-300 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-slate-900 appearance-none">
+              <option value="chileno">🇨🇱 Chile (Chileno)</option>
+              <option value="brasileiro">🇧🇷 Brasil (Brasileiro)</option>
+              <option value="espanol">🇪🇸 España (Tapas / Español)</option>
+              <option value="argentino">🇦🇷 Argentina (Empanadas / Asado)</option>
+              <option value="peruano">🇵🇪 Perú (Ceviche / Criollo)</option>
+              <option value="mexicano">🇲🇽 México (Tacos / Antojitos)</option>
+              <option value="colombiano">🇨🇴 Colombia (Arepas / Típico)</option>
+              <option value="venezolano">🇻🇪 Venezuela (Arepas / Cachapas)</option>
+              <option value="otro">🌎 Otro / Internacional</option>
+            </select>
+            <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-slate-500">
+              ▼
+            </div>
+          </div>
+        </div>
+
+        <!-- Nombre del Restaurante -->
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Nombre del Lugar</label>
+          <input 
+            type="text" 
+            id="novoNome" 
+            required 
+            placeholder="Ej: Empanadas Club" 
+            class="w-full py-2.5 px-3 bg-white border-2 border-slate-300 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:border-slate-900"
+          />
+        </div>
+
+        <!-- Dirección o Enlace de Google Maps -->
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Dirección o Enlace de Google Maps</label>
+          <input 
+            type="text" 
+            id="novoMaps" 
+            required 
+            placeholder="Ej: Carrer d'Aribau, 45 o enlace Maps" 
+            class="w-full py-2.5 px-3 bg-white border-2 border-slate-300 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:border-slate-900"
+          />
+        </div>
+
+        <!-- Puntuación Google Maps -->
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Puntuación Google Maps (1.0 - 5.0)</label>
+          <div class="flex items-center gap-2">
+            <span class="text-lg">⭐</span>
+            <input 
+              type="number" 
+              id="novoRating" 
+              step="0.1" 
+              min="1.0" 
+              max="5.0" 
+              value="4.7" 
+              required
+              class="w-24 py-2 px-3 bg-white border-2 border-slate-300 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-slate-900"
+            />
+            <span class="text-xs text-slate-400">Puntaje visible en el card</span>
+          </div>
+        </div>
+
+        <!-- Especialidad o Plato Recomendado -->
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Especialidad Recomendada</label>
+          <textarea 
+            id="novoEspecialidade" 
+            rows="2" 
+            placeholder="Ej: Empanada frita de carne mechada con queso..."
+            class="w-full py-2 px-3 bg-white border-2 border-slate-300 rounded-xl text-sm text-slate-800 focus:outline-none focus:border-slate-900"></textarea>
+        </div>
+
+        <!-- Botones de Acción -->
+        <div class="pt-2 flex gap-2">
+          <button 
+            type="button" 
+            id="btnCancelarNovo" 
+            class="w-1/3 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-sm transition">
+            Cancelar
+          </button>
+          <button 
+            type="submit" 
+            class="flex-1 py-2.5 bg-slate-900 hover:bg-black active:scale-98 text-white font-bold rounded-xl text-sm transition shadow-md">
+            Guardar Local
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" style="display: none;" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-4 py-2.5 rounded-full text-xs font-semibold shadow-2xl z-50 transition-all items-center gap-2">
+    <span id="toastIcon">✨</span>
+    <span id="toastMsg">Mensaje</span>
+  </div>
+
+  <script>
+    (function () {
+      // 1. Restaurantes Predefinidos con Puntuaciones Reales de Google Maps y Coordenadas
+      const LOCAIS_INICIAIS = [
+        {
+          id: 'el_vuit',
+          nome: 'El Vuit Gastronòmic (Chileno)',
+          tipo: 'chileno',
+          bandeira: '🇨🇱',
+          paisNome: 'Chileno',
+          endereco: 'Gran Via de les Corts Catalanes, 518',
+          tempo: '~650 m (8 min)',
+          rating: '4.6',
+          reviewsCount: '380+',
+          especialidade: 'Empanada frita de camarón y queso (massa crocante e recheio generoso).',
+          lat: 41.3809,
+          lng: 2.1582,
+          mapsQuery: 'El+Vuit+Gastronomic+Gran+Via+de+les+Corts+Catalanes+518+Barcelona'
+        },
+        {
+          id: 'mi_casa',
+          nome: 'Mi Casa Bar & Restaurante (Brasileiro)',
+          tipo: 'brasileiro',
+          bandeira: '🇧🇷',
+          paisNome: 'Brasileño',
+          endereco: 'Ctra. de la Bordeta, 26 (Plaça d\'Espanya / Sants)',
+          tempo: '~950 m (12 min)',
+          rating: '4.4',
+          reviewsCount: '520+',
+          especialidade: 'Pastéis e petiscos brasileiros fritos e pratos típicos caseiros.',
+          lat: 41.3725,
+          lng: 2.1408,
+          mapsQuery: 'Mi+Casa+Bar+Restaurante+Ctra+de+la+Bordeta+26+Barcelona'
+        },
+        {
+          id: 'la_mestiza',
+          nome: 'La Mestiza (Chileno)',
+          tipo: 'chileno',
+          bandeira: '🇨🇱',
+          paisNome: 'Chileno',
+          endereco: 'Avinguda de Josep Tarradellas, 60',
+          tempo: '~980 m (12 min subiendo Entença)',
+          rating: '4.5',
+          reviewsCount: '410+',
+          especialidade: 'Empanada clássica de queso y camarón frita na hora.',
+          lat: 41.3855,
+          lng: 2.1415,
+          mapsQuery: 'La+Mestiza+Avinguda+de+Josep+Tarradellas+60+Barcelona'
+        },
+        {
+          id: 'buriti',
+          nome: 'Buriti - Sant Antoni (Brasileiro / Baiano)',
+          tipo: 'brasileiro',
+          bandeira: '🇧🇷',
+          paisNome: 'Baiano / Frutos do mar',
+          endereco: 'Carrer del Comte Borrell, 65',
+          tempo: '~1,1 km (14 min)',
+          rating: '4.7',
+          reviewsCount: '650+',
+          especialidade: 'Especialista em pratos baianos: moqueca de camarão, acarajé e petiscos de frutos do mar.',
+          lat: 41.3780,
+          lng: 2.1604,
+          mapsQuery: 'Buriti+Carrer+del+Comte+Borrell+65+Barcelona'
+        },
+        {
+          id: 'kiltro',
+          nome: 'Kiltro Restobar (Chileno / Latino)',
+          tipo: 'chileno',
+          bandeira: '🇨🇱',
+          paisNome: 'Chileno / Latino',
+          endereco: 'Carrer de Villarroel, 22',
+          tempo: '~1,3 km (16 min)',
+          rating: '4.6',
+          reviewsCount: '890+',
+          especialidade: 'Empanadas fritas de frutos do mar e comida de rua latina.',
+          lat: 41.3814,
+          lng: 2.1610,
+          mapsQuery: 'Kiltro+Restobar+Carrer+de+Villarroel+22+Barcelona'
+        }
+      ];
+
+      const PAISES_MAP = {
+        chileno: { bandeira: '🇨🇱', nome: 'Chileno' },
+        brasileiro: { bandeira: '🇧🇷', nome: 'Brasileño' },
+        espanol: { bandeira: '🇪🇸', nome: 'Español' },
+        argentino: { bandeira: '🇦🇷', nome: 'Argentino' },
+        peruano: { bandeira: '🇵🇪', nome: 'Peruano' },
+        mexicano: { bandeira: '🇲🇽', nome: 'Mexicano' },
+        colombiano: { bandeira: '🇨🇴', nome: 'Colombiano' },
+        venezolano: { bandeira: '🇻🇪', nome: 'Venezolano' },
+        otro: { bandeira: '🌎', nome: 'Internacional' }
+      };
+
+      const FAVORITOS_DEFAULT = ['el_vuit', 'buriti'];
+      let todosLocais = [...LOCAIS_INICIAIS];
+      let favoritos = new Set(FAVORITOS_DEFAULT);
+      let filtroAtual = 'todas';
+      let proximidadeAtiva = false;
+      let userLocation = null;
+
+      // Recuperación segura de almacenamiento local
+      function carregarDados() {
+        try {
+          if (typeof window !== 'undefined' && 'localStorage' in window) {
+            // Favoritos
+            const favsSalvos = window.localStorage.getItem('favoritos_bcn_gastronomia');
+            if (favsSalvos) {
+              const parsed = JSON.parse(favsSalvos);
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                favoritos = new Set(parsed);
+              }
+            }
+            // Locales creados por el usuario
+            const locaisSalvos = window.localStorage.getItem('locais_cadastrados_bcn');
+            if (locaisSalvos) {
+              const parsedLocais = JSON.parse(locaisSalvos);
+              if (Array.isArray(parsedLocais)) {
+                todosLocais = [...LOCAIS_INICIAIS, ...parsedLocais];
+              }
+            }
+          }
+        } catch (e) {
+          // Respaldo silencioso si hay bloqueo de iframe
+        }
+      }
+
+      function salvarFavoritos() {
+        try {
+          if (typeof window !== 'undefined' && 'localStorage' in window) {
+            window.localStorage.setItem('favoritos_bcn_gastronomia', JSON.stringify(Array.from(favoritos)));
+          }
+        } catch (e) {}
+      }
+
+      function salvarNovosLocais(listaNovos) {
+        try {
+          if (typeof window !== 'undefined' && 'localStorage' in window) {
+            window.localStorage.setItem('locais_cadastrados_bcn', JSON.stringify(listaNovos));
+          }
+        } catch (e) {}
+      }
+
+      // Renderizador de Tarjetas Dinámico
+      function renderizarCards(lista) {
+        const container = document.getElementById('cardsContainer');
+        if (!container) return;
+        container.innerHTML = '';
+
+        lista.forEach(local => {
+          const isFav = favoritos.has(local.id);
+          const mapsLink = local.mapsUrl || `https://www.google.com/maps/search/?api=1&query=${local.mapsQuery || encodeURIComponent(local.nome + ' ' + local.endereco)}`;
+          // Enlace directo a la sección de opiniones / reseñas
+          const reviewsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(local.nome + ' ' + local.endereco)}+reviews`;
+
+          const article = document.createElement('article');
+          article.id = `card-${local.id}`;
+          article.setAttribute('data-id', local.id);
+          article.setAttribute('data-tipo', local.tipo);
+          article.className = `activity-card bg-white rounded-2xl p-4 sm:p-5 border-2 ${isFav ? 'border-amber-400 card-favorito' : 'border-slate-300'} shadow-xs transition-all`;
+
+          article.innerHTML = `
+            <div class="flex items-start justify-between gap-2.5">
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="proximidade-badge text-[11px] font-black bg-emerald-600 text-white px-2 py-0.5 rounded-md shadow-xs shrink-0" style="display: ${local.distanciaTexto ? 'inline-block' : 'none'};">
+                    ${local.distanciaTexto || ''}
+                  </span>
+                  <h2 class="text-base sm:text-lg font-bold text-slate-900 leading-snug truncate">${local.nome}</h2>
+                </div>
+                <!-- Puntuación Google Maps & Enlace a Opiniones -->
+                <div class="flex items-center gap-2 mt-1">
+                  <span class="inline-flex items-center gap-1 text-xs font-bold bg-amber-50 text-amber-900 border border-amber-200 px-2 py-0.5 rounded-md">
+                    <span>⭐</span> ${local.rating || '4.6'}
+                  </span>
+                  <a href="${reviewsLink}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-xs font-semibold text-slate-600 hover:text-slate-900 underline decoration-slate-300 transition" title="Ver opiniones y reseñas en Google Maps">
+                    <span>💬</span> <span>Ver opiniones</span>
+                  </a>
+                </div>
+              </div>
+              <div class="flex items-center gap-1 shrink-0">
+                <button type="button" data-id="${local.id}" class="star-btn hover:bg-slate-100" title="Favorito">${isFav ? '⭐' : '☆'}</button>
+                <a href="${mapsLink}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1 text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 py-2 px-2.5 rounded-xl transition shrink-0">
+                  <svg class="w-3.5 h-3.5 text-blue-600" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg>
+                  <span>Maps</span>
+                </a>
+              </div>
+            </div>
+
+            <!-- Etiquetas horizontales sin empilhar -->
+            <div class="flex items-center gap-1.5 mt-2.5 overflow-x-auto no-scrollbar flex-nowrap py-0.5">
+              <span class="shrink-0 whitespace-nowrap text-[11px] font-semibold px-2 py-0.5 rounded-lg border bg-rose-50 text-rose-800 border-rose-200">${local.bandeira || '🌎'} ${local.paisNome || 'Especialidad'}</span>
+              <span class="shrink-0 whitespace-nowrap text-[11px] font-medium px-2 py-0.5 rounded-lg bg-slate-100 text-slate-600 border border-slate-200">📍 ${local.endereco}</span>
+              ${local.tempo ? `<span class="shrink-0 whitespace-nowrap text-[11px] font-bold px-2 py-0.5 rounded-lg bg-amber-100 text-amber-900 border border-amber-200">⏱️ ${local.tempo}</span>` : ''}
+            </div>
+
+            <div class="mt-3 text-slate-700 text-sm leading-relaxed bg-slate-50 border border-slate-200/80 rounded-xl p-3">
+              <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Especialidad Recomendada</span>
+              <p class="font-medium text-slate-800">${local.especialidade || 'Platos típicos recomendados de la casa.'}</p>
+            </div>
+          `;
+
+          container.appendChild(article);
+        });
+
+        // Reatribuir evento a los botones de estrella
+        container.querySelectorAll('.star-btn').forEach(btn => {
+          btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const id = this.getAttribute('data-id');
+            toggleFavorito(id);
+          });
+        });
+
+        atualizarContadores();
+      }
+
+      function atualizarContadores() {
+        const count = favoritos.size;
+        const counterEl = document.getElementById('starCounter');
+        if (counterEl) {
+          counterEl.textContent = `${count}`;
+        }
+      }
+
+      function toggleFavorito(id) {
+        if (!id) return;
+        if (favoritos.has(id)) {
+          favoritos.delete(id);
+          mostrarToast('Eliminado de favoritos', '☆');
+        } else {
+          favoritos.add(id);
+          mostrarToast('¡Añadido a favoritos!', '⭐');
+        }
+        salvarFavoritos();
+        
+        // Actualizar visual del card
+        const card = document.getElementById(`card-${id}`);
+        if (card) {
+          const btn = card.querySelector('.star-btn');
+          if (favoritos.has(id)) {
+            if (btn) btn.textContent = '⭐';
+            card.classList.add('card-favorito', 'border-amber-400');
+            card.classList.remove('border-slate-300');
+          } else {
+            if (btn) btn.textContent = '☆';
+            card.classList.remove('card-favorito', 'border-amber-400');
+            card.classList.add('border-slate-300');
+          }
+        }
+        atualizarContadores();
+
+        if (filtroAtual === 'favoritas') {
+          aplicarFiltrosEBusca();
+        }
+      }
+
+      function setFiltro(tipo) {
+        filtroAtual = tipo;
+
+        const botoes = {
+          chileno: document.getElementById('btnChileno'),
+          brasileiro: document.getElementById('btnBrasileiro'),
+          todas: document.getElementById('btnTodas'),
+          favoritas: document.getElementById('btnFavoritas')
+        };
+
+        Object.keys(botoes).forEach(k => {
+          const btn = botoes[k];
+          if (!btn) return;
+          if (k === tipo) {
+            btn.classList.add('ativo');
+          } else {
+            btn.classList.remove('ativo');
+          }
+        });
+
+        aplicarFiltrosEBusca();
+      }
+
+      function aplicarFiltrosEBusca() {
+        const searchEl = document.getElementById('searchInput');
+        const termo = (searchEl ? searchEl.value : '').trim().toLowerCase();
+        const clearBtn = document.getElementById('clearSearch');
+        if (clearBtn) {
+          clearBtn.style.display = termo === '' ? 'none' : 'flex';
+        }
+
+        const cards = document.querySelectorAll('.activity-card');
+        let visiveis = 0;
+
+        cards.forEach(card => {
+          const id = card.getAttribute('data-id');
+          const tipo = card.getAttribute('data-tipo');
+          const texto = (card.textContent || card.innerText || '').toLowerCase();
+
+          let matchFiltro = true;
+          if (filtroAtual === 'chileno') {
+            matchFiltro = (tipo === 'chileno');
+          } else if (filtroAtual === 'brasileiro') {
+            matchFiltro = (tipo === 'brasileiro');
+          } else if (filtroAtual === 'favoritas') {
+            matchFiltro = favoritos.has(id);
+          }
+
+          let matchTexto = true;
+          if (termo.length > 0) {
+            matchTexto = texto.includes(termo);
+          }
+
+          if (matchFiltro && matchTexto) {
+            card.style.display = 'block';
+            visiveis++;
+          } else {
+            card.style.display = 'none';
+          }
+        });
+
+        const contadorEl = document.getElementById('contadorResultados');
+        if (contadorEl) {
+          contadorEl.textContent = `${visiveis} ${visiveis === 1 ? 'local gastronómico' : 'locales gastronómicos'}`;
+        }
+
+        const emptyEl = document.getElementById('emptyState');
+        if (emptyEl) {
+          emptyEl.style.display = visiveis > 0 ? 'none' : 'block';
+        }
+      }
+
+      // Cálculo de Distancia Geográfica Haversine
+      function calcularDistanciaMetros(lat1, lon1, lat2, lon2) {
+        const R = 6371e3;
+        const p1 = lat1 * Math.PI / 180;
+        const p2 = lat2 * Math.PI / 180;
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                  Math.cos(p1) * Math.cos(p2) *
+                  Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      }
+
+      // 1. FUNCIÓN: LOCALES CERCANOS VÍA GPS
+      function ordenarPorProximidade() {
+        if (!('geolocation' in navigator)) {
+          mostrarToast('GPS no compatible en este navegador', '⚠️');
+          return;
+        }
+
+        mostrarToast('Obteniendo tu ubicación GPS...', '📍');
+
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            userLocation = {
+              lat: pos.coords.latitude,
+              lng: pos.coords.longitude
+            };
+
+            // Calcular distancia a cada local
+            const listaOrdenada = todosLocais.map(loc => {
+              // Si no tiene coordenadas precisas, asigna el centro de Barcelona por defecto
+              const locLat = loc.lat || 41.3851;
+              const locLng = loc.lng || 2.1734;
+              const dist = calcularDistanciaMetros(userLocation.lat, userLocation.lng, locLat, locLng);
+              
+              let distTexto = '';
+              if (dist < 1000) {
+                distTexto = `📍 a ${Math.round(dist)} m de ti`;
+              } else {
+                distTexto = `📍 a ${(dist / 1000).toFixed(1)} km de ti`;
+              }
+
+              return {
+                ...loc,
+                distanciaMetros: dist,
+                distanciaTexto: distTexto
+              };
+            });
+
+            // Ordenar de menor a mayor distancia
+            listaOrdenada.sort((a, b) => a.distanciaMetros - b.distanciaMetros);
+
+            proximidadeAtiva = true;
+            renderizarCards(listaOrdenada);
+            aplicarFiltrosEBusca();
+
+            const banner = document.getElementById('proximidadeBanner');
+            if (banner) banner.style.display = 'block';
+
+            const ind = document.getElementById('ordemIndicador');
+            if (ind) ind.textContent = '📍 Más cercanos a ti (GPS)';
+
+            mostrarToast('¡Locales ordenados por cercanía!', '📍');
+            if (banner) banner.scrollIntoView({ behavior: 'smooth' });
+          },
+          (err) => {
+            mostrarToast('No se pudo acceder al GPS. Activa la ubicación', '⚠️');
+          },
+          { enableHighAccuracy: true, timeout: 8000 }
+        );
+      }
+
+      function desfazerProximidade() {
+        proximidadeAtiva = false;
+        const banner = document.getElementById('proximidadeBanner');
+        if (banner) banner.style.display = 'none';
+
+        const ind = document.getElementById('ordemIndicador');
+        if (ind) ind.textContent = 'Orden original';
+
+        // Restaurar sin etiqueta de distancia GPS
+        const listaOriginal = todosLocais.map(loc => {
+          const c = { ...loc };
+          delete c.distanciaTexto;
+          return c;
+        });
+
+        renderizarCards(listaOriginal);
+        aplicarFiltrosEBusca();
+        mostrarToast('Orden original restablecido', '↺');
+      }
+
+      // 2. FUNCIÓN: REGISTRO DE NUEVO LOCAL
+      function abrirModalNovoLocal() {
+        const modal = document.getElementById('modalNovoLocal');
+        if (modal) modal.style.display = 'flex';
+      }
+
+      function fecharModalNovoLocal() {
+        const modal = document.getElementById('modalNovoLocal');
+        if (modal) modal.style.display = 'none';
+        const form = document.getElementById('formNovoLocal');
+        if (form) form.reset();
+      }
+
+      function processarNovoLocal(e) {
+        e.preventDefault();
+        const tipoPais = document.getElementById('novoPais').value;
+        const nome = document.getElementById('novoNome').value.trim();
+        const mapsRaw = document.getElementById('novoMaps').value.trim();
+        const rating = document.getElementById('novoRating').value || '4.7';
+        const especialidade = document.getElementById('novoEspecialidade').value.trim();
+
+        if (!nome || !mapsRaw) {
+          mostrarToast('Por favor completa el nombre y la dirección', '⚠️');
+          return;
+        }
+
+        const paisInfo = PAISES_MAP[tipoPais] || { bandeira: '🌎', nome: 'Internacional' };
+        const idUnico = 'local_' + Date.now();
+
+        // Determinar si es un link completo o una dirección de texto
+        let mapsUrl = '';
+        if (mapsRaw.startsWith('http://') || mapsRaw.startsWith('https://')) {
+          mapsUrl = mapsRaw;
+        } else {
+          mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(nome + ' ' + mapsRaw + ' Barcelona')}`;
+        }
+
+        const novoItem = {
+          id: idUnico,
+          nome: `${paisInfo.bandeira} ${nome}`,
+          tipo: tipoPais,
+          bandeira: paisInfo.bandeira,
+          paisNome: paisInfo.nome,
+          endereco: mapsRaw.startsWith('http') ? 'Dirección en Google Maps' : mapsRaw,
+          rating: parseFloat(rating).toFixed(1),
+          especialidade: especialidade || 'Especialidad recomendada por el viajero.',
+          mapsUrl: mapsUrl,
+          // Coordenadas aproximadas en Barcelona centro para cálculo de proximidad
+          lat: 41.3851 + (Math.random() - 0.5) * 0.015,
+          lng: 2.1734 + (Math.random() - 0.5) * 0.015
+        };
+
+        // Guardar en la lista
+        todosLocais.push(novoItem);
+
+        // Guardar sólo los creados por el usuario en localStorage
+        const customLocais = todosLocais.filter(l => l.id.startsWith('local_'));
+        salvarNovosLocais(customLocais);
+
+        fecharModalNovoLocal();
+        renderizarCards(todosLocais);
+        aplicarFiltrosEBusca();
+        mostrarToast('¡Nuevo restaurante añadido con éxito!', '🎉');
+
+        // Scroll al nuevo restaurante
+        setTimeout(() => {
+          const el = document.getElementById(`card-${idUnico}`);
+          if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }, 200);
+      }
+
+      let toastTimer = null;
+      function mostrarToast(msg, icon = '✨') {
+        const toast = document.getElementById('toast');
+        if (!toast) return;
+        document.getElementById('toastMsg').textContent = msg;
+        document.getElementById('toastIcon').textContent = icon;
+        toast.style.display = 'flex';
+
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+          toast.style.display = 'none';
+        }, 2400);
+      }
+
+      function setupListeners() {
+        // Filtros
+        document.querySelectorAll('[data-filtro]').forEach(btn => {
+          btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            const f = this.getAttribute('data-filtro');
+            setFiltro(f);
+          });
+        });
+
+        // Campo de búsqueda
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+          searchInput.addEventListener('input', aplicarFiltrosEBusca);
+        }
+        const clearBtn = document.getElementById('clearSearch');
+        if (clearBtn) {
+          clearBtn.addEventListener('click', function () {
+            if (searchInput) {
+              searchInput.value = '';
+              searchInput.focus();
+            }
+            aplicarFiltrosEBusca();
+          });
+        }
+
+        // Botón Locales Cercanos
+        const btnLocaisProximos = document.getElementById('btnLocaisProximos');
+        if (btnLocaisProximos) {
+          btnLocaisProximos.addEventListener('click', ordenarPorProximidade);
+        }
+        const btnDesfazerProximidade = document.getElementById('btnDesfazerProximidade');
+        if (btnDesfazerProximidade) {
+          btnDesfazerProximidade.addEventListener('click', desfazerProximidade);
+        }
+
+        // Botones Modal Añadir
+        const btnAbrirNovo = document.getElementById('btnAbrirNovoLocal');
+        if (btnAbrirNovo) {
+          btnAbrirNovo.addEventListener('click', abrirModalNovoLocal);
+        }
+        const btnFecharNovo = document.getElementById('btnFecharModalNovo');
+        if (btnFecharNovo) {
+          btnFecharNovo.addEventListener('click', fecharModalNovoLocal);
+        }
+        const btnCancelarNovo = document.getElementById('btnCancelarNovo');
+        if (btnCancelarNovo) {
+          btnCancelarNovo.addEventListener('click', fecharModalNovoLocal);
+        }
+        const formNovoLocal = document.getElementById('formNovoLocal');
+        if (formNovoLocal) {
+          formNovoLocal.addEventListener('submit', processarNovoLocal);
+        }
+
+        const btnResetEmpty = document.getElementById('btnResetEmpty');
+        if (btnResetEmpty) {
+          btnResetEmpty.addEventListener('click', () => setFiltro('todas'));
+        }
+      }
+
+      function initApp() {
+        carregarDados();
+        renderizarCards(todosLocais);
+        aplicarFiltrosEBusca();
+        setupListeners();
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initApp);
+      } else {
+        initApp();
+      }
+    })();
+  </script>
+</body>
+</html>
