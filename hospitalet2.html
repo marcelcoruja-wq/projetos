@@ -1226,7 +1226,10 @@
 
         lista.forEach(local => {
           const isFav = favoritos.has(local.id);
-          const mapsLink = local.mapsUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(local.searchQuery || (local.nome + ' ' + local.endereco))}`;
+          // Alfinete milimétrico por coordenadas exatas: abre direto no ponto físico sem erros de busca
+          const mapsLink = (local.lat && local.lng)
+            ? `https://www.google.com/maps/search/?api=1&query=${local.lat},${local.lng}`
+            : (local.mapsUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((local.nome || '') + ' ' + (local.endereco || '') + ' Barcelona')}`);
 
           const article = document.createElement('article');
           article.id = `card-${local.id}`;
