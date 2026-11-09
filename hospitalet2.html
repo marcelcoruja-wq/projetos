@@ -647,21 +647,36 @@
           searchQuery: 'La Bottega Carrer de Vallespir 45 Barcelona'
         },
 
-        // ================= 🌎 MERCADOS LATINOS REAIS =================
+        // ================= 🌎 MERCADOS LATINOS & BRASILEIROS REAIS =================
         {
-          id: 'latino_condor_rocafort',
-          nome: 'Supermercat Llatí El Cóndor',
+          id: 'mercalatina_hostafrancs',
+          nome: 'Mercalatina Latin Food & Brasil',
           tipo: 'latinos',
           icone: '🌎',
-          categoriaNome: 'Produtos Sul-Americanos Selecionados',
-          metro: 'Metro Rocafort (L1) • A 3 min a pé de Entença 95',
-          endereco: 'Carrer de Rocafort, 58',
-          rating: '4.7',
-          reviewsCount: '310+',
-          destaque: 'A passos de Entença 95: feijão preto brasileiro, polvilho doce e azedo, farinha de mandioca, guaraná Antarctica, queijo latino, pisco e temperos.',
-          lat: 41.3795,
-          lng: 2.1550,
-          searchQuery: 'Supermercat Llati El Condor Carrer de Rocafort 58 Barcelona'
+          categoriaNome: 'Supermercado Latino & Produtos do Brasil',
+          metro: 'Metro Hostafrancs (L1) • Em frente ao Mercat',
+          endereco: 'Carrer de la Creu Coberta, 96',
+          rating: '4.9',
+          reviewsCount: '1.050+',
+          destaque: 'Referência total em Hostafrancs: feijão preto brasileiro, farinha de mandioca, polvilho doce e azedo, guaraná Antarctica, queijos latinos, pisco e condimentos.',
+          lat: 41.3745,
+          lng: 2.1428,
+          searchQuery: 'Mercalatina Creu Coberta 96 Barcelona'
+        },
+        {
+          id: 'mais_brasil_hostafrancs',
+          nome: 'Mais Brasil BCN (Creu Coberta)',
+          tipo: 'latinos',
+          icone: '🌎',
+          categoriaNome: 'Loja Brasileira & Salgados',
+          metro: 'Metro Hostafrancs (L1) • A passos da estação',
+          endereco: 'Carrer de la Creu Coberta, 112',
+          rating: '4.8',
+          reviewsCount: '480+',
+          destaque: 'A lojinha brasileira de Hostafrancs: coxinhas, pastéis, pão de queijo quentinho, açaí na tigela, refrigerantes brasileiros e produtos do dia a dia.',
+          lat: 41.3742,
+          lng: 2.1418,
+          searchQuery: 'Mais Brasil Carrer de la Creu Coberta 112 Barcelona'
         },
         {
           id: 'latino_mi_tierra_collblanc',
@@ -837,6 +852,21 @@
           searchQuery: 'Biblioteca Joan Miro Carrer de Vilamari 61 Barcelona'
         },
         {
+          id: 'biblioteca_vapor_vell',
+          nome: 'Biblioteca Vapor Vell (Sants)',
+          tipo: 'bibliotecas',
+          icone: '📚',
+          categoriaNome: 'Biblioteca Histórica & Salas de Estudo',
+          metro: 'Metro Plaça de Sants (L1/L5) / Hostafrancs (L1)',
+          endereco: 'Passatge del Vapor Vell, 1',
+          rating: '4.6',
+          reviewsCount: '890+',
+          destaque: 'Antiga fábrica têxtil transformada em amplo espaço cultural: mesas espaçosas com tomadas, Wi-Fi veloz e ambiente de estudo silencioso.',
+          lat: 41.3772,
+          lng: 2.1355,
+          searchQuery: 'Biblioteca Vapor Vell Passatge del Vapor Vell 1 Barcelona'
+        },
+        {
           id: 'biblioteca_la_florida',
           nome: 'Biblioteca La Florida (Plaça de la Bòbila)',
           tipo: 'bibliotecas',
@@ -966,11 +996,11 @@
       const PONTOS_CONHECIDOS = {
         'metro rocafort': { lat: 41.3788, lng: 2.1565, nome: "Metro Rocafort (L1)" },
         'rocafort': { lat: 41.3788, lng: 2.1565, nome: "Metro Rocafort / Gran Via" },
-        'metro entenca': { lat: 41.3855, lng: 2.1435, nome: "Metro Entença (L5)" },
-        'metro espanya': { lat: 41.3745, lng: 2.1495, nome: "Metro Espanya (L1/L3/FGC)" },
-        'espanya': { lat: 41.3745, lng: 2.1495, nome: "Plaça d'Espanya" },
-        'metro urgell': { lat: 41.3825, lng: 2.1585, nome: "Metro Urgell (L1)" },
-        'metro hostafrancs': { lat: 41.3745, lng: 2.1425, nome: "Metro Hostafrancs (L1)" },
+        // DICIONÁRIO OFFLINE PRECISO DE METRÔS E RUAS
+        'metro hostafrancs': { lat: 41.3745, lng: 2.1425, nome: "Metro Hostafrancs (L1) / Creu Coberta" },
+        'hostafrancs': { lat: 41.3745, lng: 2.1425, nome: "Metro Hostafrancs (L1) / Creu Coberta" },
+        'creu coberta 112': { lat: 41.3748, lng: 2.1415, nome: "Carrer de la Creu Coberta, 112 (Más Brasil)" },
+        'creu coberta': { lat: 41.3748, lng: 2.1415, nome: "Carrer de la Creu Coberta (Hostafrancs)" },
         'metro sants': { lat: 41.3792, lng: 2.1402, nome: "Metro Sants Estació (L3/L5/Renfe)" },
         'sants estacio': { lat: 41.3792, lng: 2.1402, nome: "Estació de Barcelona-Sants" },
         'metro sant antoni': { lat: 41.3788, lng: 2.1628, nome: "Metro Sant Antoni (L2)" },
@@ -997,7 +1027,7 @@
 
       // Estado do Aplicativo
       let todosServicos = [...SERVICOS_BASE];
-      let favoritos = new Set(['farmacia_llobet_entenca', 'muutt_carniceria', 'le_delizie_ditalia', 'latino_condor_rocafort', 'arenas_de_barcelona', 'cuap_manso']);
+      let favoritos = new Set(['farmacia_llobet_entenca', 'muutt_carniceria', 'le_delizie_ditalia', 'mercalatina_hostafrancs', 'mais_brasil_hostafrancs', 'arenas_de_barcelona', 'cuap_manso']);
       let filtroAtual = 'todas';
       let criterioOrdenacao = 'distancia';
       let notaMinima = 4.0;
@@ -1218,20 +1248,10 @@
           });
         });
 
-        // Eventos dos Botões do Google Maps (Garante abertura nativa sem bloqueio no Android/Redmi)
+        // Eventos dos Botões do Google Maps (Permite que o Android abra direto no app nativo)
         container.querySelectorAll('.btn-abrir-maps').forEach(link => {
           link.addEventListener('click', function (e) {
-            const url = this.getAttribute('href');
-            if (!url) return;
-            // Tenta abrir em nova aba/app do Google Maps; se o navegador embutido bloquear, faz redirecionamento direto
-            try {
-              const novaAba = window.open(url, '_blank', 'noopener,noreferrer');
-              if (!novaAba || novaAba.closed || typeof novaAba.closed === 'undefined') {
-                window.location.href = url;
-              }
-            } catch (err) {
-              window.location.href = url;
-            }
+            e.stopPropagation();
           });
         });
 
