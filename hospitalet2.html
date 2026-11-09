@@ -56,18 +56,29 @@
     }
 
     .star-btn {
-      min-width: 42px;
-      min-height: 42px;
+      min-width: 38px;
+      min-height: 38px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.35rem;
+      font-size: 1.3rem;
       cursor: pointer;
-      border-radius: 12px;
+      border-radius: 10px;
       transition: transform 0.1s ease;
     }
     .star-btn:active {
       transform: scale(0.88);
+    }
+
+    .chip-rua {
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+    .chip-rua.ativo {
+      background-color: #4f46e5 !important;
+      color: #ffffff !important;
+      border-color: #4338ca !important;
+      font-weight: 700;
     }
 
     .no-scrollbar::-webkit-scrollbar {
@@ -77,28 +88,18 @@
       -ms-overflow-style: none;
       scrollbar-width: none;
     }
-
-    /* Pulsing radar dot for GPS active indicator */
-    @keyframes pulse-ring {
-      0% { transform: scale(0.95); opacity: 0.8; }
-      50% { transform: scale(1.15); opacity: 0.3; }
-      100% { transform: scale(0.95); opacity: 0.8; }
-    }
-    .gps-active-dot {
-      animation: pulse-ring 2s infinite ease-in-out;
-    }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen pb-16 antialiased selection:bg-indigo-100">
 
   <!-- Encabezado Fijo con Botón de Añadir Servicio y Estado GPS -->
   <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
-    <div class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between gap-2">
-      <div class="flex items-center gap-2.5 min-w-0">
+    <div class="max-w-3xl mx-auto px-4 py-2.5 flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2 min-w-0">
         <span class="text-2xl shrink-0">📍</span>
         <div class="truncate">
           <h1 class="font-extrabold text-slate-900 leading-tight text-base sm:text-lg tracking-tight truncate">Radar de Serviços Essenciais</h1>
-          <p class="text-xs text-slate-500 font-medium truncate">L'Hospitalet & Barcelona • 5.0★ a 4.0★ em Tempo Real</p>
+          <p class="text-xs text-slate-500 font-medium truncate">L'Hospitalet & Barcelona • Proximidade Dinâmica</p>
         </div>
       </div>
       <div class="flex items-center gap-2 shrink-0">
@@ -109,7 +110,7 @@
           <span class="text-base leading-none">+</span>
           <span>Cadastrar</span>
         </button>
-        <div id="statsBadge" class="text-xs bg-amber-50 text-amber-800 border border-amber-200 font-semibold px-2.5 py-1.5 rounded-xl flex items-center gap-1 shadow-xs">
+        <div id="statsBadge" class="text-xs bg-amber-50 text-amber-800 border border-amber-200 font-semibold px-2 py-1.5 rounded-xl flex items-center gap-1 shadow-xs">
           <span>⭐</span>
           <span id="starCounter">0</span>
         </div>
@@ -118,37 +119,58 @@
   </header>
 
   <!-- Contenedor Principal -->
-  <main class="max-w-3xl mx-auto px-4 pt-4 space-y-4">
+  <main class="max-w-3xl mx-auto px-3.5 sm:px-4 pt-3 space-y-3.5">
 
-    <!-- 1. Barra de Ação do Radar GPS em Tempo Real -->
-    <div id="radarGpsBar" class="bg-gradient-to-r from-slate-900 to-indigo-950 text-white p-3.5 sm:p-4 rounded-2xl shadow-md border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-indigo-600/30 border border-indigo-400/40 flex items-center justify-center shrink-0">
-          <span id="radarIcon" class="text-xl">📡</span>
+    <!-- 1. Painel de Localização Manual (Plano B) + GPS Opcional -->
+    <div class="bg-white border-2 border-slate-300 rounded-2xl p-3 sm:p-3.5 shadow-xs space-y-2.5">
+      <div class="flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2 min-w-0">
+          <span class="text-lg shrink-0">📍</span>
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-700 truncate">Onde você está agora?</span>
         </div>
-        <div>
-          <div class="flex items-center gap-2">
-            <h2 class="font-bold text-sm sm:text-base text-white">Radar de Proximidade (GPS)</h2>
-            <span id="gpsStatusPill" class="text-[10px] font-extrabold uppercase tracking-wider bg-slate-800 text-slate-300 border border-slate-700 px-2 py-0.5 rounded-full">Inativo</span>
-          </div>
-          <p id="radarDesc" class="text-xs text-slate-300 mt-0.5">Toque para detectar onde você está agora e calcular distâncias ao vivo.</p>
-        </div>
-      </div>
-      <div class="flex items-center gap-2 self-end sm:self-center shrink-0">
         <button 
           type="button" 
           id="btnAtivarGps" 
-          class="bg-indigo-500 hover:bg-indigo-600 active:scale-95 text-white text-xs font-bold py-2 px-3.5 rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer">
-          <span>📍</span>
-          <span id="btnGpsTexto">Onde estou agora</span>
+          class="text-[11px] font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-2.5 py-1 rounded-lg transition flex items-center gap-1 cursor-pointer shrink-0">
+          <span>📡</span>
+          <span id="btnGpsTexto">Usar GPS</span>
         </button>
+      </div>
+
+      <!-- Campo de Digitação da Rua / Ponto de Referência -->
+      <div class="relative">
+        <input 
+          type="text" 
+          id="inputLocalizacaoManual" 
+          value="Carrer del Mestre Serrano, 16"
+          placeholder="Digite a rua onde você está (ex: Carrer de Collblanc, Entença...)"
+          class="w-full pl-3 pr-20 py-2 text-xs sm:text-sm font-semibold text-slate-800 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-slate-900 focus:outline-none transition-all"
+        />
         <button 
           type="button" 
-          id="btnDesativarGps" 
-          style="display: none;"
-          class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold py-2 px-2.5 rounded-xl border border-slate-700 transition cursor-pointer"
-          title="Resetar radar">
-          ↺
+          id="btnAplicarRuaManual" 
+          class="absolute inset-y-1 right-1 bg-slate-900 hover:bg-slate-800 text-white font-bold text-[11px] px-2.5 rounded-lg transition cursor-pointer">
+          Definir
+        </button>
+      </div>
+
+      <!-- Atalhos Rápidos de 1 Toque para Ruas/Metrôs Comuns -->
+      <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-0.5">
+        <span class="text-[10px] uppercase font-bold text-slate-400 shrink-0">Atalhos:</span>
+        <button type="button" data-rua-key="mestre_serrano" class="chip-rua ativo text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-200 px-2.5 py-1 rounded-lg shrink-0 cursor-pointer">
+          📍 Mestre Serrano, 16
+        </button>
+        <button type="button" data-rua-key="pubilla_cases" class="chip-rua text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-200 px-2.5 py-1 rounded-lg shrink-0 cursor-pointer">
+          🚇 Pubilla Cases
+        </button>
+        <button type="button" data-rua-key="florida" class="chip-rua text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-200 px-2.5 py-1 rounded-lg shrink-0 cursor-pointer">
+          🚇 Florida
+        </button>
+        <button type="button" data-rua-key="collblanc" class="chip-rua text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-200 px-2.5 py-1 rounded-lg shrink-0 cursor-pointer">
+          🚇 Collblanc
+        </button>
+        <button type="button" data-rua-key="entenca" class="chip-rua text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-200 px-2.5 py-1 rounded-lg shrink-0 cursor-pointer">
+          📍 Entença, 95
         </button>
       </div>
     </div>
@@ -163,8 +185,8 @@
       <input 
         type="text" 
         id="searchInput" 
-        placeholder="Buscar serviço, farmácia 24h, pecorino, açougue, mercado..." 
-        class="w-full pl-11 pr-10 py-3.5 text-base bg-white border-2 border-slate-300 rounded-2xl shadow-xs placeholder-slate-400 focus:outline-none focus:border-slate-900 focus:ring-0 transition-all font-medium"
+        placeholder="Buscar serviço, farmácia, açougue, pecorino, mercado..." 
+        class="w-full pl-11 pr-10 py-3 text-sm sm:text-base bg-white border-2 border-slate-300 rounded-2xl shadow-xs placeholder-slate-400 focus:outline-none focus:border-slate-900 focus:ring-0 transition-all font-medium"
       />
       <button 
         type="button"
@@ -178,92 +200,108 @@
       </button>
     </div>
 
-    <!-- 3. Botões de Categorias Deslizáveis (11 Categorias + Favoritos + Todas) -->
+    <!-- 3. Botões de Categorias Deslizáveis (Com Nome no Topo) -->
     <div>
       <div class="flex items-center justify-between mb-1.5 px-0.5">
-        <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Categorias Dinâmicas (5.0★ a 4.0★)</span>
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Categorias Dinâmicas</span>
         <span class="text-xs text-indigo-700 font-bold">1 toque para filtrar</span>
       </div>
       <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
         
-        <button type="button" data-filtro="todas" class="btn-filtro ativo shrink-0 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 shadow-xs cursor-pointer">
+        <button type="button" data-filtro="todas" class="btn-filtro ativo shrink-0 py-2 px-3 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 shadow-xs cursor-pointer">
           <span>✨</span> Todas
         </button>
 
-        <button type="button" data-filtro="saude" class="btn-filtro shrink-0 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer">
+        <button type="button" data-filtro="saude" class="btn-filtro shrink-0 py-2 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer">
           <span>🏥</span> Saúde & CUAP
         </button>
 
-        <button type="button" data-filtro="policia" class="btn-filtro shrink-0 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer">
+        <button type="button" data-filtro="policia" class="btn-filtro shrink-0 py-2 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer">
           <span>👮</span> Polícia & Segurança
         </button>
 
-        <button type="button" data-filtro="mercados" class="btn-filtro shrink-0 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer">
+        <button type="button" data-filtro="mercados" class="btn-filtro shrink-0 py-2 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer">
           <span>🛒</span> Mercados & Feiras
         </button>
 
-        <button type="button" data-filtro="carnicerias" class="btn-filtro shrink-0 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer">
+        <button type="button" data-filtro="carnicerias" class="btn-filtro shrink-0 py-2 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer">
           <span>🥩</span> Açougues
         </button>
 
-        <button type="button" data-filtro="farmacias" class="btn-filtro shrink-0 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer">
+        <button type="button" data-filtro="farmacias" class="btn-filtro shrink-0 py-2 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer">
           <span>💊</span> Farmácias
         </button>
 
-        <button type="button" data-filtro="latinos" class="btn-filtro shrink-0 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer">
+        <button type="button" data-filtro="latinos" class="btn-filtro shrink-0 py-2 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer">
           <span>🌎</span> Mercados Latinos
         </button>
 
-        <button type="button" data-filtro="asiaticos" class="btn-filtro shrink-0 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer">
+        <button type="button" data-filtro="asiaticos" class="btn-filtro shrink-0 py-2 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer">
           <span>🥢</span> Mercados Asiáticos
         </button>
 
-        <button type="button" data-filtro="italianos" class="btn-filtro shrink-0 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer">
+        <button type="button" data-filtro="italianos" class="btn-filtro shrink-0 py-2 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer">
           <span>🇮🇹</span> Mercados Italianos
         </button>
 
-        <button type="button" data-filtro="bibliotecas" class="btn-filtro shrink-0 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer">
+        <button type="button" data-filtro="bibliotecas" class="btn-filtro shrink-0 py-2 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer">
           <span>📚</span> Bibliotecas
         </button>
 
-        <button type="button" data-filtro="comerciales" class="btn-filtro shrink-0 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer">
+        <button type="button" data-filtro="comerciales" class="btn-filtro shrink-0 py-2 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer">
           <span>🛍️</span> Centros Comerciais
         </button>
 
-        <button type="button" data-filtro="gimnasios" class="btn-filtro shrink-0 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer">
+        <button type="button" data-filtro="gimnasios" class="btn-filtro shrink-0 py-2 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer">
           <span>🏋️</span> Ginásios & Treino
         </button>
 
-        <button type="button" data-filtro="favoritas" class="btn-filtro-fav shrink-0 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer">
+        <button type="button" data-filtro="favoritas" class="btn-filtro-fav shrink-0 py-2 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer">
           <span>⭐</span> Favoritos
         </button>
       </div>
     </div>
 
-    <!-- 4. Barra de Ordenação e Critério -->
+    <!-- 4. Barra de Ordenação e Dropdown Progressivo de Estrelas (de 5★ a 3★) -->
     <div class="bg-white border border-slate-200 rounded-2xl p-2.5 flex flex-wrap items-center justify-between gap-2 shadow-xs">
-      <div class="flex items-center gap-2 text-xs font-semibold text-slate-700">
-        <span class="text-slate-400">Classificar por:</span>
-        <button 
-          type="button" 
-          id="btnOrdemRating" 
-          class="bg-slate-900 text-white px-2.5 py-1 rounded-lg text-xs font-bold transition">
-          ⭐ Nota (5.0★ a 4.0★)
-        </button>
-        <button 
-          type="button" 
-          id="btnOrdemDistancia" 
-          class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer">
-          📍 Mais Próximos (GPS)
-        </button>
+      <div class="flex items-center gap-2 flex-wrap">
+        <!-- Dropdown de Estrelas -->
+        <div class="flex items-center gap-1.5">
+          <span class="text-xs text-slate-400 font-semibold">Avaliação:</span>
+          <select 
+            id="selectEstrelas" 
+            class="bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-800 text-xs font-bold py-1 px-2 rounded-lg focus:outline-none focus:border-slate-900 cursor-pointer">
+            <option value="4.0" selected>⭐ 4.0★ ou mais</option>
+            <option value="4.5">⭐ 4.5★ ou mais (Excelência)</option>
+            <option value="3.5">⭐ 3.5★ ou mais (Bons)</option>
+            <option value="3.0">🌟 3.0★ ou mais (Todos)</option>
+          </select>
+        </div>
+
+        <!-- Botões de Ordenação -->
+        <div class="flex items-center gap-1">
+          <button 
+            type="button" 
+            id="btnOrdemDistancia" 
+            class="bg-indigo-600 text-white px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer">
+            📍 Mais Próximos
+          </button>
+          <button 
+            type="button" 
+            id="btnOrdemRating" 
+            class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer">
+            ⭐ Maior Nota
+          </button>
+        </div>
       </div>
+
       <div class="text-xs font-medium text-slate-500">
         <span id="contadorResultados">Carregando serviços...</span>
       </div>
     </div>
 
     <!-- 5. Contenedor Dinámico de Cards -->
-    <div id="cardsContainer" class="space-y-3.5">
+    <div id="cardsContainer" class="space-y-3">
       <!-- Los serviços são renderizados aqui dinamicamente -->
     </div>
 
@@ -1041,9 +1079,20 @@
       let todosServicos = [...SERVICOS_BASE];
       let favoritos = new Set(['cuap_pura_fernandez', 'mossos_nord', 'mercat_florida', 'latino_mi_tierra', 'la_bottega_italiana_sants']);
       let filtroAtual = 'todas';
-      let criterioOrdenacao = 'rating'; // 'rating' (5.0 a 4.0) ou 'distancia'
-      let gpsAtivo = false;
-      let userLocation = null;
+      let criterioOrdenacao = 'distancia'; // 'distancia' (padrão) ou 'rating'
+      let notaMinima = 4.0; // Dropdown: 4.0, 4.5, 3.5, 3.0
+
+      // Dicionário de Coordenadas de Referência para Localização Manual
+      const PONTOS_REFERENCIA = {
+        mestre_serrano: { lat: 41.3688, lng: 2.1098, nome: 'Carrer del Mestre Serrano, 16' },
+        pubilla_cases: { lat: 41.3702, lng: 2.1042, nome: 'Metro Pubilla Cases (L5)' },
+        florida: { lat: 41.3675, lng: 2.1125, nome: 'Metro Florida (L1)' },
+        collblanc: { lat: 41.3752, lng: 2.1205, nome: 'Metro Collblanc (L5)' },
+        entenca: { lat: 41.3810, lng: 2.1480, nome: 'Carrer d\'Entença, 95' }
+      };
+
+      // Localização ativa padrão: Carrer del Mestre Serrano, 16
+      let userLocation = { ...PONTOS_REFERENCIA.mestre_serrano };
 
       // Armazenamento Seguro no Navegador
       function carregarDados() {
@@ -1098,16 +1147,16 @@
         return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
       }
 
-      // Função Principal de Filtragem e Ordenação Progressiva (5.0★ a 4.0★)
+      // Função Principal de Filtragem e Ordenação Progressiva
       function obterServicosProcessados() {
         const searchEl = document.getElementById('searchInput');
         const termo = (searchEl ? searchEl.value : '').trim().toLowerCase();
 
-        // 1. Filtro de Categoria e Qualidade (Somente 5.0 a 4.0 estrelas)
+        // 1. Filtro de Categoria e Qualidade (Baseado no Dropdown)
         let filtrados = todosServicos.filter(item => {
           const numRating = parseFloat(item.rating) || 4.5;
-          // Regra rigorosa: apenas entre 5.0 e 4.0 estrelas
-          const atendeQualidade = numRating >= 4.0 && numRating <= 5.0;
+          // Regra do Dropdown de Estrelas
+          const atendeQualidade = numRating >= notaMinima && numRating <= 5.0;
           if (!atendeQualidade) return false;
 
           let matchFiltro = true;
@@ -1128,44 +1177,41 @@
           return matchFiltro && matchTexto;
         });
 
-        // 2. Cálculo dinâmico de distâncias se GPS estiver ativo
+        // 2. Cálculo dinâmico de distâncias da sua localização definida
         filtrados = filtrados.map(item => {
           const copia = { ...item };
-          if (gpsAtivo && userLocation && item.lat && item.lng) {
+          if (userLocation && item.lat && item.lng) {
             const dist = calcularDistanciaMetros(userLocation.lat, userLocation.lng, item.lat, item.lng);
             copia.distanciaMetros = dist;
             if (dist < 1000) {
-              copia.distanciaTexto = `📍 a ${Math.round(dist)} m de você agora`;
+              copia.distanciaTexto = `📍 a ${Math.round(dist)} m de você`;
             } else {
-              copia.distanciaTexto = `📍 a ${(dist / 1000).toFixed(1)} km de você agora`;
+              copia.distanciaTexto = `📍 a ${(dist / 1000).toFixed(1)} km de você`;
             }
-          } else {
-            delete copia.distanciaMetros;
-            delete copia.distanciaTexto;
           }
           return copia;
         });
 
         // 3. Ordenação Dinâmica
-        if (criterioOrdenacao === 'distancia' && gpsAtivo && userLocation) {
+        if (criterioOrdenacao === 'distancia' && userLocation) {
           // Ordena do mais próximo para o mais distante
           filtrados.sort((a, b) => (a.distanciaMetros || 999999) - (b.distanciaMetros || 999999));
         } else {
-          // Padrão: 5.0★ a 4.0★ em ordem progressiva decrescente
+          // Ordena da maior nota para a menor
           filtrados.sort((a, b) => {
             const rA = parseFloat(a.rating) || 0;
             const rB = parseFloat(b.rating) || 0;
             if (rB !== rA) {
-              return rB - rA; // Mais bem avaliado primeiro (ex: 5.0 -> 4.9 -> 4.8)
+              return rB - rA;
             }
-            return a.nome.localeCompare(b.nome);
+            return (a.distanciaMetros || 999999) - (b.distanciaMetros || 999999);
           });
         }
 
         return filtrados;
       }
 
-      // Renderização Dinâmica dos Cards
+      // Renderização Dinâmica dos Cards (Compacto para telas móveis como Redmi 9c)
       function renderizarAplicacao() {
         const container = document.getElementById('cardsContainer');
         if (!container) return;
@@ -1179,28 +1225,31 @@
 
           const article = document.createElement('article');
           article.id = `card-${local.id}`;
-          article.className = `activity-card bg-white rounded-2xl p-4 sm:p-5 border-2 ${isFav ? 'border-amber-400 card-favorito' : 'border-slate-300'} shadow-xs transition-all`;
+          // Card compacto com padding otimizado para celulares
+          article.className = `activity-card bg-white rounded-2xl p-3.5 sm:p-4 border-2 ${isFav ? 'border-amber-400 card-favorito' : 'border-slate-300'} shadow-xs transition-all`;
 
           article.innerHTML = `
-            <div class="flex items-start justify-between gap-2.5">
+            <div class="flex items-start justify-between gap-2">
               <div class="flex-1 min-w-0">
+                
+                <!-- Título + Distância Dinâmica -->
                 <div class="flex items-center gap-1.5 flex-wrap">
                   ${local.distanciaTexto ? `
-                    <span class="text-[11px] font-black bg-emerald-600 text-white px-2 py-0.5 rounded-md shadow-xs shrink-0 flex items-center gap-1">
-                      <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+                    <span class="text-[10px] font-black bg-indigo-600 text-white px-1.5 py-0.5 rounded shadow-xs shrink-0">
                       ${local.distanciaTexto}
                     </span>
                   ` : ''}
-                  <h3 class="text-base sm:text-lg font-bold text-slate-900 leading-snug truncate">${local.nome}</h3>
+                  <h3 class="text-sm sm:text-base font-bold text-slate-900 leading-snug truncate">${local.nome}</h3>
                 </div>
                 
-                <!-- Avaliação Google Maps Elegante e Sem Buscas Soltas -->
+                <!-- Linha Compacta: Avaliação + APENAS O ÍCONE DA CATEGORIA -->
                 <div class="flex items-center gap-2 mt-1">
-                  <span class="inline-flex items-center gap-1 text-xs font-bold bg-amber-50 text-amber-900 border border-amber-200 px-2.5 py-0.5 rounded-md">
+                  <span class="inline-flex items-center gap-1 text-[11px] font-bold bg-amber-50 text-amber-900 border border-amber-200 px-2 py-0.5 rounded-md">
                     <span>⭐</span> ${local.rating} <span class="text-amber-700/70 font-normal">(${local.reviewsCount || 'Avaliado'})</span>
                   </span>
-                  <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider bg-slate-100 px-2 py-0.5 rounded-md">
-                    ${local.icone || '📍'} ${local.categoriaNome || 'Serviço'}
+                  <!-- APENAS O ÍCONE NO RESULTADO: visual enxuto e sem quebra -->
+                  <span class="inline-flex items-center justify-center w-6 h-6 text-xs bg-slate-100 text-slate-700 rounded-md shrink-0 border border-slate-200" title="${local.categoriaNome || 'Serviço'}">
+                    ${local.icone || '📍'}
                   </span>
                 </div>
               </div>
@@ -1208,26 +1257,25 @@
               <!-- Ações: Favorito e Traçar Rota Maps -->
               <div class="flex items-center gap-1 shrink-0">
                 <button type="button" data-fav-id="${local.id}" class="star-btn hover:bg-slate-100" title="Favoritar">${isFav ? '⭐' : '☆'}</button>
-                <a href="${mapsLink}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1 text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 py-2 px-2.5 rounded-xl transition shrink-0">
+                <a href="${mapsLink}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1 text-[11px] font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 py-1.5 px-2 rounded-xl transition shrink-0">
                   <svg class="w-3.5 h-3.5 text-blue-600" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg>
                   <span>Maps</span>
                 </a>
               </div>
             </div>
 
-            <!-- Etiquetas de Metrô e Endereço Físico (Sem distâncias estáticas de Mestre Serrano) -->
-            <div class="flex items-center gap-1.5 mt-2.5 overflow-x-auto no-scrollbar flex-nowrap py-0.5">
-              <span class="shrink-0 whitespace-nowrap text-[11px] font-medium px-2 py-0.5 rounded-lg bg-slate-100 text-slate-700 border border-slate-200">
+            <!-- Etiquetas de Metrô e Endereço Físico -->
+            <div class="flex items-center gap-1.5 mt-2 overflow-x-auto no-scrollbar flex-nowrap py-0.5">
+              <span class="shrink-0 whitespace-nowrap text-[10px] font-medium px-2 py-0.5 rounded-lg bg-slate-100 text-slate-700 border border-slate-200">
                 🚇 ${local.metro || 'Metrô próximo'}
               </span>
-              <span class="shrink-0 whitespace-nowrap text-[11px] font-medium px-2 py-0.5 rounded-lg bg-slate-50 text-slate-500 border border-slate-200">
+              <span class="shrink-0 whitespace-nowrap text-[10px] font-medium px-2 py-0.5 rounded-lg bg-slate-50 text-slate-500 border border-slate-200">
                 📍 ${local.endereco}
               </span>
             </div>
 
             <!-- Destaques / O que você encontra lá -->
-            <div class="mt-3 text-slate-700 text-sm leading-relaxed bg-slate-50 border border-slate-200/80 rounded-xl p-3">
-              <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-0.5">Destaque & Serviços</span>
+            <div class="mt-2 text-slate-700 text-xs leading-relaxed bg-slate-50 border border-slate-200/80 rounded-xl p-2.5">
               <p class="font-medium text-slate-800">${local.destaque || 'Serviço verificado e recomendado para o dia a dia.'}</p>
             </div>
           `;
@@ -1249,7 +1297,7 @@
         const total = lista.length;
         const contadorEl = document.getElementById('contadorResultados');
         if (contadorEl) {
-          contadorEl.textContent = `${total} ${total === 1 ? 'local com 5★ a 4★' : 'locais com 5★ a 4★'}`;
+          contadorEl.textContent = `${total} ${total === 1 ? 'local' : 'locais'} (≥ ${notaMinima.toFixed(1)}★)`;
         }
 
         const emptyEl = document.getElementById('emptyState');
@@ -1290,95 +1338,88 @@
         renderizarAplicacao();
       }
 
-      // RADAR GPS EM TEMPO REAL
+      // LOCALIZAÇÃO MANUAL (PLANO B)
+      function aplicarLocalizacaoManual(textoRua) {
+        const termo = (textoRua || '').trim().toLowerCase();
+        if (!termo) return;
+
+        // Procura correspondência nos pontos pré-mapeados
+        let pontoEncontrado = null;
+        if (termo.includes('serrano')) pontoEncontrado = PONTOS_REFERENCIA.mestre_serrano;
+        else if (termo.includes('pubilla')) pontoEncontrado = PONTOS_REFERENCIA.pubilla_cases;
+        else if (termo.includes('florida')) pontoEncontrado = PONTOS_REFERENCIA.florida;
+        else if (termo.includes('collblanc')) pontoEncontrado = PONTOS_REFERENCIA.collblanc;
+        else if (termo.includes('enten')) pontoEncontrado = PONTOS_REFERENCIA.entenca;
+
+        if (pontoEncontrado) {
+          userLocation = { ...pontoEncontrado };
+        } else {
+          // Se for uma rua desconhecida, define um ponto base em Hospitalet
+          userLocation = {
+            lat: 41.3688 + (Math.random() - 0.5) * 0.003,
+            lng: 2.1098 + (Math.random() - 0.5) * 0.003,
+            nome: textoRua
+          };
+        }
+
+        renderizarAplicacao();
+        mostrarToast(`Localização definida: ${textoRua}`, '📍');
+      }
+
+      // RADAR GPS EM TEMPO REAL (Opcional)
       function ativarGpsRadar() {
         if (!('geolocation' in navigator)) {
           mostrarToast('GPS não suportado neste dispositivo', '⚠️');
           return;
         }
 
-        mostrarToast('Detectando sua localização exata...', '📡');
+        mostrarToast('Buscando sinal GPS...', '📡');
         const btnGpsTexto = document.getElementById('btnGpsTexto');
-        if (btnGpsTexto) btnGpsTexto.textContent = 'Localizando...';
+        if (btnGpsTexto) btnGpsTexto.textContent = 'Buscando...';
 
         navigator.geolocation.getCurrentPosition(
           (pos) => {
             userLocation = {
               lat: pos.coords.latitude,
-              lng: pos.coords.longitude
+              lng: pos.coords.longitude,
+              nome: 'Localização GPS Atual'
             };
-            gpsAtivo = true;
 
-            // Atualizar UI do painel GPS
-            const pill = document.getElementById('gpsStatusPill');
-            if (pill) {
-              pill.textContent = '● Ativo ao Vivo';
-              pill.className = 'text-[10px] font-extrabold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-400 px-2 py-0.5 rounded-full';
-            }
-            const desc = document.getElementById('radarDesc');
-            if (desc) desc.textContent = 'Distâncias calculadas de onde você está neste momento!';
-            
-            const btnDesativar = document.getElementById('btnDesativarGps');
-            if (btnDesativar) btnDesativar.style.display = 'inline-flex';
+            const input = document.getElementById('inputLocalizacaoManual');
+            if (input) input.value = 'Minha posição atual (GPS)';
 
-            if (btnGpsTexto) btnGpsTexto.textContent = 'Atualizar posição';
+            // Desativa destaque dos botões de chip
+            document.querySelectorAll('.chip-rua').forEach(c => c.classList.remove('ativo'));
 
-            // Alterna ordenação para mais próximos caso desejado
-            criterioOrdenacao = 'distancia';
-            atualizarBotoesOrdenacao();
-
+            if (btnGpsTexto) btnGpsTexto.textContent = 'GPS Ativo';
             renderizarAplicacao();
-            mostrarToast('Radar GPS conectado com sucesso!', '📍');
+            mostrarToast('Localização atualizada via GPS!', '📍');
           },
           (err) => {
-            mostrarToast('Ative a permissão de localização no navegador', '⚠️');
-            if (btnGpsTexto) btnGpsTexto.textContent = 'Onde estou agora';
+            mostrarToast('Permissão de GPS negada. Use a busca por rua!', '⚠️');
+            if (btnGpsTexto) btnGpsTexto.textContent = 'Usar GPS';
           },
-          { enableHighAccuracy: true, timeout: 9000 }
+          { enableHighAccuracy: false, timeout: 7000 }
         );
-      }
-
-      function desativarGpsRadar() {
-        gpsAtivo = false;
-        userLocation = null;
-        criterioOrdenacao = 'rating';
-
-        const pill = document.getElementById('gpsStatusPill');
-        if (pill) {
-          pill.textContent = 'Inativo';
-          pill.className = 'text-[10px] font-extrabold uppercase tracking-wider bg-slate-800 text-slate-300 border border-slate-700 px-2 py-0.5 rounded-full';
-        }
-        const desc = document.getElementById('radarDesc');
-        if (desc) desc.textContent = 'Toque para detectar onde você está agora e calcular distâncias ao vivo.';
-
-        const btnDesativar = document.getElementById('btnDesativarGps');
-        if (btnDesativar) btnDesativar.style.display = 'none';
-
-        const btnGpsTexto = document.getElementById('btnGpsTexto');
-        if (btnGpsTexto) btnGpsTexto.textContent = 'Onde estou agora';
-
-        atualizarBotoesOrdenacao();
-        renderizarAplicacao();
-        mostrarToast('Radar GPS resetado', '↺');
       }
 
       function atualizarBotoesOrdenacao() {
         const btnRating = document.getElementById('btnOrdemRating');
         const btnDistancia = document.getElementById('btnOrdemDistancia');
 
-        if (criterioOrdenacao === 'rating') {
-          if (btnRating) {
-            btnRating.className = 'bg-slate-900 text-white px-2.5 py-1 rounded-lg text-xs font-bold transition';
-          }
+        if (criterioOrdenacao === 'distancia') {
           if (btnDistancia) {
-            btnDistancia.className = 'bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer';
-          }
-        } else {
-          if (btnDistancia) {
-            btnDistancia.className = 'bg-emerald-600 text-white px-2.5 py-1 rounded-lg text-xs font-bold transition';
+            btnDistancia.className = 'bg-indigo-600 text-white px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer';
           }
           if (btnRating) {
             btnRating.className = 'bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer';
+          }
+        } else {
+          if (btnRating) {
+            btnRating.className = 'bg-slate-900 text-white px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer';
+          }
+          if (btnDistancia) {
+            btnDistancia.className = 'bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer';
           }
         }
       }
@@ -1467,6 +1508,49 @@
           });
         });
 
+        // Dropdown Progressivo de Estrelas (3★ a 5★)
+        const selectEstrelas = document.getElementById('selectEstrelas');
+        if (selectEstrelas) {
+          selectEstrelas.addEventListener('change', function () {
+            notaMinima = parseFloat(this.value) || 4.0;
+            renderizarAplicacao();
+          });
+        }
+
+        // Localização Manual: Botão Definir
+        const btnAplicarRua = document.getElementById('btnAplicarRuaManual');
+        const inputRua = document.getElementById('inputLocalizacaoManual');
+        if (btnAplicarRua && inputRua) {
+          btnAplicarRua.addEventListener('click', () => {
+            document.querySelectorAll('.chip-rua').forEach(c => c.classList.remove('ativo'));
+            aplicarLocalizacaoManual(inputRua.value);
+          });
+          inputRua.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              document.querySelectorAll('.chip-rua').forEach(c => c.classList.remove('ativo'));
+              aplicarLocalizacaoManual(inputRua.value);
+            }
+          });
+        }
+
+        // Localização Manual: Atalhos Rápidos (Chips)
+        document.querySelectorAll('[data-rua-key]').forEach(chip => {
+          chip.addEventListener('click', function () {
+            document.querySelectorAll('.chip-rua').forEach(c => c.classList.remove('ativo'));
+            this.classList.add('ativo');
+
+            const key = this.getAttribute('data-rua-key');
+            const ref = PONTOS_REFERENCIA[key];
+            if (ref) {
+              if (inputRua) inputRua.value = ref.nome;
+              userLocation = { ...ref };
+              renderizarAplicacao();
+              mostrarToast(`Ponto de partida: ${ref.nome}`, '📍');
+            }
+          });
+        });
+
         // Campo de Busca
         const searchInput = document.getElementById('searchInput');
         if (searchInput) {
@@ -1488,14 +1572,10 @@
           });
         }
 
-        // Radar GPS
+        // Botão GPS
         const btnAtivarGps = document.getElementById('btnAtivarGps');
         if (btnAtivarGps) {
           btnAtivarGps.addEventListener('click', ativarGpsRadar);
-        }
-        const btnDesativarGps = document.getElementById('btnDesativarGps');
-        if (btnDesativarGps) {
-          btnDesativarGps.addEventListener('click', desativarGpsRadar);
         }
 
         // Alternadores de Ordenação
@@ -1510,13 +1590,9 @@
         const btnDistancia = document.getElementById('btnOrdemDistancia');
         if (btnDistancia) {
           btnDistancia.addEventListener('click', () => {
-            if (!gpsAtivo) {
-              ativarGpsRadar();
-            } else {
-              criterioOrdenacao = 'distancia';
-              atualizarBotoesOrdenacao();
-              renderizarAplicacao();
-            }
+            criterioOrdenacao = 'distancia';
+            atualizarBotoesOrdenacao();
+            renderizarAplicacao();
           });
         }
 
