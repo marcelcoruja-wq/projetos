@@ -676,7 +676,7 @@
           destaque: 'Literalmente ao lado do Carrer d\'Entença, 95! Farmacêuticos experientes, medição de pressão, dermocosméticos e remédios em estoque.',
           lat: 41.3788,
           lng: 2.1527,
-          searchQuery: 'Farmacia Carrer d Entenca 97 Barcelona'
+          searchQuery: 'Farmacia Entenca Carrer d Entenca 97 Barcelona'
         },
         {
           id: 'farmacia_24h_granvia_rocafort',
@@ -738,7 +738,7 @@
           destaque: 'A passos de Entença 95: feijão preto brasileiro, polvilho doce e azedo, farinha de mandioca, guaraná Antarctica, queijo latino, pisco e temperos.',
           lat: 41.3795,
           lng: 2.1550,
-          searchQuery: 'Supermercat Llati Carrer de Rocafort 58 Barcelona'
+          searchQuery: 'Supermercat Llati El Condor Carrer de Rocafort 58 Barcelona'
         },
         {
           id: 'latino_mi_tierra',
@@ -785,7 +785,7 @@
           destaque: 'Pertinho de Entença 95: shoyu japonês fermentado, óleo de gergelim torrado, missô, algas nori e wakame, massas de ramen fresco e gyozas.',
           lat: 41.3770,
           lng: 2.1548,
-          searchQuery: 'Supermercat Asiatic Carrer de Sepulveda 52 Barcelona'
+          searchQuery: 'Dong Fang Carrer de Sepulveda 52 Barcelona'
         },
         {
           id: 'wenzhou_super_oriental',
@@ -832,7 +832,7 @@
           destaque: 'Paraíso da culinária italiana próximo de Entença: autêntico guanciale curado para carbonara, Pecorino Romano DOP com pimenta, queijo Parmigiano e tomate San Marzano.',
           lat: 41.3785,
           lng: 2.1555,
-          searchQuery: 'Le Delizie d Italia Viladomat 85 Barcelona'
+          searchQuery: 'Le Delizie d Italia Carrer de Viladomat 85 Barcelona'
         },
         {
           id: 'la_bottega_italiana_sants',
@@ -1216,6 +1216,25 @@
         return filtrados;
       }
 
+      // Função que gera a busca exata pelo nome do lugar + endereço + cidade
+      function gerarLinkGoogleMaps(local) {
+        let termo = '';
+        if (local.searchQuery && local.searchQuery.trim().length > 0) {
+          termo = local.searchQuery.trim();
+        } else {
+          // Remove emojis, parênteses e caracteres extras para busca limpa
+          const nomeLimpo = (local.nome || '')
+            .replace(/[\u{1F300}-\u{1F9FF}]/gu, '')
+            .replace(/\(.*?\)/g, '')
+            .trim();
+          const enderecoLimpo = (local.endereco || '')
+            .replace(/\(.*?\)/g, '')
+            .trim();
+          termo = `${nomeLimpo} ${enderecoLimpo} Barcelona`;
+        }
+        return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(termo)}`;
+      }
+
       // Renderização Compacta (Sem quebra de linhas no Redmi 9C)
       function renderizarAplicacao() {
         const container = document.getElementById('cardsContainer');
@@ -1226,10 +1245,8 @@
 
         lista.forEach(local => {
           const isFav = favoritos.has(local.id);
-          // Alfinete milimétrico por coordenadas exatas: abre direto no ponto físico sem erros de busca
-          const mapsLink = (local.lat && local.lng)
-            ? `https://www.google.com/maps/search/?api=1&query=${local.lat},${local.lng}`
-            : (local.mapsUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((local.nome || '') + ' ' + (local.endereco || '') + ' Barcelona')}`);
+          // Abre diretamente a ficha oficial do comércio no Google Maps pelo nome do estabelecimento
+          const mapsLink = gerarLinkGoogleMaps(local);
 
           const article = document.createElement('article');
           article.id = `card-${local.id}`;
@@ -1515,6 +1532,8 @@
 
         const cat = CATEGORIAS_INFO[tipo] || { icone: '📍', nome: 'Serviço' };
         const idUnico = 'servico_' + Date.now();
+        const nomeLimpo = nome.replace(/\(.*?\)/g, '').trim();
+        const enderecoLimpo = endereco.replace(/\(.*?\)/g, '').trim();
 
         const novoItem = {
           id: idUnico,
@@ -1527,7 +1546,7 @@
           rating: parseFloat(ratingVal).toFixed(1),
           reviewsCount: 'Cadastrado por você',
           destaque: destaque || 'Serviço personalizado cadastrado pelo usuário.',
-          searchQuery: `${nome} ${endereco} Barcelona`,
+          searchQuery: `${nomeLimpo} ${enderecoLimpo} Barcelona`,
           lat: (userLocation ? userLocation.lat : 41.3788) + (Math.random() - 0.5) * 0.004,
           lng: (userLocation ? userLocation.lng : 2.1528) + (Math.random() - 0.5) * 0.004
         };
