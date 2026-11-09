@@ -99,10 +99,15 @@
           <span class="text-base leading-none">+</span>
           <span>Cadastrar</span>
         </button>
-        <div id="statsBadge" class="text-xs bg-amber-50 text-amber-800 border border-amber-200 font-semibold px-2 py-1.5 rounded-xl flex items-center gap-1 shadow-xs">
+        <!-- Botão de Favoritos Interativo e Clicável -->
+        <button 
+          type="button" 
+          id="btnHeaderFavoritos" 
+          class="text-xs bg-amber-50 hover:bg-amber-100 text-amber-800 border-2 border-amber-300 font-bold px-2.5 py-1.5 rounded-xl flex items-center gap-1.5 shadow-xs cursor-pointer transition active:scale-95"
+          title="Ver favoritos salvos">
           <span>⭐</span>
           <span id="starCounter">0</span>
-        </div>
+        </button>
       </div>
     </div>
   </header>
@@ -1025,9 +1030,19 @@
         'severo ochoa': { lat: 41.3699, lng: 2.1048, nome: "Avinguda de Severo Ochoa (Hospitalet)" }
       };
 
+      const FAVORITOS_PADRAO = [
+        'farmacia_llobet_entenca',
+        'muutt_carniceria',
+        'le_delizie_ditalia',
+        'mercalatina_hostafrancs',
+        'mais_brasil_hostafrancs',
+        'arenas_de_barcelona',
+        'cuap_manso'
+      ];
+
       // Estado do Aplicativo
       let todosServicos = [...SERVICOS_BASE];
-      let favoritos = new Set(['farmacia_llobet_entenca', 'muutt_carniceria', 'le_delizie_ditalia', 'mercalatina_hostafrancs', 'mais_brasil_hostafrancs', 'arenas_de_barcelona', 'cuap_manso']);
+      let favoritos = new Set(FAVORITOS_PADRAO);
       let filtroAtual = 'todas';
       let criterioOrdenacao = 'distancia';
       let notaMinima = 4.0;
@@ -1040,18 +1055,26 @@
       function carregarDados() {
         try {
           if (typeof window !== 'undefined' && 'localStorage' in window) {
-            const favsSalvos = window.localStorage.getItem('favoritos_radar_urbano_v2');
-            if (favsSalvos) {
-              const parsed = JSON.parse(favsSalvos);
-              if (Array.isArray(parsed) && parsed.length > 0) {
-                favoritos = new Set(parsed);
-              }
-            }
             const servicosSalvos = window.localStorage.getItem('servicos_cadastrados_radar_urbano_v2');
             if (servicosSalvos) {
               const parsedServicos = JSON.parse(servicosSalvos);
               if (Array.isArray(parsedServicos)) {
                 todosServicos = [...SERVICOS_BASE, ...parsedServicos];
+              }
+            }
+
+            const favsSalvos = window.localStorage.getItem('favoritos_radar_urbano_v2');
+            if (favsSalvos) {
+              const parsed = JSON.parse(favsSalvos);
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                // Valida se os IDs salvos realmente existem na base atual para evitar lista vazia
+                const idsValidos = new Set(todosServicos.map(s => s.id));
+                const favsFiltrados = parsed.filter(id => idsValidos.has(id));
+                if (favsFiltrados.length > 0) {
+                  favoritos = new Set(favsFiltrados);
+                } else {
+                  favoritos = new Set(FAVORITOS_PADRAO);
+                }
               }
             }
           }
@@ -1094,10 +1117,6 @@
 
         // 1. Filtro de Categoria e Qualidade
         let filtrados = todosServicos.filter(item => {
-          const numRating = parseFloat(item.rating) || 4.5;
-          const atendeQualidade = numRating >= notaMinima && numRating <= 5.0;
-          if (!atendeQualidade) return false;
-
           let matchFiltro = true;
           if (filtroAtual === 'todas') {
             matchFiltro = true;
@@ -1105,6 +1124,13 @@
             matchFiltro = favoritos.has(item.id);
           } else {
             matchFiltro = (item.tipo === filtroAtual);
+          }
+
+          // Quando filtrando favoritos, não barra por nota mínima (é preferência do usuário)
+          if (filtroAtual !== 'favoritas') {
+            const numRating = parseFloat(item.rating) || 4.5;
+            const atendeQualidade = numRating >= notaMinima && numRating <= 5.0;
+            if (!atendeQualidade) return false;
           }
 
           let matchTexto = true;
@@ -1131,8 +1157,9 @@
           return copia;
         });
 
-        // 3. O Local Define Estritamente a Listagem (Filtro por Raio Ativo)
-        if (userLocation && raioMaximoMetros < 900000 && !termo) {
+        // 3. O Local Define a Listagem (Filtro por Raio Ativo apenas fora de Favoritos)
+        // Quando o usuário filtra seus favoritos, queremos ver todos eles salvos sem corte de raio!
+        if (filtroAtual !== 'favoritas' && userLocation && raioMaximoMetros < 900000 && !termo) {
           filtrados = filtrados.filter(item => (item.distanciaMetros || 0) <= raioMaximoMetros);
         }
 
@@ -1259,12 +1286,25 @@
         const total = lista.length;
         const contadorEl = document.getElementById('contadorResultados');
         if (contadorEl) {
-          contadorEl.textContent = `${total} ${total === 1 ? 'local' : 'locais'} (≥ ${notaMinima.toFixed(1)}★)`;
+          if (filtroAtual === 'favoritas') {
+            contadorEl.textContent = `${total} ${total === 1 ? 'favorito salvo' : 'favoritos salvos'}`;
+          } else {
+            contadorEl.textContent = `${total} ${total === 1 ? 'local' : 'locais'} (≥ ${notaMinima.toFixed(1)}★)`;
+          }
         }
 
         const emptyEl = document.getElementById('emptyState');
         if (emptyEl) {
           emptyEl.style.display = total === 0 ? 'block' : 'none';
+          const emptyTitle = emptyEl.querySelector('h3');
+          const emptyDesc = emptyEl.querySelector('p');
+          if (filtroAtual === 'favoritas') {
+            if (emptyTitle) emptyTitle.textContent = 'Nenhum favorito encontrado';
+            if (emptyDesc) emptyDesc.textContent = 'Toque na estrela ☆ em qualquer estabelecimento para adicioná-lo aos seus favoritos.';
+          } else {
+            if (emptyTitle) emptyTitle.textContent = 'Nenhum serviço encontrado';
+            if (emptyDesc) emptyDesc.textContent = 'Tente buscar por outro termo ou cadastre um novo estabelecimento com o botão acima.';
+          }
         }
 
         const counterFav = document.getElementById('starCounter');
@@ -1296,6 +1336,18 @@
             btn.classList.remove('ativo');
           }
         });
+
+        // Sincroniza o botão de estrela no cabeçalho
+        const btnHeaderFav = document.getElementById('btnHeaderFavoritos');
+        if (btnHeaderFav) {
+          if (tipo === 'favoritas') {
+            btnHeaderFav.classList.add('bg-amber-500', 'text-white', 'border-amber-600');
+            btnHeaderFav.classList.remove('bg-amber-50', 'text-amber-800', 'border-amber-300');
+          } else {
+            btnHeaderFav.classList.remove('bg-amber-500', 'text-white', 'border-amber-600');
+            btnHeaderFav.classList.add('bg-amber-50', 'text-amber-800', 'border-amber-300');
+          }
+        }
 
         renderizarAplicacao();
       }
@@ -1519,7 +1571,7 @@
       }
 
       function setupEventos() {
-        // Filtros
+        // Filtros por Categorias
         document.querySelectorAll('[data-filtro]').forEach(btn => {
           btn.addEventListener('click', function (e) {
             e.preventDefault();
@@ -1527,6 +1579,14 @@
             setFiltro(f);
           });
         });
+
+        // Botão de Favoritos no Cabeçalho (Alterna entre Favoritos e Todas)
+        const btnHeaderFav = document.getElementById('btnHeaderFavoritos');
+        if (btnHeaderFav) {
+          btnHeaderFav.addEventListener('click', () => {
+            setFiltro(filtroAtual === 'favoritas' ? 'todas' : 'favoritas');
+          });
+        }
 
         // Dropdown de Avaliação
         const selectEstrelas = document.getElementById('selectEstrelas');
