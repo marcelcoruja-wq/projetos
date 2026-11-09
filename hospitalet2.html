@@ -88,7 +88,7 @@
         <span class="text-2xl shrink-0">📍</span>
         <div class="truncate">
           <h1 class="font-extrabold text-slate-900 leading-tight text-base sm:text-lg tracking-tight truncate">Radar de Serviços Essenciais</h1>
-          <p class="text-xs text-slate-500 font-medium truncate">Barcelona & L'Hospitalet • Por Rua ou Metrô</p>
+          <p class="text-xs text-slate-500 font-medium truncate">Barcelona & Região Metropolitana • Por Rua ou Metrô</p>
         </div>
       </div>
       <div class="flex items-center gap-2 shrink-0">
@@ -132,7 +132,7 @@
           type="text" 
           id="inputLocalizacaoManual" 
           value="Carrer d'Entença, 95"
-          placeholder="Ex: Entença 95, Metro Rocafort, Mestre Serrano 16, Metro Pubilla Cases..."
+          placeholder="Digite a rua ou metrô (ex: Entença 95, Metro Rocafort, Collblanc...)"
           class="w-full pl-3 pr-20 py-2.5 text-xs sm:text-sm font-semibold text-slate-800 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-slate-900 focus:outline-none transition-all"
         />
         <button 
@@ -143,10 +143,22 @@
         </button>
       </div>
 
-      <!-- Indicador Visual do Ponto Ativo -->
-      <div class="flex items-center gap-1.5 text-[11px] text-slate-600 font-medium px-0.5 truncate">
-        <span class="text-emerald-600 font-bold">● Radar ativo em:</span>
-        <span id="indicadorLocalAtivo" class="font-bold text-slate-800 truncate">Carrer d'Entença, 95</span>
+      <!-- Indicador Visual do Ponto Ativo e Controle de Raio -->
+      <div class="flex flex-wrap items-center justify-between gap-1 text-[11px] pt-0.5">
+        <div class="flex items-center gap-1.5 text-slate-600 font-medium truncate">
+          <span class="text-emerald-600 font-bold">● Radar ativo em:</span>
+          <span id="indicadorLocalAtivo" class="font-bold text-slate-800 truncate">Carrer d'Entença, 95</span>
+        </div>
+        <!-- O local define a listagem através do raio a pé -->
+        <div class="flex items-center gap-1 shrink-0">
+          <span class="text-slate-400 font-semibold">Raio:</span>
+          <select id="selectRaio" class="bg-slate-100 border border-slate-300 text-slate-700 text-[11px] font-bold rounded-lg px-2 py-0.5 focus:outline-none focus:border-slate-800 cursor-pointer">
+            <option value="1500" selected>🚶 A pé (&lt; 1,5 km)</option>
+            <option value="800">⚡ Vizinhança (&lt; 800 m)</option>
+            <option value="3000">🚲 Médio (&lt; 3 km)</option>
+            <option value="999999">🌐 Toda a cidade</option>
+          </select>
+        </div>
       </div>
     </div>
 
@@ -691,7 +703,7 @@
           endereco: 'Avinguda de Severo Ochoa, 45',
           rating: '4.8',
           reviewsCount: '240+',
-          destaque: 'Localização imbatível na saída do metrô L5 em L\'Hospitalet com estoque amplo de medicamentos.',
+          destaque: 'Localização imediata na saída do metrô L5 com estoque amplo de medicamentos e dermocosméticos.',
           lat: 41.3699,
           lng: 2.1048,
           searchQuery: 'Farmacia Pubilla Cases Severo Ochoa 45 Hospitalet'
@@ -706,7 +718,7 @@
           endereco: 'Carrer de la Mare de Déu del Pilar, 24',
           rating: '4.7',
           reviewsCount: '95+',
-          destaque: 'Atendimento atencioso a poucos passos do Carrer del Mestre Serrano em La Florida.',
+          destaque: 'Atendimento de proximidade com farmacêuticos experientes, medição de pressão e estoque diário completo.',
           lat: 41.3683,
           lng: 2.1102,
           searchQuery: 'Farmacia Mare de Deu del Pilar 24 Hospitalet'
@@ -890,11 +902,11 @@
           tipo: 'bibliotecas',
           icone: '📚',
           categoriaNome: 'Biblioteca Pública & Estudo',
-          metro: 'Metro Florida (L1) • Perto de Mestre Serrano',
+          metro: 'Metro Florida (L1) • Plaça de la Bòbila',
           endereco: 'Plaça de la Bòbila, 1 (Av. Masnou)',
           rating: '4.6',
           reviewsCount: '410+',
-          destaque: 'Salas de estudo silenciosas e climatizadas com Wi-Fi público de alta velocidade em L\'Hospitalet.',
+          destaque: 'Salas de estudo silenciosas e climatizadas com Wi-Fi público de alta velocidade.',
           lat: 41.3695,
           lng: 2.1115,
           searchQuery: 'Biblioteca La Florida Placa de la Bobila Hospitalet'
@@ -1084,8 +1096,9 @@
       let filtroAtual = 'todas';
       let criterioOrdenacao = 'distancia'; // 'distancia' (padrão) ou 'rating'
       let notaMinima = 4.0; // Dropdown: 4.0, 4.5, 3.5, 3.0
+      let raioMaximoMetros = 1500; // Raio a pé padrão: 1,5 km
 
-      // Localização ativa padrão: Carrer d'Entença, 95
+      // Localização ativa neutra governada pelo endereço definido
       let userLocation = { ...PONTOS_CONHECIDOS['entenca 95'] };
 
       // Armazenamento Local
@@ -1168,7 +1181,7 @@
           return matchFiltro && matchTexto;
         });
 
-        // 2. Cálculo de Proximidade Dinâmica
+        // 2. Cálculo de Proximidade Dinâmica em Relação ao Local Ativo
         filtrados = filtrados.map(item => {
           const copia = { ...item };
           if (userLocation && item.lat && item.lng) {
@@ -1183,7 +1196,12 @@
           return copia;
         });
 
-        // 3. Ordenação
+        // 3. O Local Define Estritamente a Listagem (Filtro por Raio Ativo)
+        if (userLocation && raioMaximoMetros < 900000 && !termo) {
+          filtrados = filtrados.filter(item => (item.distanciaMetros || 0) <= raioMaximoMetros);
+        }
+
+        // 4. Ordenação
         if (criterioOrdenacao === 'distancia' && userLocation) {
           filtrados.sort((a, b) => (a.distanciaMetros || 999999) - (b.distanciaMetros || 999999));
         } else {
@@ -1554,6 +1572,15 @@
         if (selectEstrelas) {
           selectEstrelas.addEventListener('change', function () {
             notaMinima = parseFloat(this.value) || 4.0;
+            renderizarAplicacao();
+          });
+        }
+
+        // Seletor de Raio de Proximidade (O local governa a lista)
+        const selectRaio = document.getElementById('selectRaio');
+        if (selectRaio) {
+          selectRaio.addEventListener('change', function () {
+            raioMaximoMetros = parseInt(this.value, 10) || 1500;
             renderizarAplicacao();
           });
         }
